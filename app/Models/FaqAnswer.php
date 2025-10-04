@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use ApiPlatform\Metadata\ApiResource;
+#[ApiResource]
 
 class FaqAnswer extends Model
 {
@@ -16,3 +18,5 @@ class FaqAnswer extends Model
         return $this->belongsTo(Faq::class);
     }
 }
+
+

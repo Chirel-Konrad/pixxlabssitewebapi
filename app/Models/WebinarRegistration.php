@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use ApiPlatform\Metadata\ApiResource;
+#[ApiResource]
 class WebinarRegistration extends Model
 {
     use HasFactory;

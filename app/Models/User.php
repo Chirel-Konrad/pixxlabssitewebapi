@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-
+use ApiPlatform\Metadata\ApiResource;
+#[ApiResource]
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -63,11 +64,6 @@ class User extends Authenticatable
     public function blogComments()
     {
         return $this->hasMany(BlogComment::class);
-    }
-
-    public function partnerSubscriptions()
-    {
-        return $this->hasMany(PartnerSubscription::class);
     }
 
     public function testimonials()
