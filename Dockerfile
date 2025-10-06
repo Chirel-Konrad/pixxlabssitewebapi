@@ -32,24 +32,32 @@ COPY --chown=appuser:appuser . .
 # Basculer vers l'utilisateur non-root
 USER appuser
 
-# Installer les dépendances Composer (sans les scripts post-install)
+# Installer les dépendances Composer
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Revenir en root pour les permissions finales
+# Revenir en root pour les permissions
 USER root
 
 # Permissions pour bootstrap/cache et storage
 RUN chown -R appuser:appuser bootstrap/cache storage \
     && chmod -R 775 bootstrap/cache storage
 
-# Rendre build.sh exécutable
-RUN chmod +x build.sh
+# Créer un script d'entrée
+RUN echo '#!/bin/bash\n\
+set -e\n\
+php artisan config:clear\n\
+php artisan migrate --force\n\
+php artisan config:cache\n\
+php artisan route:cache\n\
+php artisan serve --host=0.0.0.0 --port=$PORT\n' > /entrypoint.sh && \
+    chmod +x /entrypoint.sh && \
+    chown appuser:appuser /entrypoint.sh
 
-# Basculer vers l'utilisateur pour l'exécution
+# Basculer vers l'utilisateur
 USER appuser
 
 # Exposer le port
 EXPOSE $PORT
 
-# Commande de démarrage
-CMD ["sh", "-c", "./build.sh && php artisan serve --host=0.0.0.0 --port=$PORT"]
+# Utiliser le script d'entrée
+ENTRYPOINT ["/entrypoint.sh"]
