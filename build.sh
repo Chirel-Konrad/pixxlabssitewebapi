@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 set -o errexit
-set -o xtrace  # Affiche chaque commande pour debug
+set -o xtrace
 
-# Installer les dépendances PHP
+# Copier .env si absent
+[ ! -f .env ] && cp .env.example .env
+
+# Permissions
+chmod -R 775 bootstrap/cache storage
+
+# Installer les dépendances
 composer install --no-dev --optimize-autoloader
 
-# Appliquer les migrations en force
+# Générer APP_KEY si absent
+php artisan key:generate --force
+
+# Migrer la base de données
 php artisan migrate --force
 
-# Mettre en cache les configurations, routes et vues
+# Cacher config, routes et views
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Créer le lien symbolique pour le storage
-php artisan storage:link
+# Créer storage link (ignore erreur si déjà existant)
+php artisan storage:link || true
