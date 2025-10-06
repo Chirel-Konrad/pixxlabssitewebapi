@@ -1,8 +1,9 @@
-# Base image PHP + extensions
-FROM php:8.2-fpm
+# Base image PHP CLI (pas fpm)
+FROM php:8.2-cli
 
 # Installer les dépendances système nécessaires
 RUN apt-get update && apt-get install -y \
+    libpq-dev \
     libzip-dev \
     zip \
     unzip \
@@ -13,23 +14,29 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     libxml2-dev \
-    libssl-dev \
-    pkg-config \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo_pgsql pgsql zip mbstring exif pcntl bcmath gd
 
 # Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copier le code
+# Définir le répertoire de travail
 WORKDIR /var/www/html
+
+# Copier le code
 COPY . .
+
+# Installer les dépendances Composer
+RUN composer install --no-dev --optimize-autoloader
 
 # Permissions pour bootstrap/cache et storage
 RUN chown -R www-data:www-data bootstrap/cache storage \
     && chmod -R 775 bootstrap/cache storage
 
-# Exposer le port FPM
-EXPOSE 9000
+# Rendre build.sh exécutable
+RUN chmod +x build.sh
 
-# Entrée par défaut
-CMD ["php-fpm"]
+# Exposer le port (Render injecte $PORT)
+EXPOSE $PORT
+
+# Commande de démarrage
+CMD ["sh", "-c", "./build.sh && php artisan serve --host=0.0.0.0 --port=$PORT"]
