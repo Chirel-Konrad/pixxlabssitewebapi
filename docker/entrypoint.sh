@@ -3,23 +3,24 @@ set -e
 
 # --- Attendre que la base de données soit prête ---
 echo "==> En attente de la base de données sur $DB_HOST..."
-
-# La boucle attendra jusqu'à 30 secondes que la base de données soit prête.
-# pg_isready utilise les variables d'environnement PGHOST, PGUSER, etc.
-# que Laravel utilise aussi (DB_HOST, DB_USERNAME...).
-# Assurez-vous que vos variables sur Render correspondent.
 timeout 30s sh -c 'until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USERNAME; do echo "En attente..."; sleep 2; done'
-
 echo "==> Base de données prête !"
 
 # --- Préparation de Laravel ---
-# Générer la clé d'application si elle n'existe pas
-php artisan key:generate --force
+echo "==> Préparation de Laravel..."
 
-# Vider les anciens caches au cas où
+# Vider les anciens caches pour éviter les conflits
 php artisan config:clear
 php artisan route:clear
+php-fpm &
 php artisan view:clear
+
+# --- CORRECTION CRUCIALE ICI ---
+# S'assurer que le fichier de log existe et a les bonnes permissions
+touch storage/logs/laravel.log
+chown -R www-data:www-data storage
+chmod -R 775 storage
+# --- FIN DE LA CORRECTION ---
 
 # Exécuter les migrations
 php artisan migrate --force
