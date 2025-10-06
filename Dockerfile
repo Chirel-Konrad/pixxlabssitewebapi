@@ -21,7 +21,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Installer les dépendances
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
 
 # Rendre le script build.sh exécutable
 RUN chmod +x build.sh
