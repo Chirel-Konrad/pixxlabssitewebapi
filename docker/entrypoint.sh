@@ -1,64 +1,36 @@
-# --- Stage 1: Dépendances & Build ---
-# (Aucun changement dans cette partie, elle est correcte)
-FROM php:8.2-fpm as vendor
+#!/bin/sh
+set -e
 
-ENV DEBIAN_FRONTEND=noninteractive
+# --- Attendre que la base de données soit prête ---
+echo "==> En attente de la base de données sur $DB_HOST..."
 
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libxml2-dev \
-    && docker-php-ext-install pdo_pgsql pgsql zip exif pcntl bcmath gd \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# La boucle attendra jusqu'à 30 secondes que la base de données soit prête.
+# pg_isready utilise les variables d'environnement PGHOST, PGUSER, etc.
+# que Laravel utilise aussi (DB_HOST, DB_USERNAME...).
+# Assurez-vous que vos variables sur Render correspondent.
+timeout 30s sh -c 'until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USERNAME; do echo "En attente..."; sleep 2; done'
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+echo "==> Base de données prête !"
 
-WORKDIR /var/www
+# --- Préparation de Laravel ---
+# Générer la clé d'application si elle n'existe pas
+php artisan key:generate --force
 
-COPY database/ database/
-COPY composer.json composer.lock ./
+# Vider les anciens caches au cas où
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
 
-RUN composer install --no-interaction --no-plugins --prefer-dist --optimize-autoloader --no-scripts
+# Exécuter les migrations
+php artisan migrate --force
 
-COPY . .
+# Créer les caches d'optimisation pour la production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --no-scripts
+echo "==> Lancement de l'application (Nginx + PHP-FPM)..."
 
-
-# --- Stage 2: Production ---
-FROM php:8.2-fpm-alpine
-
-# Installation des dépendances Nginx, supervisor et postgresql-client
-RUN apk --no-cache add nginx supervisor postgresql-client
-
-# Copier les configurations
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
-
-# Définir le répertoire de travail
-WORKDIR /var/www
-
-# --- CORRECTION ICI ---
-# 1. D'abord, on copie le code de l'application. Les dossiers existeront après cette ligne.
-COPY --from=vendor /var/www /var/www
-
-# 2. Ensuite, on change les permissions sur les dossiers qui viennent d'être copiés.
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
-    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-
-# Exposer le port 80
-EXPOSE 80
-
-# Copier et rendre le script d'entrée exécutable
-COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-# Commande de démarrage
-CMD ["/usr/local/bin/entrypoint.sh"]
+# --- Lancement des services ---
+# Lancer le superviseur qui gère Nginx et PHP-FPM
+exec /usr/bin/supervisord -c /etc/supervisord.conf
