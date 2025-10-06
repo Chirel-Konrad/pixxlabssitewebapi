@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# exit on error
 set -o errexit
 
-composer install --no-dev --working-dir=/opt/render/project/src
+composer install --no-dev
 php artisan migrate --force
 php artisan config:cache
 php artisan route:cache

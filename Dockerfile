@@ -23,12 +23,11 @@ COPY . .
 # Installer les dépendances
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-
 # Rendre le script build.sh exécutable
 RUN chmod +x build.sh
 
-# Exposer le port
-EXPOSE $PORT
+# Exposer le port fixe
+EXPOSE 8000
 
 # Commande de démarrage
-CMD ["sh", "-c", "./build.sh && php artisan serve --host=0.0.0.0 --port=$PORT"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
