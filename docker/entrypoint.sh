@@ -1,22 +1,16 @@
 #!/bin/sh
 set -e
 
-# Lancer PHP-FPM en arrière-plan
-php-fpm &
-
-# Attendre que le socket PHP-FPM soit créé
-while [ ! -S /var/run/php-fpm.sock ]; do
-    sleep 1
-done
-
-# Donner les bonnes permissions au socket
-chmod 777 /var/run/php-fpm.sock
+# Générer la clé d'application si elle n'existe pas
+# C'est une sécurité importante pour le premier lancement
+php artisan key:generate --force
 
 # Exécuter les migrations et optimisations Laravel
-php artisan migrate --force
+# C'est ici que l'environnement (.env) est disponible
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
+php artisan migrate --force
 
-# Lancer Nginx en avant-plan (ce qui maintient le conteneur en vie)
-nginx -g 'daemon off;'
+# Lancer le superviseur qui gère Nginx et PHP-FPM
+exec /usr/bin/supervisord -c /etc/supervisord.conf
