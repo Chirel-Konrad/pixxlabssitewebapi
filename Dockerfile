@@ -1,51 +1,49 @@
-# Étape 1: Utiliser une image PHP avec les dépendances de build
-FROM php:8.2-fpm-alpine as builder
+# On part d'une image PHP 8.2 FPM Alpine, légère et optimisée
+FROM php:8.2-fpm-alpine
 
-# Installer les dépendances système et PHP
-RUN apk update && apk add --no-cache \
+# On définit le répertoire de travail
+WORKDIR /var/www
+
+# 1. INSTALLATION DES DÉPENDANCES SYSTÈME
+# On installe tout ce dont PHP et Composer auront besoin
+RUN apk update && apk --no-cache add \
+    nginx \
+    supervisor \
+    postgresql-client \
+    git \
+    unzip \
+    # Paquets de développement (-dev) nécessaires pour compiler les extensions PHP
     postgresql-dev \
     libzip-dev \
     libpng-dev \
     jpeg-dev \
-    freetype-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql zip exif pcntl bcmath
+    freetype-dev
 
-# Installer Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# 2. INSTALLATION DES EXTENSIONS PHP
+# Maintenant que les -dev sont là, on peut compiler les extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo_pgsql zip exif pcntl bcmath
 
-# Préparer le répertoire de l'application
-WORKDIR /var/www
-
-# Copier les fichiers de dépendances et installer
-COPY database/ database/
-COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-dev --optimize-autoloader
-
-# Copier le reste de l'application
+# 3. COPIE DE TOUTE L'APPLICATION
+# On copie TOUS les fichiers de l'application d'un seul coup.
 COPY . .
 
-# --- Étape 2: Créer l'image de production finale ---
-FROM php:8.2-fpm-alpine
+# 4. INSTALLATION DES DÉPENDANCES COMPOSER
+# Maintenant que TOUS les fichiers sont là (y compris artisan), on peut lancer composer.
+# L'option --no-scripts est la sécurité ultime pour empêcher toute exécution non désirée.
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
-# Installer uniquement les dépendances nécessaires à l'exécution
-RUN apk update && apk --no-cache add nginx supervisor postgresql-client
+# 5. DÉFINITION DES PERMISSIONS
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Définir le répertoire de travail
-WORKDIR /var/www
-
-# Copier les fichiers de l'application et les dépendances depuis l'étape de build
-COPY --from=builder /var/www .
-COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20220829 /usr/local/lib/php/extensions/no-debug-non-zts-20220829
-COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
-
-# Copier les configurations
+# 6. COPIE DES CONFIGURATIONS FINALES
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Exposer le port et définir la commande de démarrage
+# 7. EXÉCUTION
 EXPOSE 80
 CMD ["/usr/local/bin/entrypoint.sh"]
