@@ -1,25 +1,22 @@
 #!/bin/sh
 set -e
 
+# Se placer dans le répertoire de l'application
 cd /var/www
 
-# Créer le fichier de log et définir les permissions AVANT tout le reste
-touch storage/logs/laravel.log
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-
-# Attendre la base de données
-echo "==> En attente de la base de données..."
-timeout 30s sh -c 'until pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USERNAME; do sleep 1; done'
-echo "==> Base de données prête !"
-
-# Lancer les commandes Laravel
-echo "==> Préparation de l'application..."
+# Exécuter les migrations
 php artisan migrate --force
+
+# Créer les caches pour la production
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Lancer les services
-echo "==> Lancement des services..."
+# Changer les permissions de manière récursive sur les dossiers critiques
+# C'est l'étape la plus importante pour la stabilité
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+# Lancer les services via Supervisor
+# exec est important pour que Supervisor devienne le processus principal
 exec /usr/bin/supervisord -c /etc/supervisord.conf

@@ -1,51 +1,51 @@
-# On part d'une image PHP 8.2 FPM Alpine, légère et optimisée
-FROM php:8.2-fpm-alpine
+# Étape 1: Utiliser une image PHP avec les dépendances de build
+FROM php:8.2-fpm-alpine as builder
 
-# On définit le répertoire de travail D'ABORD
-WORKDIR /var/www
-
-# 1. INSTALLATION DES DÉPENDANCES SYSTÈME
-# On installe tout ce dont PHP et Composer auront besoin
-RUN apk update && apk --no-cache add \
-    nginx \
-    supervisor \
-    postgresql-client \
-    git \
-    unzip \
-    # Paquets de développement (-dev) nécessaires pour compiler les extensions PHP
+# Installer les dépendances système et PHP
+RUN apk update && apk add --no-cache \
     postgresql-dev \
     libzip-dev \
     libpng-dev \
     jpeg-dev \
-    freetype-dev
+    freetype-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_pgsql zip exif pcntl bcmath
 
-# 2. INSTALLATION DES EXTENSIONS PHP
-# Maintenant que les -dev sont là, on peut compiler les extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo_pgsql zip exif pcntl bcmath
-
-# 3. INSTALLATION DES DÉPENDANCES COMPOSER
-# On installe Composer
+# Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-# On copie UNIQUEMENT composer.json pour installer les paquets
-# Le .dockerignore empêchera composer.lock d'être copié, forçant une installation propre
-COPY composer.json ./
-RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
-# 4. COPIE DU RESTE DE L'APPLICATION
+# Préparer le répertoire de l'application
+WORKDIR /var/www
+
+# Copier les fichiers de dépendances et installer
+COPY database/ database/
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --no-dev --optimize-autoloader
+
+# Copier le reste de l'application
 COPY . .
 
-# 5. DÉFINITION DES PERMISSIONS
-# Maintenant que tous les fichiers sont là, on peut définir les permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+# --- Étape 2: Créer l'image de production finale ---
+FROM php:8.2-fpm-alpine
 
-# 6. COPIE DES CONFIGURATIONS FINALES
+# Installer uniquement les dépendances nécessaires à l'exécution
+RUN apk update && apk --no-cache add nginx supervisor postgresql-client
+
+# Définir le répertoire de travail
+WORKDIR /var/www
+
+# Copier les fichiers de l'application et les dépendances depuis l'étape de build
+COPY --from=builder /var/www .
+COPY --from=builder /usr/local/lib/php/extensions/no-debug-non-zts-20220829 /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
+
+# Copier les configurations
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# 7. EXÉCUTION
+# Exposer le port et définir la commande de démarrage
 EXPOSE 80
 CMD ["/usr/local/bin/entrypoint.sh"]
