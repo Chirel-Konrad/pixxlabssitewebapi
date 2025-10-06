@@ -1,0 +1,15 @@
+# .dockerignore
+
+# Ignorer les dépendances installées localement
+/vendor
+# Ignorer le fichier de verrouillage des dépendances locales
+composer.lock
+# Ignorer les fichiers d'environnement locaux
+.env
+.env.*
+# Ignorer les logs
+/storage/*.log
+# Ignorer les fichiers de cache
+/bootstrap/cache/*.php
+# Ignorer les dépendances Node.js
+/node_modules
