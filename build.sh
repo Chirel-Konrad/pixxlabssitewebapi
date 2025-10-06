@@ -1,26 +1,26 @@
-#!/usr/bin/env bash
-set -o errexit
-set -o xtrace
+#!/bin/bash
+set -e
 
-# Copier .env si absent
-[ ! -f .env ] && cp .env.example .env
+# 1. Vérifier si .env existe
+if [ ! -f .env ]; then
+    echo ".env file missing, copying example..."
+    cp .env.example .env
+fi
 
-# Permissions
-chmod -R 775 bootstrap/cache storage
-
-# Installer les dépendances
+# 2. Installer les dépendances PHP
 composer install --no-dev --optimize-autoloader
 
-# Générer APP_KEY si absent
-php artisan key:generate --force
+# 3. Générer APP_KEY si absent
+if ! grep -q 'APP_KEY=' .env || [ -z "$(grep APP_KEY .env | cut -d '=' -f2)" ]; then
+    php artisan key:generate
+fi
 
-# Migrer la base de données
-php artisan migrate --force
+# 4. Permissions
+chmod -R 775 bootstrap/cache storage
+chown -R www-data:www-data bootstrap/cache storage
 
-# Cacher config, routes et views
+# 5. Clear et cache config
+php artisan config:clear
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-
-# Créer storage link (ignore erreur si déjà existant)
-php artisan storage:link || true
