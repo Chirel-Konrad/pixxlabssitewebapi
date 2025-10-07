@@ -1,46 +1,25 @@
-# On part d'une image PHP 8.2 FPM Alpine, légère et optimisée
 FROM php:8.2-fpm-alpine
 
-# On définit le répertoire de travail
+# Installer les dépendances système de base
+RUN apk update && apk add --no-cache nginx supervisor postgresql-client
+
+# Définir le répertoire de travail
 WORKDIR /var/www
 
-# 1. INSTALLATION DES DÉPENDANCES SYSTÈME
-RUN apk update && apk --no-cache add \
-    nginx \
-    supervisor \
-    postgresql-client \
-    git \
-    unzip \
-    gettext \
-    postgresql-dev \
-    libzip-dev \
-    libpng-dev \
-    jpeg-dev \
-    freetype-dev
-
-# 2. INSTALLATION DES EXTENSIONS PHP
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd pdo_pgsql zip exif pcntl bcmath
-
-# 3. COPIE DE TOUTE L'APPLICATION
+# Copier tous les fichiers de l'application
 COPY . .
 
-# 4. INSTALLATION DES DÉPENDANCES COMPOSER
+# Installer Composer et les dépendances PHP
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-# 5. DÉFINITION DES PERMISSIONS (une première fois pour le build)
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-
-# 6. COPIE DES CONFIGURATIONS FINALES
+# Copier les configurations des services
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# 7. EXPOSITION DU PORT (doit être un numéro fixe)
+# Exposer le port et lancer le script
 EXPOSE 80
-
-# 8. EXÉCUTION
 CMD ["/usr/local/bin/entrypoint.sh"]
