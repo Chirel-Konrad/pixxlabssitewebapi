@@ -1,5 +1,12 @@
 #!/bin/sh
-set -e
+set -ex
+
+echo "--- DEBUG: Affichage des variables d'environnement ---"
+env
+echo "--- DEBUG: Contenu du répertoire de travail ---"
+ls -la
+echo "--- DEBUG: Fin des informations de débogage ---"
+
 
 # Se placer dans le répertoire de l'application
 cd /var/www
