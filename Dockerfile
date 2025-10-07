@@ -25,7 +25,7 @@ COPY . .
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# --- LA CORRECTION DÉFINITIVE EST ICI ---
+# --- LA CORRECTION EST ICI ---
 # Installer les dépendances PHP SANS lancer de scripts. C'est crucial.
 RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
