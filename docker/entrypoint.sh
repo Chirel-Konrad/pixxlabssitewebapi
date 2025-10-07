@@ -23,3 +23,5 @@ su -s /bin/sh www-data -c "php artisan route:cache"
 
 # Lancer le serveur
 exec /usr/bin/supervisord -c /etc/supervisord.conf
+
+
