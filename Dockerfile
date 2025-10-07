@@ -5,14 +5,13 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www
 
 # 1. INSTALLATION DES DÉPENDANCES SYSTÈME
-# On installe tout ce dont PHP et Composer auront besoin
 RUN apk update && apk --no-cache add \
     nginx \
     supervisor \
     postgresql-client \
     git \
     unzip \
-    # Paquets de développement (-dev) nécessaires pour compiler les extensions PHP
+    gettext \
     postgresql-dev \
     libzip-dev \
     libpng-dev \
@@ -20,17 +19,13 @@ RUN apk update && apk --no-cache add \
     freetype-dev
 
 # 2. INSTALLATION DES EXTENSIONS PHP
-# Maintenant que les -dev sont là, on peut compiler les extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd pdo_pgsql zip exif pcntl bcmath
 
 # 3. COPIE DE TOUTE L'APPLICATION
-# On copie TOUS les fichiers de l'application d'un seul coup.
 COPY . .
 
 # 4. INSTALLATION DES DÉPENDANCES COMPOSER
-# Maintenant que TOUS les fichiers sont là (y compris artisan), on peut lancer composer.
-# L'option --no-scripts est la sécurité ultime pour empêcher toute exécution non désirée.
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
@@ -44,6 +39,8 @@ COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# 7. EXÉCUTION
-EXPOSE 80
+# 7. EXPOSITION DU PORT (Render injecte $PORT)
+EXPOSE $PORT
+
+# 8. EXÉCUTION
 CMD ["/usr/local/bin/entrypoint.sh"]
