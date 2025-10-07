@@ -29,7 +29,7 @@ COPY . .
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
-# 5. DÉFINITION DES PERMISSIONS
+# 5. DÉFINITION DES PERMISSIONS (une première fois pour le build)
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
 # 6. COPIE DES CONFIGURATIONS FINALES
@@ -39,8 +39,8 @@ COPY docker/supervisor/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# 7. EXPOSITION DU PORT (Render injecte $PORT)
-EXPOSE $PORT
+# 7. EXPOSITION DU PORT (doit être un numéro fixe)
+EXPOSE 80
 
 # 8. EXÉCUTION
 CMD ["/usr/local/bin/entrypoint.sh"]

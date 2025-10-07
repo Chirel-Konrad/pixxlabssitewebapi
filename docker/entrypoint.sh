@@ -4,34 +4,30 @@ set -e
 # Se placer dans le répertoire de l'application
 cd /var/www
 
-echo "==> Configuration Nginx avec PORT=$PORT..."
-# Remplacer ${PORT} dans la config Nginx par la valeur réelle
+# Remplacer la variable PORT dans la configuration Nginx
+# C'est une bonne pratique, même si on écoute sur le port 80, on le confirme.
+# Assurez-vous que votre default.conf contient bien 'listen ${PORT};'
 envsubst '${PORT}' < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf.tmp
 mv /etc/nginx/conf.d/default.conf.tmp /etc/nginx/conf.d/default.conf
 
-echo "==> Vérification des variables d'environnement..."
-echo "APP_KEY=${APP_KEY:0:20}..." # Affiche les 20 premiers caractères
-echo "DB_HOST=$DB_HOST"
-echo "DB_DATABASE=$DB_DATABASE"
-echo "DB_USERNAME=$DB_USERNAME"
-
-echo "==> Test de connexion à la base de données..."
-if ! php artisan db:show 2>&1; then
-    echo "ERREUR: Impossible de se connecter à la base de données"
-    echo "Démarrage quand même des services pour diagnostic..."
-else
-    echo "==> Connexion DB réussie, exécution des migrations..."
-    php artisan migrate --force || echo "ATTENTION: Les migrations ont échoué mais on continue..."
-fi
-
-echo "==> Mise en cache des configurations..."
-php artisan config:cache || echo "ATTENTION: config:cache a échoué"
-php artisan route:cache || echo "ATTENTION: route:cache a échoué"
-php artisan view:cache || echo "ATTENTION: view:cache a échoué"
-
+# --- CORRECTION DE L'ORDRE ---
+# ÉTAPE 1 : CONFIGURER LES PERMISSIONS
 echo "==> Configuration des permissions..."
+# On donne la propriété de tous les fichiers à www-data, puis on s'assure
+# que les dossiers de stockage sont accessibles en écriture.
 chown -R www-data:www-data /var/www
 chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
+# ÉTAPE 2 : LANCER LES COMMANDES ARTISAN (maintenant que les permissions sont bonnes)
+echo "==> Vérification de la base de données et migrations..."
+# On exécute les commandes en tant qu'utilisateur www-data pour être cohérent
+su -s /bin/sh www-data -c "php artisan migrate --force"
+
+echo "==> Mise en cache des configurations..."
+su -s /bin/sh www-data -c "php artisan config:cache"
+su -s /bin/sh www-data -c "php artisan route:cache"
+su -s /bin/sh www-data -c "php artisan view:cache"
+
+# ÉTAPE 3 : LANCER LES SERVICES
 echo "==> Lancement des services..."
 exec /usr/bin/supervisord -c /etc/supervisord.conf
