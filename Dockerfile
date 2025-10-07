@@ -1,4 +1,4 @@
-# Utiliser l'image officielle PHP 8.2 FPM Alpine
+# On part d'une image PHP 8.2 FPM Alpine, légère et optimisée
 FROM php:8.2-fpm-alpine
 
 # Installer les dépendances système de base, y compris les -dev pour la compilation
@@ -25,7 +25,7 @@ COPY . .
 # Installer Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# --- LA CORRECTION EST ICI ---
+# --- LA CORRECTION DÉFINITIVE EST ICI ---
 # Installer les dépendances PHP SANS lancer de scripts. C'est crucial.
 RUN composer install --no-interaction --no-dev --optimize-autoloader --no-scripts
 
