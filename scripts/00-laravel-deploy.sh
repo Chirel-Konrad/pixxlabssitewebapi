@@ -57,6 +57,11 @@ return [
 ];
 EOF
 
+echo "=== Vérification PHP-FPM ==="
+ps aux | grep php-fpm || true
+ls -la /run/php/ || true
+
+
 echo "=== LAST 200 LINES OF STORAGE LOGS ==="
 ls -la storage/logs || true
 tail -n 200 storage/logs/*.log 2>/dev/null || true
