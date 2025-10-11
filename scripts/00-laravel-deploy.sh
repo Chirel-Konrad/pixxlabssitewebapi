@@ -4,7 +4,6 @@ set -e
 echo "🚀 Démarrage du déploiement Laravel"
 
 echo "📦 Running composer install..."
-composer global require hirak/prestissimo --no-interaction
 composer install --no-dev --working-dir=/var/www/html --no-interaction --prefer-dist --optimize-autoloader
 
 echo "✅ Vérification que vendor existe..."
@@ -28,7 +27,7 @@ echo "🗄️  Running migrations..."
 php artisan migrate --force
 
 echo "🌱 Running seeders..."
-php artisan db:seed --force
+php artisan db:seed --force || true
 
 echo "📋 Configuration des logs Laravel..."
 # Créer un lien symbolique de laravel.log vers stderr
