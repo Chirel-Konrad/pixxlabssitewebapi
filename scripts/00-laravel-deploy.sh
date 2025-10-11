@@ -1,79 +1,36 @@
 #!/usr/bin/env bash
 set -e
 
-echo "============================================"
-echo "🚀 Démarrage du déploiement Laravel"
-echo "============================================"
+echo "Running composer"
+composer global require hirak/prestissimo
+composer install --no-dev --working-dir=/var/www/html
 
-# 1. Installation des dépendances
-echo "📦 Installation des dépendances Composer..."
-composer install --no-dev --prefer-dist --optimize-autoloader --working-dir=/var/www/html
+echo "generating application key..."
+php artisan key:generate --show
 
-# 2. Génération de la clé d'application
-echo "🔑 Génération de la clé d'application..."
-php artisan key:generate --show --force
-
-# 3. Clear des caches
-echo "🧹 Nettoyage des caches..."
-php artisan config:clear
-php artisan route:clear
-php artisan cache:clear
-php artisan view:clear
-
-# 4. Migrations et seeders
-echo "🗄️  Exécution des migrations..."
-php artisan migrate --force
-
-echo "🌱 Exécution des seeders..."
-php artisan db:seed --force || true
-
-# 5. Optimisation
-echo "⚡ Optimisation de l'application..."
+echo "Caching config..."
 php artisan config:cache
+
+echo "Caching routes..."
 php artisan route:cache
-php artisan view:cache
 
-# 6. Permissions
-echo "🔐 Configuration des permissions..."
-chown -R nginx:nginx /var/www/html/storage
-chown -R nginx:nginx /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/bootstrap/cache
+echo "Running migrations..."
+php artisan migrate --force
+php artisan db:seed --force
 
-# 7. Vérifications de débogage
-echo "============================================"
-echo "🔍 VÉRIFICATIONS DE CONFIGURATION"
-echo "============================================"
+# ✅ NOUVEAUTÉ : Créer un lien symbolique pour voir les logs Laravel dans Render
+echo "📋 Configuration des logs Laravel pour Render..."
 
-echo "📂 Structure du projet:"
-ls -la /var/www/html/public/
+# Créer un lien symbolique de laravel.log vers stderr
+rm -f /var/www/html/storage/logs/laravel.log
+ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
 
-echo ""
-echo "🌐 Configuration Nginx active:"
-cat /etc/nginx/sites-available/default
+# Afficher les derniers logs s'ils existent
+echo "📝 Logs Laravel existants:"
+ls -la /var/www/html/storage/logs/ || true
+tail -n 50 /var/www/html/storage/logs/*.log 2>/dev/null || echo "Aucun log existant"
 
-echo ""
-echo "✅ Test de syntaxe Nginx:"
-nginx -t
-
-echo ""
-echo "🐘 Vérification PHP-FPM:"
-php -v
-ps aux | grep php-fpm | head -5 || true
-
-echo ""
-echo "📝 Vérification du fichier index.php:"
-ls -la /var/www/html/public/index.php
-
-echo ""
-echo "🔍 Routes Laravel disponibles:"
-php artisan route:list | grep api || true
-
-echo ""
-echo "📋 Variables d'environnement Laravel:"
-php artisan env
-
-echo ""
-echo "============================================"
-echo "✅ Déploiement terminé avec succès!"
-echo "============================================"
+echo "✅ Déploiement terminé - Les logs Laravel seront visibles dans Render"
+# Lier les logs Laravel vers stderr pour Render
+rm -f /var/www/html/storage/logs/laravel.log
+ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
