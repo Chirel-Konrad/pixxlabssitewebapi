@@ -1,69 +1,79 @@
 #!/usr/bin/env bash
-echo "Running composer"
-#!/usr/bin/env bash
-set -e  # stoppe le script en cas d’erreur
+set -e
 
-echo "Running composer"
+echo "============================================"
+echo "🚀 Démarrage du déploiement Laravel"
+echo "============================================"
+
+# 1. Installation des dépendances
+echo "📦 Installation des dépendances Composer..."
 composer install --no-dev --prefer-dist --optimize-autoloader --working-dir=/var/www/html
 
-echo "generating application key..."
-php artisan key:generate --show
+# 2. Génération de la clé d'application
+echo "🔑 Génération de la clé d'application..."
+php artisan key:generate --show --force
 
-# debug friendly: clear caches (pour que .env et env vars runtime soient utilisés)
+# 3. Clear des caches
+echo "🧹 Nettoyage des caches..."
 php artisan config:clear
 php artisan route:clear
-php artisan optimize:clear
-echo "Running migrations..."
+php artisan cache:clear
+php artisan view:clear
+
+# 4. Migrations et seeders
+echo "🗄️  Exécution des migrations..."
 php artisan migrate --force
-php artisan db:seed --force
 
-# après tes migrations / seed
-echo "=== show last 200 lines of laravel logs ==="
-ls -la storage/logs || true
-tail -n 200 storage/logs/*.log || true
+echo "🌱 Exécution des seeders..."
+php artisan db:seed --force || true
 
-# aussi: forcer output php-fpm / nginx si possible
-php -v || true
-echo "=== SHOWING LARAVEL LOGS ==="
-ls -l storage/logs
-tail -n 100 storage/logs/laravel.log || true
-echo "=== DEBUG MODE: DUMPING LARAVEL EXCEPTIONS TO STDOUT ==="
+# 5. Optimisation
+echo "⚡ Optimisation de l'application..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
-# Crée un fichier d'override de config pour forcer Laravel à loguer dans stderr (visible par Render)
-cat <<'EOF' > /var/www/html/config/logging.php
-<?php
+# 6. Permissions
+echo "🔐 Configuration des permissions..."
+chown -R nginx:nginx /var/www/html/storage
+chown -R nginx:nginx /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
 
-use Monolog\Handler\StreamHandler;
-use Monolog\Handler\SyslogUdpHandler;
+# 7. Vérifications de débogage
+echo "============================================"
+echo "🔍 VÉRIFICATIONS DE CONFIGURATION"
+echo "============================================"
 
-return [
+echo "📂 Structure du projet:"
+ls -la /var/www/html/public/
 
-    'default' => env('LOG_CHANNEL', 'stderr'),
+echo ""
+echo "🌐 Configuration Nginx active:"
+cat /etc/nginx/sites-available/default
 
-    'channels' => [
-        'stderr' => [
-            'driver' => 'single',
-            'path' => 'php://stderr',
-            'level' => 'debug',
-        ],
+echo ""
+echo "✅ Test de syntaxe Nginx:"
+nginx -t
 
-        'stack' => [
-            'driver' => 'stack',
-            'channels' => ['stderr'],
-            'ignore_exceptions' => false,
-        ],
-    ],
+echo ""
+echo "🐘 Vérification PHP-FPM:"
+php -v
+ps aux | grep php-fpm | head -5 || true
 
-];
-EOF
+echo ""
+echo "📝 Vérification du fichier index.php:"
+ls -la /var/www/html/public/index.php
 
-echo "=== Vérification PHP-FPM ==="
-ps aux | grep php-fpm || true
-ls -la /run/php/ || true
+echo ""
+echo "🔍 Routes Laravel disponibles:"
+php artisan route:list | grep api || true
 
+echo ""
+echo "📋 Variables d'environnement Laravel:"
+php artisan env
 
-echo "=== LAST 200 LINES OF STORAGE LOGS ==="
-ls -la storage/logs || true
-tail -n 200 storage/logs/*.log 2>/dev/null || true
-
-echo "=== READY: ALL ERRORS WILL APPEAR IN RENDER LOGS ==="
+echo ""
+echo "============================================"
+echo "✅ Déploiement terminé avec succès!"
+echo "============================================"
