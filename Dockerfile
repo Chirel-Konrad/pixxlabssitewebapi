@@ -11,8 +11,11 @@ ENV REAL_IP_HEADER 1
 
 # Laravel config
 ENV APP_ENV production
-ENV APP_DEBUG false
+ENV APP_DEBUG true
 ENV LOG_CHANNEL stderr
+
+# Force PHP to display errors (for debugging)
+ENV PHP_DISPLAY_ERRORS 1 # 
 
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
