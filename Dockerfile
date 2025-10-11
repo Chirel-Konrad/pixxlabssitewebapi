@@ -17,6 +17,8 @@ ENV LOG_CHANNEL stderr
 # Force PHP to display errors (for debugging)
 ENV PHP_DISPLAY_ERRORS 1 # 
 
+ENV LOG_CHANNEL daily #
+
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
