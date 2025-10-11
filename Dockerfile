@@ -5,9 +5,59 @@ WORKDIR /var/www/html
 # Copier les fichiers de l'application
 COPY . .
 
-# ✅ CRITIQUE : Copier et activer la config Nginx AVANT le démarrage
-COPY nginx-site.conf /etc/nginx/sites-available/default
-COPY nginx-site.conf /etc/nginx/conf.d/default.conf
+# ✅ CRITIQUE : Créer la config Nginx directement dans le Dockerfile
+RUN cat > /etc/nginx/sites-available/default <<'EOF'
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    
+    server_name _;
+    root /var/www/html/public;
+    
+    index index.php;
+
+    error_log /dev/stdout info;
+    access_log /dev/stdout;
+
+    charset utf-8;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    location /.git {
+        deny all;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_buffering off;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|css|js|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 30d;
+        access_log off;
+        add_header Cache-Control "public, immutable";
+    }
+}
+EOF
 
 # Supprimer les configs par défaut qui peuvent interférer
 RUN rm -f /etc/nginx/sites-enabled/default && \
