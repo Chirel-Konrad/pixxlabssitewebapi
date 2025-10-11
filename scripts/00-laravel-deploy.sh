@@ -24,3 +24,41 @@ tail -n 200 storage/logs/*.log || true
 
 # aussi: forcer output php-fpm / nginx si possible
 php -v || true
+echo "=== SHOWING LARAVEL LOGS ==="
+ls -l storage/logs
+tail -n 100 storage/logs/laravel.log || true
+echo "=== DEBUG MODE: DUMPING LARAVEL EXCEPTIONS TO STDOUT ==="
+
+# Crée un fichier d'override de config pour forcer Laravel à loguer dans stderr (visible par Render)
+cat <<'EOF' > /var/www/html/config/logging.php
+<?php
+
+use Monolog\Handler\StreamHandler;
+use Monolog\Handler\SyslogUdpHandler;
+
+return [
+
+    'default' => env('LOG_CHANNEL', 'stderr'),
+
+    'channels' => [
+        'stderr' => [
+            'driver' => 'single',
+            'path' => 'php://stderr',
+            'level' => 'debug',
+        ],
+
+        'stack' => [
+            'driver' => 'stack',
+            'channels' => ['stderr'],
+            'ignore_exceptions' => false,
+        ],
+    ],
+
+];
+EOF
+
+echo "=== LAST 200 LINES OF STORAGE LOGS ==="
+ls -la storage/logs || true
+tail -n 200 storage/logs/*.log 2>/dev/null || true
+
+echo "=== READY: ALL ERRORS WILL APPEAR IN RENDER LOGS ==="
