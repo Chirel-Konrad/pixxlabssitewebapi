@@ -11,7 +11,6 @@
     "require": {
         "php": "^8.2",
         "api-platform/hal": "^4.2.0-beta.1",
-        "api-platform/laravel": "^4.1",
         "dedoc/scramble": "^0.12.35",
         "laravel/framework": "^12.0",
         "laravel/passport": "^13.2",
