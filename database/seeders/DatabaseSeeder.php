@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        
         // Création de 10 utilisateurs aléatoires
         User::factory()->count(10)->create([
             'phone' => fake()->phoneNumber(),

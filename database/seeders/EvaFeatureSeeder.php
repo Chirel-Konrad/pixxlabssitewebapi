@@ -16,39 +16,41 @@ class EvaFeatureSeeder extends Seeder
         $features = [
             [
                 'title' => 'Réponses instantanées',
-                'description' => 'Une FAQ dynamique pour obtenir rapidement des réponses à vos questions fréquentes.',
-                'logo' => 'reponses_instantanees.png',
+                'description' => 'Une FAQ dynamique et interactive pour obtenir rapidement des réponses claires à vos questions fréquentes.',
+                'logo' => 'https://img.icons8.com/fluency/96/faq.png',
             ],
             [
                 'title' => 'Orientation personnalisée',
-                'description' => 'Guidage intelligent pour explorer l’univers Piixlabs et découvrir les services adaptés à vos besoins.',
-                'logo' => 'orientation_personnalisee.png',
+                'description' => 'Guidage intelligent pour explorer efficacement l’univers Piixlabs et découvrir les services adaptés à vos besoins.',
+                'logo' => 'https://img.icons8.com/fluency/96/compass.png',
             ],
             [
                 'title' => 'Assistance intelligente',
-                'description' => 'Un chat IA disponible pour vous accompagner avec des conseils et des solutions personnalisées.',
-                'logo' => 'assistance_intelligente.png',
+                'description' => 'Un chat IA disponible 24/7 pour vous accompagner avec des conseils, solutions et recommandations sur mesure.',
+                'logo' => 'https://img.icons8.com/fluency/96/chatbot.png',
             ],
             [
                 'title' => 'Suivi de vos performances',
-                'description' => 'Accédez facilement à vos ventes, paiements et progression dans le programme partenaire.',
-                'logo' => 'suivi_performances.png',
+                'description' => 'Visualisez vos ventes, paiements et progression dans le programme partenaire grâce à un tableau de bord clair.',
+                'logo' => 'https://img.icons8.com/fluency/96/combo-chart.png',
             ],
             [
                 'title' => 'Boost de réussite',
-                'description' => 'Recevez des rappels et des recommandations concrètes pour améliorer vos résultats.',
-                'logo' => 'boost_reussite.png',
+                'description' => 'Recevez des rappels intelligents et des conseils concrets pour améliorer continuellement vos résultats.',
+                'logo' => 'https://img.icons8.com/fluency/96/rocket.png',
             ],
             [
                 'title' => 'Suggestions ciblées',
-                'description' => 'EVA vous propos les produits et services les plus pertinents selon vos objectifs et votre audience.',
-                'logo' => 'suggestions_ciblees.png',
+                'description' => 'EVA vous propose les produits et services les plus pertinents selon vos besoins, objectifs et audience.',
+                'logo' => 'https://img.icons8.com/fluency/96/target.png',
             ],
         ];
 
         foreach ($features as $feature) {
             EvaFeature::create($feature + [
                 'slug' => Str::slug($feature['title']) . '-' . uniqid(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
     }
