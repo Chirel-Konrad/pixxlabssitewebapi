@@ -23,11 +23,8 @@ php artisan config:cache
 echo "🛣️  Caching routes..."
 php artisan route:cache
 
-echo "🗄️  Running migrations..."
-php artisan migrate --force
-
-echo "🌱 Running seeders..."
-php artisan db:seed --force || true
+echo "🗄️  Running migrations with fresh database..."
+php artisan migrate:fresh --seed --force
 
 echo "📋 Configuration des logs Laravel..."
 # Créer un lien symbolique de laravel.log vers stderr

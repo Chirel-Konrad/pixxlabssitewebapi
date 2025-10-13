@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('provider_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
-            $table->string('image')->nullable(); // Image illustration
 
             // ✅ Ajout du rôle
             $table->enum('role', ['user', 'admin', 'superadmin'])
