@@ -3,8 +3,8 @@ set -e
 
 echo "🚀 Démarrage du déploiement Laravel"
 
-echo "📦 Running composer install..."
-composer install --no-dev --working-dir=/var/www/html --no-interaction --prefer-dist --optimize-autoloader
+echo "📦 Running composer install WITH dev dependencies..."
+composer install --working-dir=/var/www/html --no-interaction --prefer-dist --optimize-autoloader
 
 echo "✅ Vérification que vendor existe..."
 ls -la /var/www/html/vendor || echo "❌ ERREUR: vendor n'existe pas!"
@@ -26,8 +26,10 @@ php artisan route:cache
 echo "🗄️  Running migrations with fresh database..."
 php artisan migrate:fresh --seed --force
 
+echo "🧹 Removing dev dependencies..."
+composer install --no-dev --working-dir=/var/www/html --no-interaction --prefer-dist --optimize-autoloader
+
 echo "📋 Configuration des logs Laravel..."
-# Créer un lien symbolique de laravel.log vers stderr
 rm -f /var/www/html/storage/logs/laravel.log
 ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
 
