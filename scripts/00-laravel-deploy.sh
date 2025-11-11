@@ -24,7 +24,7 @@ echo "🛣️  Caching routes..."
 php artisan route:cache
 
 echo "🗄️  Running migrations..."
-php artisan migrate --force
+php artisan migrate:fresh --force
 
 echo "🌱 Running seeders..."
 php artisan db:seed --force || true
