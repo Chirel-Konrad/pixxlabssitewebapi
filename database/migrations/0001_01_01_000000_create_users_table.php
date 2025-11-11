@@ -9,6 +9,9 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+     protected $connection = 'pgsql'; // Assurez-vous que c'est le nom de votre connexion PostgreSQL
+    protected $withinTransaction = false;
+
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
