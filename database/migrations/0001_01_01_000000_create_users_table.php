@@ -6,12 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-     protected $connection = 'pgsql'; // Assurez-vous que c'est le nom de votre connexion PostgreSQL
-    protected $withinTransaction = false;
-
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -26,28 +20,22 @@ return new class extends Migration
             $table->string('provider_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
-
-            // ✅ Ajout du rôle
-            $table->enum('role', ['user', 'admin', 'superadmin'])
-                  ->default('user')
-                  ->comment('Définit le rôle de l’utilisateur');
-
+            $table->enum('role', ['user', 'admin', 'superadmin'])->default('user')->comment('Définit le rôle de l’utilisateur');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
 
+        // ✅ LA SEULE MODIFICATION : Ajouter une longueur à l'email
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
+            $table->string('email', 255)->primary(); // ✅ Longueur ajoutée
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
