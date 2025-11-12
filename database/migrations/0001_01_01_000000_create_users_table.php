@@ -3,11 +3,16 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        // ✅ Créer d'abord les types ENUM PostgreSQL
+        DB::statement("CREATE TYPE user_status AS ENUM ('active', 'inactive', 'banned')");
+        DB::statement("CREATE TYPE user_role AS ENUM ('user', 'admin', 'superadmin')");
+        
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -19,15 +24,16 @@ return new class extends Migration
             $table->rememberToken();
             $table->string('provider_id')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('status', ['active', 'inactive', 'banned'])->default('active');
-            $table->enum('role', ['user', 'admin', 'superadmin'])->default('user')->comment('Définit le rôle de l’utilisateur');
             $table->string('image')->nullable();
             $table->timestamps();
         });
+        
+        // ✅ Ajouter les colonnes ENUM après la création de la table
+        DB::statement("ALTER TABLE users ADD COLUMN status user_status DEFAULT 'active'");
+        DB::statement("ALTER TABLE users ADD COLUMN role user_role DEFAULT 'user'");
 
-        // ✅ LA SEULE MODIFICATION : Ajouter une longueur à l'email
         Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email', 255)->primary(); // ✅ Longueur ajoutée
+            $table->string('email', 255)->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
         });
@@ -37,5 +43,9 @@ return new class extends Migration
     {
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');
+        
+        // ✅ Supprimer les types ENUM
+        DB::statement("DROP TYPE IF EXISTS user_status");
+        DB::statement("DROP TYPE IF EXISTS user_role");
     }
 };
