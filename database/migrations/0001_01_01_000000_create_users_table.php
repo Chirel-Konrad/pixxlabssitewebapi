@@ -7,9 +7,16 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    // ✅ CRITIQUE : Désactiver les transactions pour PostgreSQL
+    public $withinTransaction = false;
+    
     public function up(): void
     {
-        // ✅ Créer d'abord les types ENUM PostgreSQL
+        // Supprimer les types s'ils existent déjà (au cas où)
+        DB::statement("DROP TYPE IF EXISTS user_status CASCADE");
+        DB::statement("DROP TYPE IF EXISTS user_role CASCADE");
+        
+        // Créer les types ENUM PostgreSQL
         DB::statement("CREATE TYPE user_status AS ENUM ('active', 'inactive', 'banned')");
         DB::statement("CREATE TYPE user_role AS ENUM ('user', 'admin', 'superadmin')");
         
@@ -28,7 +35,7 @@ return new class extends Migration
             $table->timestamps();
         });
         
-        // ✅ Ajouter les colonnes ENUM après la création de la table
+        // Ajouter les colonnes ENUM
         DB::statement("ALTER TABLE users ADD COLUMN status user_status DEFAULT 'active'");
         DB::statement("ALTER TABLE users ADD COLUMN role user_role DEFAULT 'user'");
 
@@ -44,8 +51,7 @@ return new class extends Migration
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');
         
-        // ✅ Supprimer les types ENUM
-        DB::statement("DROP TYPE IF EXISTS user_status");
-        DB::statement("DROP TYPE IF EXISTS user_role");
+        DB::statement("DROP TYPE IF EXISTS user_status CASCADE");
+        DB::statement("DROP TYPE IF EXISTS user_role CASCADE");
     }
 };
