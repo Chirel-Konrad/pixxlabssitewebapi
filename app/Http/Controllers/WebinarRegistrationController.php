@@ -10,6 +10,28 @@ use Illuminate\Support\Str;
 class WebinarRegistrationController extends Controller
 {
     // Liste des inscriptions de l'utilisateur connecté
+    /**
+     * @OA\Get(
+     *     path="/api/webinar-registrations",
+     *     tags={"Webinar Registrations"},
+     *     summary="Mes inscriptions aux webinaires",
+     *     description="Récupère la liste des inscriptions de l'utilisateur connecté",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/WebinarRegistration")),
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             ),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         try {
@@ -36,6 +58,31 @@ class WebinarRegistrationController extends Controller
     }
 
     // S'inscrire à un webinaire
+    /**
+     * @OA\Post(
+     *     path="/api/webinar-registrations",
+     *     tags={"Webinar Registrations"},
+     *     summary="S'inscrire à un webinaire",
+     *     description="Inscrit l'utilisateur connecté à un webinaire",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"webinar_id"},
+     *             @OA\Property(property="webinar_id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Inscription réussie",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/WebinarRegistration"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         try {
@@ -79,6 +126,51 @@ class WebinarRegistrationController extends Controller
     }
 
     // Se désinscrire d'un webinaire
+    /**
+     * @OA\Delete(
+     *     path="/api/webinar-registrations/{webinarRegistration}",
+     *     tags={"Webinar Registrations"},
+     *     summary="Supprimer une inscription par ID",
+     *     description="Supprime une inscription via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="webinarRegistration",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Inscription supprimée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Delete(
+     *     path="/api/webinar-registrations/slug/{slug}",
+     *     tags={"Webinar Registrations"},
+     *     summary="Supprimer une inscription par Slug",
+     *     description="Supprime une inscription via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Inscription supprimée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(WebinarRegistration $webinarRegistration)
     {
         try {

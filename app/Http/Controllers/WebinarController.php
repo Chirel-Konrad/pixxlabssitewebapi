@@ -9,6 +9,34 @@ use Illuminate\Support\Str;
 
 class WebinarController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/webinars",
+     *     tags={"Webinars"},
+     *     summary="Liste des webinaires",
+     *     description="Récupère la liste paginée des webinaires",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Nombre d'éléments par page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=20)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Webinar")),
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             ),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         try {
@@ -30,7 +58,41 @@ class WebinarController extends Controller
         }
     }
 
-   public function store(Request $request)
+   /**
+     * @OA\Post(
+     *     path="/api/webinars",
+     *     tags={"Webinars"},
+     *     summary="Créer un webinaire",
+     *     description="Crée un nouveau webinaire",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"title", "whose", "date", "time"},
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="whose", type="string", example="John Doe"),
+     *                 @OA\Property(property="date", type="string", example="2024-12-31"),
+     *                 @OA\Property(property="time", type="string", example="14:00"),
+     *                 @OA\Property(property="image", type="string", format="binary"),
+     *                 @OA\Property(property="video", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Webinaire créé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function store(Request $request)
     {
         try {
             $validated = $request->validate([
@@ -76,6 +138,51 @@ class WebinarController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/webinars/{webinar}",
+     *     tags={"Webinars"},
+     *     summary="Détails d'un webinaire par ID",
+     *     description="Récupère les détails d'un webinaire via son ID.",
+     *     @OA\Parameter(
+     *         name="webinar",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webinaire trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Get(
+     *     path="/api/webinars/slug/{slug}",
+     *     tags={"Webinars"},
+     *     summary="Détails d'un webinaire par Slug",
+     *     description="Récupère les détails d'un webinaire via son slug.",
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webinaire trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function show(Webinar $webinar)
     {
         return response()->json([
@@ -85,6 +192,81 @@ class WebinarController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/webinars/{webinar}",
+     *     tags={"Webinars"},
+     *     summary="Mettre à jour un webinaire par ID",
+     *     description="Met à jour un webinaire existant via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="webinar",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="date_time", type="string", format="date-time"),
+     *                 @OA\Property(property="image", type="string", format="binary"),
+     *                 @OA\Property(property="link", type="string"),
+     *                 @OA\Property(property="_method", type="string", example="PUT")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webinaire mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Put(
+     *     path="/api/webinars/slug/{slug}",
+     *     tags={"Webinars"},
+     *     summary="Mettre à jour un webinaire par Slug",
+     *     description="Met à jour un webinaire existant via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="description", type="string"),
+     *                 @OA\Property(property="date_time", type="string", format="date-time"),
+     *                 @OA\Property(property="image", type="string", format="binary"),
+     *                 @OA\Property(property="link", type="string"),
+     *                 @OA\Property(property="_method", type="string", example="PUT")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webinaire mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, Webinar $webinar)
     {
         try {
@@ -136,6 +318,51 @@ class WebinarController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/webinars/{webinar}",
+     *     tags={"Webinars"},
+     *     summary="Supprimer un webinaire par ID",
+     *     description="Supprime un webinaire via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="webinar",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webinaire supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Delete(
+     *     path="/api/webinars/slug/{slug}",
+     *     tags={"Webinars"},
+     *     summary="Supprimer un webinaire par Slug",
+     *     description="Supprime un webinaire via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Webinaire supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(Webinar $webinar)
     {
         try {

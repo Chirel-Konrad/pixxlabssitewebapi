@@ -9,6 +9,34 @@ use Illuminate\Support\Str;
 
 class TestimonialController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/testimonials",
+     *     tags={"Testimonials"},
+     *     summary="Liste des témoignages",
+     *     description="Récupère la liste paginée des témoignages",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Nombre d'éléments par page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=20)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Testimonial")),
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             ),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         try {
@@ -30,6 +58,32 @@ class TestimonialController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/testimonials",
+     *     tags={"Testimonials"},
+     *     summary="Ajouter un témoignage",
+     *     description="Ajoute un nouveau témoignage",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"content"},
+     *             @OA\Property(property="user_id", type="integer", example=1),
+     *             @OA\Property(property="content", type="string", example="Super service !")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Témoignage créé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         try {
@@ -57,6 +111,51 @@ class TestimonialController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/testimonials/{testimonial}",
+     *     tags={"Testimonials"},
+     *     summary="Détails d'un témoignage par ID",
+     *     description="Récupère les détails d'un témoignage via son ID.",
+     *     @OA\Parameter(
+     *         name="testimonial",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Témoignage trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Get(
+     *     path="/api/testimonials/slug/{slug}",
+     *     tags={"Testimonials"},
+     *     summary="Détails d'un témoignage par Slug",
+     *     description="Récupère les détails d'un témoignage via son slug.",
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Témoignage trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function show(Testimonial $testimonial)
     {
         return response()->json([
@@ -66,6 +165,67 @@ class TestimonialController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/testimonials/{testimonial}",
+     *     tags={"Testimonials"},
+     *     summary="Mettre à jour un témoignage par ID",
+     *     description="Met à jour un témoignage existant via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="testimonial",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="content", type="string", example="Témoignage modifié"),
+     *             @OA\Property(property="rating", type="integer", example=4)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Témoignage mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Put(
+     *     path="/api/testimonials/slug/{slug}",
+     *     tags={"Testimonials"},
+     *     summary="Mettre à jour un témoignage par Slug",
+     *     description="Met à jour un témoignage existant via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="content", type="string", example="Témoignage modifié"),
+     *             @OA\Property(property="rating", type="integer", example=4)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Témoignage mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, Testimonial $testimonial)
     {
         try {
@@ -91,6 +251,51 @@ class TestimonialController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/testimonials/{testimonial}",
+     *     tags={"Testimonials"},
+     *     summary="Supprimer un témoignage par ID",
+     *     description="Supprime un témoignage via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="testimonial",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Témoignage supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Delete(
+     *     path="/api/testimonials/slug/{slug}",
+     *     tags={"Testimonials"},
+     *     summary="Supprimer un témoignage par Slug",
+     *     description="Supprime un témoignage via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Témoignage supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(Testimonial $testimonial)
     {
         try {

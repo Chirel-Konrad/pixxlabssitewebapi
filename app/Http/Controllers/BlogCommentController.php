@@ -8,6 +8,23 @@ use Illuminate\Support\Facades\Log;
 
 class BlogCommentController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/blog-comments",
+     *     tags={"Blog Comments"},
+     *     summary="Liste des commentaires de blog",
+     *     description="Récupère tous les commentaires de blog",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/BlogComment")),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
         try {
@@ -28,6 +45,33 @@ class BlogCommentController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/blog-comments",
+     *     tags={"Blog Comments"},
+     *     summary="Ajouter un commentaire",
+     *     description="Ajoute un commentaire à un article de blog",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"blog_id", "user_id", "comment"},
+     *             @OA\Property(property="blog_id", type="integer", example=1),
+     *             @OA\Property(property="user_id", type="integer", example=1),
+     *             @OA\Property(property="comment", type="string", example="Super article !")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Commentaire créé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/BlogComment"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         try {
@@ -54,6 +98,29 @@ class BlogCommentController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/blog-comments/{blogComment}",
+     *     tags={"Blog Comments"},
+     *     summary="Détails d'un commentaire",
+     *     description="Récupère un commentaire par ID",
+     *     @OA\Parameter(
+     *         name="blogComment",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Commentaire trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/BlogComment"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function show(BlogComment $blogComment)
     {
         try {
@@ -72,6 +139,36 @@ class BlogCommentController extends Controller
         }
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/blog-comments/{blogComment}",
+     *     tags={"Blog Comments"},
+     *     summary="Mettre à jour un commentaire",
+     *     description="Met à jour un commentaire existant",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="blogComment",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="comment", type="string", example="Commentaire modifié")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Commentaire mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/BlogComment"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, BlogComment $blogComment)
     {
         try {
@@ -96,6 +193,29 @@ class BlogCommentController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/blog-comments/{blogComment}",
+     *     tags={"Blog Comments"},
+     *     summary="Supprimer un commentaire",
+     *     description="Supprime un commentaire",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="blogComment",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Commentaire supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(BlogComment $blogComment)
     {
         try {

@@ -12,6 +12,35 @@ class NewsletterController extends Controller
     /**
      * Display a paginated listing of the resource.
      */
+    /**
+     * @OA\Get(
+     *     path="/api/newsletters",
+     *     tags={"Newsletters"},
+     *     summary="Liste des abonnés newsletter",
+     *     description="Récupère la liste paginée des abonnés",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Nombre d'éléments par page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=20)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Newsletter")),
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             ),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         try {
@@ -35,6 +64,30 @@ class NewsletterController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     */
+    /**
+     * @OA\Post(
+     *     path="/api/newsletters",
+     *     tags={"Newsletters"},
+     *     summary="S'abonner à la newsletter",
+     *     description="Ajoute un email à la liste de diffusion",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Inscription réussie",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
      */
     public function store(Request $request)
 {
@@ -66,6 +119,53 @@ class NewsletterController extends Controller
     /**
      * Display the specified resource.
      */
+    /**
+     * @OA\Get(
+     *     path="/api/newsletters/{newsletter}",
+     *     tags={"Newsletters"},
+     *     summary="Détails d'un abonné par ID",
+     *     description="Récupère un abonné via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="newsletter",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Abonné trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Get(
+     *     path="/api/newsletters/slug/{slug}",
+     *     tags={"Newsletters"},
+     *     summary="Détails d'un abonné par Slug",
+     *     description="Récupère un abonné via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Abonné trouvé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function show(Newsletter $newsletter)
     {
         return response()->json([
@@ -78,7 +178,66 @@ class NewsletterController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   public function update(Request $request, Newsletter $newsletter)
+   /**
+     * @OA\Put(
+     *     path="/api/newsletters/{newsletter}",
+     *     tags={"Newsletters"},
+     *     summary="Mettre à jour un abonné par ID",
+     *     description="Met à jour l'email d'un abonné via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="newsletter",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="email", type="string", format="email", example="new@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Abonné mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Put(
+     *     path="/api/newsletters/slug/{slug}",
+     *     tags={"Newsletters"},
+     *     summary="Mettre à jour un abonné par Slug",
+     *     description="Met à jour l'email d'un abonné via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="email", type="string", format="email", example="new@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Abonné mis à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function update(Request $request, Newsletter $newsletter)
 {
     try {
         $validated = $request->validate([
@@ -107,6 +266,51 @@ class NewsletterController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     */
+    /**
+     * @OA\Delete(
+     *     path="/api/newsletters/{newsletter}",
+     *     tags={"Newsletters"},
+     *     summary="Supprimer un abonné par ID",
+     *     description="Supprime un abonné de la newsletter via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="newsletter",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Abonné supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Delete(
+     *     path="/api/newsletters/slug/{slug}",
+     *     tags={"Newsletters"},
+     *     summary="Supprimer un abonné par Slug",
+     *     description="Supprime un abonné de la newsletter via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Abonné supprimé",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
      */
     public function destroy(Newsletter $newsletter)
     {

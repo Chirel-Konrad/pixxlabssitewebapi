@@ -10,6 +10,35 @@ use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/users",
+     *     tags={"Users"},
+     *     summary="Liste des utilisateurs",
+     *     description="Récupère la liste paginée des utilisateurs",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Nombre d'éléments par page",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=20)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/User")),
+     *                 @OA\Property(property="total", type="integer")
+     *             ),
+     *             @OA\Property(property="message", type="string", example="Utilisateurs récupérés avec succès")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         try {
@@ -31,6 +60,35 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/users",
+     *     tags={"Users"},
+     *     summary="Créer un utilisateur",
+     *     description="Crée un nouvel utilisateur (Admin seulement)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "password"},
+     *             @OA\Property(property="name", type="string", example="John Doe"),
+     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="Password123!"),
+     *             @OA\Property(property="phone", type="string", example="+33612345678"),
+     *             @OA\Property(property="role", type="string", enum={"user", "admin"}, example="user")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Utilisateur créé avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/User"),
+     *             @OA\Property(property="message", type="string", example="Utilisateur créé avec succès")
+     *         )
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         try {
@@ -67,6 +125,31 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/users/{user}",
+     *     tags={"Users"},
+     *     summary="Détails d'un utilisateur",
+     *     description="Récupère les détails d'un utilisateur spécifique",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="user",
+     *         in="path",
+     *         description="ID de l'utilisateur",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Détails récupérés avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/User"),
+     *             @OA\Property(property="message", type="string", example="Utilisateur récupéré avec succès")
+     *         )
+     *     )
+     * )
+     */
     public function show(User $user)
     {
         return response()->json([
@@ -76,6 +159,40 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/users/{user}",
+     *     tags={"Users"},
+     *     summary="Mettre à jour un utilisateur",
+     *     description="Met à jour les informations d'un utilisateur",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="user",
+     *         in="path",
+     *         description="ID de l'utilisateur",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="John Doe Updated"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.updated@example.com"),
+     *             @OA\Property(property="phone", type="string", example="+33698765432"),
+     *             @OA\Property(property="role", type="string", enum={"user", "admin"}, example="user")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Utilisateur mis à jour avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/User"),
+     *             @OA\Property(property="message", type="string", example="Utilisateur mis à jour avec succès")
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request, User $user)
     {
         try {
@@ -119,6 +236,30 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/users/{user}",
+     *     tags={"Users"},
+     *     summary="Supprimer un utilisateur",
+     *     description="Supprime un utilisateur définitivement",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="user",
+     *         in="path",
+     *         description="ID de l'utilisateur",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Utilisateur supprimé avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Utilisateur supprimé avec succès")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(User $user)
     {
         try {

@@ -8,6 +8,34 @@ use Illuminate\Support\Str;
 
 class FaqController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/api/faqs",
+     *     tags={"FAQs"},
+     *     summary="Liste des FAQs",
+     *     description="Récupère la liste paginée des questions fréquentes",
+     *     @OA\Parameter(
+     *         name="type",
+     *         in="query",
+     *         description="Filtrer par type (home, webinars, partner, AI)",
+     *         required=false,
+     *         @OA\Schema(type="string", enum={"home", "webinars", "partner", "AI"})
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Liste récupérée avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Faq")),
+     *                 @OA\Property(property="current_page", type="integer"),
+     *                 @OA\Property(property="total", type="integer")
+     *             ),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         try {
@@ -35,7 +63,35 @@ class FaqController extends Controller
 
 
 
-public function store(Request $request)
+/**
+     * @OA\Post(
+     *     path="/api/faqs",
+     *     tags={"FAQs"},
+     *     summary="Créer une FAQ",
+     *     description="Crée une nouvelle question fréquente avec ses réponses",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"type", "question", "answers"},
+     *             @OA\Property(property="type", type="string", enum={"home", "webinars", "partner", "AI"}),
+     *             @OA\Property(property="question", type="string", example="Comment ça marche ?"),
+     *             @OA\Property(property="description", type="string", example="Explication"),
+     *             @OA\Property(property="answers", type="array", @OA\Items(type="string", example="Voici la réponse..."))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="FAQ créée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Faq"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function store(Request $request)
 {
     try {
         $validated = $request->validate([
@@ -74,7 +130,72 @@ public function store(Request $request)
 }
 
 
-   public function update(Request $request, Faq $faq)
+   /**
+     * @OA\Put(
+     *     path="/api/faqs/{faq}",
+     *     tags={"FAQs"},
+     *     summary="Mettre à jour une FAQ par ID",
+     *     description="Met à jour une question fréquente via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="faq",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="type", type="string", enum={"home", "webinars", "partner", "AI"}),
+     *             @OA\Property(property="question", type="string", example="Question modifiée ?"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="answers", type="array", @OA\Items(type="string", example="Réponse modifiée..."))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ mise à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Faq"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Put(
+     *     path="/api/faqs/slug/{slug}",
+     *     tags={"FAQs"},
+     *     summary="Mettre à jour une FAQ par Slug",
+     *     description="Met à jour une question fréquente via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="type", type="string", enum={"home", "webinars", "partner", "AI"}),
+     *             @OA\Property(property="question", type="string", example="Question modifiée ?"),
+     *             @OA\Property(property="description", type="string"),
+     *             @OA\Property(property="answers", type="array", @OA\Items(type="string", example="Réponse modifiée..."))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ mise à jour",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Faq"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
+    public function update(Request $request, Faq $faq)
 {
     try {
         $validated = $request->validate([
@@ -116,6 +237,51 @@ public function store(Request $request)
 }
 
 
+    /**
+     * @OA\Get(
+     *     path="/api/faqs/{faq}",
+     *     tags={"FAQs"},
+     *     summary="Détails d'une FAQ par ID",
+     *     description="Récupère une question fréquente via son ID.",
+     *     @OA\Parameter(
+     *         name="faq",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ trouvée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Faq"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Get(
+     *     path="/api/faqs/slug/{slug}",
+     *     tags={"FAQs"},
+     *     summary="Détails d'une FAQ par Slug",
+     *     description="Récupère une question fréquente via son slug. Recommandé pour l'affichage public.",
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ trouvée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/Faq"),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function show(Faq $faq)
     {
         return response()->json([
@@ -125,6 +291,51 @@ public function store(Request $request)
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/faqs/{faq}",
+     *     tags={"FAQs"},
+     *     summary="Supprimer une FAQ par ID",
+     *     description="Supprime une FAQ via son ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="faq",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ supprimée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Delete(
+     *     path="/api/faqs/slug/{slug}",
+     *     tags={"FAQs"},
+     *     summary="Supprimer une FAQ par Slug",
+     *     description="Supprime une FAQ via son slug.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="FAQ supprimée",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     )
+     * )
+     */
     public function destroy(Faq $faq)
     {
         try {
