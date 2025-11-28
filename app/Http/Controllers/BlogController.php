@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Http\Resources\BlogResource;
+use App\Http\Requests\StoreBlogRequest;
+use App\Http\Requests\UpdateBlogRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -10,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 
 class BlogController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/blogs",
@@ -26,31 +32,12 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(
-     *                     property="data",
-     *                     type="array",
-     *                     @OA\Items(ref="#/components/schemas/Blog")
-     *                 ),
-     *                 @OA\Property(property="current_page", type="integer", example=1),
-     *                 @OA\Property(property="per_page", type="integer", example=10),
-     *                 @OA\Property(property="total", type="integer", example=50),
-     *                 @OA\Property(property="last_page", type="integer", example=5)
-     *             )
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     ),
      *     @OA\Response(
      *         response=500,
      *         description="Erreur serveur",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="error", type="string", example="Erreur lors de la récupération des articles"),
-     *             @OA\Property(property="message", type="string", example="Database connection error")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
      */
@@ -58,13 +45,9 @@ class BlogController extends Controller
     {
         try {
             $blogs = Blog::with('user', 'comments')->latest()->paginate(10);
-            return response()->json(['success' => true, 'data' => $blogs]);
+            return $this->paginatedResponse(BlogResource::collection($blogs), 'Liste des articles récupérée avec succès');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Erreur lors de la récupération des articles',
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des articles', 500, $e->getMessage());
         }
     }
 
@@ -102,10 +85,7 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Article créé avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Blog")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -120,25 +100,14 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=500,
      *         description="Erreur serveur",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="error", type="string", example="Erreur lors de la création de l'article"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StoreBlogRequest $request)
     {
         try {
-            $categories = ['Action', 'Développement personnel', 'Technologie', 'Business', 'Santé', 'Lifestyle', 'Éducation', 'Divertissement', 'Culture', 'Voyage'];
-
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'content' => 'required|string',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'category' => 'required|string|in:' . implode(',', $categories),
-            ]);
+            $validated = $request->validated();
 
             $validated['user_id'] = auth()->id();
             $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
@@ -150,13 +119,9 @@ class BlogController extends Controller
 
             $blog = Blog::create($validated);
 
-            return response()->json(['success' => true, 'data' => $blog], 201);
+            return $this->successResponse(new BlogResource($blog), 'Article créé avec succès', 201);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => "Erreur lors de la création de l'article",
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse("Erreur lors de la création de l'article", 500, $e->getMessage());
         }
     }
 
@@ -176,34 +141,25 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Article trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Blog")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Article non trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Models\\Blog]")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
      *     @OA\Response(
      *         response=500,
      *         description="Erreur serveur",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="error", type="string", example="Erreur lors de la récupération de l'article"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
      *
      * @OA\Get(
      *     path="/api/blogs/slug/{slug}",
      *     tags={"Blogs"},
-     *     summary="Détails d'un article de blog par slug",
-     *     description="Récupère les détails complets d'un article via son slug avec auteur et commentaires",
+     *     summary="Consultation publique (SEO Friendly)",
+     *     description="Récupère les détails complets d'un article via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -214,30 +170,21 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Article trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Blog")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     ),
      *     @OA\Response(
      *         response=404,
      *         description="Article non trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Models\\Blog]")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
      */
     public function show(Blog $blog)
     {
         try {
-            return response()->json(['success' => true, 'data' => $blog->load('user', 'comments')]);
+            return $this->successResponse(new BlogResource($blog->load('user', 'comments')), 'Article récupéré avec succès');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => "Erreur lors de la récupération de l'article",
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse("Erreur lors de la récupération de l'article", 500, $e->getMessage());
         }
     }
 
@@ -286,10 +233,7 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Article modifié avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Blog")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -299,9 +243,7 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=404,
      *         description="Article non trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Models\\Blog]")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
      *     @OA\Response(
      *         response=422,
@@ -313,7 +255,7 @@ class BlogController extends Controller
      * @OA\Put(
      *     path="/api/blogs/slug/{slug}",
      *     tags={"Blogs"},
-     *     summary="Mettre à jour un article de blog par slug",
+     *     summary="Mise à jour via URL publique",
      *     description="Met à jour un article existant via son slug",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -339,24 +281,14 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Article modifié avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Blog")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Blog $blog)
+    public function update(UpdateBlogRequest $request, Blog $blog)
     {
         try {
-            $categories = ['Action', 'Développement personnel', 'Technologie', 'Business', 'Santé', 'Lifestyle', 'Éducation', 'Divertissement', 'Culture', 'Voyage'];
-
-            $validated = $request->validate([
-                'title' => 'sometimes|string|max:255',
-                'content' => 'sometimes|string',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-                'category' => 'sometimes|string|in:' . implode(',', $categories),
-            ]);
+            $validated = $request->validated();
 
             if ($request->hasFile('image')) {
                 if ($blog->image && Storage::disk('public')->exists($blog->image)) {
@@ -368,13 +300,9 @@ class BlogController extends Controller
 
             $blog->update($validated);
 
-            return response()->json(['success' => true, 'data' => $blog]);
+            return $this->successResponse(new BlogResource($blog), 'Article mis à jour avec succès');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => "Erreur lors de la mise à jour de l'article",
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse("Erreur lors de la mise à jour de l'article", 500, $e->getMessage());
         }
     }
 
@@ -395,10 +323,7 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Article supprimé avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Article supprimé avec succès")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -408,24 +333,19 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=404,
      *         description="Article non trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Models\\Blog]")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     ),
      *     @OA\Response(
      *         response=500,
      *         description="Erreur serveur",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="error", type="string", example="Erreur lors de la suppression de l'article")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
      *     )
      * )
      *
      * @OA\Delete(
      *     path="/api/blogs/slug/{slug}",
      *     tags={"Blogs"},
-     *     summary="Supprimer un article de blog par slug",
+     *     summary="Suppression via URL publique",
      *     description="Supprime définitivement un article via son slug",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -438,10 +358,7 @@ class BlogController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Article supprimé avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Article supprimé avec succès")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -452,13 +369,9 @@ class BlogController extends Controller
                 Storage::disk('public')->delete($blog->image);
             }
             $blog->delete();
-            return response()->json(['success' => true, 'message' => 'Article supprimé avec succès']);
+            return $this->successResponse(null, 'Article supprimé avec succès');
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => "Erreur lors de la suppression de l'article",
-                'message' => $e->getMessage()
-            ], 500);
+            return $this->errorResponse("Erreur lors de la suppression de l'article", 500, $e->getMessage());
         }
     }
 }

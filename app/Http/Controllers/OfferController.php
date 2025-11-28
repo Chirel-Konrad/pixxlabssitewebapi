@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Offer;
+use App\Http\Resources\OfferResource;
+use App\Http\Requests\StoreOfferRequest;
+use App\Http\Requests\UpdateOfferRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class OfferController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/offers",
@@ -25,15 +31,7 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Offer")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -43,18 +41,10 @@ class OfferController extends Controller
             $perPage = $request->get('per_page', 20);
             $offers = Offer::latest()->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $offers,
-                'message' => 'Offres récupérées avec succès'
-            ]);
+            return $this->paginatedResponse(OfferResource::collection($offers), 'Offres récupérées avec succès');
         } catch (\Exception $e) {
             Log::error("OfferController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des offres'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des offres', 500, $e->getMessage());
         }
     }
 
@@ -76,39 +66,24 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Offre créée",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Offer"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StoreOfferRequest $request)
     {
         try {
-            $validated = $request->validate([
-                "title" => "required|string|max:255",
-                "description" => "nullable|string",
-            ]);
+            $validated = $request->validated();
 
             // Slug unique
             $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
 
             $offer = Offer::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $offer,
-                'message' => 'Offre créée avec succès'
-            ], 201);
+            return $this->successResponse(new OfferResource($offer), 'Offre créée avec succès', 201);
         } catch (\Exception $e) {
             Log::error("OfferController@store: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création de l\'offre'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création de l\'offre', 500, $e->getMessage());
         }
     }
 
@@ -127,11 +102,7 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Offre trouvée",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Offer"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -139,7 +110,7 @@ class OfferController extends Controller
      *     path="/api/offers/slug/{slug}",
      *     tags={"Offers"},
      *     summary="Détails d'une offre par Slug",
-     *     description="Récupère les détails d'une offre via son slug.",
+     *     description="Récupère les détails d'une offre via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -149,21 +120,13 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Offre trouvée",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Offer"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Offer $offer)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $offer,
-            'message' => 'Offre récupérée avec succès'
-        ]);
+        return $this->successResponse(new OfferResource($offer), 'Offre récupérée avec succès');
     }
 
     /**
@@ -195,11 +158,7 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Offre mise à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Offer"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -231,38 +190,23 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Offre mise à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Offer"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Offer $offer)
+    public function update(UpdateOfferRequest $request, Offer $offer)
     {
         try {
-            $validated = $request->validate([
-                "title" => "required|string|max:255",
-                "description" => "nullable|string",
-            ]);
+            $validated = $request->validated();
             // Ne plus modifier le slug lors de la mise à jour
 
 
             $offer->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $offer,
-                'message' => 'Offre mise à jour avec succès'
-            ]);
+            return $this->successResponse(new OfferResource($offer), 'Offre mise à jour avec succès');
         } catch (\Exception $e) {
             Log::error("OfferController@update: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour de l\'offre'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour de l\'offre', 500, $e->getMessage());
         }
     }
 
@@ -282,10 +226,7 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Offre supprimée",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -304,10 +245,7 @@ class OfferController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Offre supprimée",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -316,18 +254,10 @@ class OfferController extends Controller
         try {
             $offer->delete();
 
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Offre supprimée avec succès'
-            ]);
+            return $this->successResponse(null, 'Offre supprimée avec succès');
         } catch (\Exception $e) {
             Log::error("OfferController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression de l\'offre'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression de l\'offre', 500, $e->getMessage());
         }
     }
 }

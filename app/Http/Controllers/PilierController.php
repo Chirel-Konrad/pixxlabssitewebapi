@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pilier;
+use App\Http\Resources\PilierResource;
+use App\Http\Requests\StorePilierRequest;
+use App\Http\Requests\UpdatePilierRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +14,8 @@ use Illuminate\Support\Str;
 
 class PilierController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/piliers",
@@ -26,15 +32,7 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Pilier")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -44,18 +42,10 @@ class PilierController extends Controller
             $perPage = $request->get('per_page', 20);
             $piliers = Pilier::latest()->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $piliers,
-                'message' => 'Piliers récupérés avec succès'
-            ]);
+            return $this->paginatedResponse(PilierResource::collection($piliers), 'Piliers récupérés avec succès');
         } catch (\Exception $e) {
             Log::error("PilierController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des piliers'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des piliers', 500, $e->getMessage());
         }
     }
 
@@ -81,22 +71,14 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Pilier créé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Pilier"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StorePilierRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'required|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
+            $validated = $request->validated();
             // Slug unique
             $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
 
@@ -106,18 +88,10 @@ class PilierController extends Controller
 
             $pilier = Pilier::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $pilier,
-                'message' => 'Pilier créé avec succès'
-            ], 201);
+            return $this->successResponse(new PilierResource($pilier), 'Pilier créé avec succès', 201);
         } catch (\Exception $e) {
             Log::error("PilierController@store: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création du pilier'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création du pilier', 500, $e->getMessage());
         }
     }
 
@@ -136,11 +110,7 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Pilier trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Pilier"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -148,7 +118,7 @@ class PilierController extends Controller
      *     path="/api/piliers/slug/{slug}",
      *     tags={"Piliers"},
      *     summary="Détails d'un pilier par Slug",
-     *     description="Récupère les détails d'un pilier via son slug.",
+     *     description="Récupère les détails d'un pilier via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -158,21 +128,13 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Pilier trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Pilier"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Pilier $pilier)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $pilier,
-            'message' => 'Pilier récupéré avec succès'
-        ]);
+        return $this->successResponse(new PilierResource($pilier), 'Pilier récupéré avec succès');
     }
 
     /**
@@ -203,11 +165,7 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Pilier mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Pilier"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -238,22 +196,14 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Pilier mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Pilier"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Pilier $pilier)
+    public function update(UpdatePilierRequest $request, Pilier $pilier)
     {
         try {
-            $validated = $request->validate([
-                'title' => 'sometimes|string|max:255',
-                'description' => 'sometimes|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            ]);
+            $validated = $request->validated();
 
             if ($request->hasFile('image')) {
                 if ($pilier->image) {
@@ -264,18 +214,10 @@ class PilierController extends Controller
             // Ne plus modifier le slug lors de la mise à jour
             $pilier->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $pilier,
-                'message' => 'Pilier mis à jour avec succès'
-            ]);
+            return $this->successResponse(new PilierResource($pilier), 'Pilier mis à jour avec succès');
         } catch (\Exception $e) {
             Log::error("PilierController@update: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour du pilier'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour du pilier', 500, $e->getMessage());
         }
     }
 
@@ -295,10 +237,7 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Pilier supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -317,10 +256,7 @@ class PilierController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Pilier supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -333,18 +269,10 @@ class PilierController extends Controller
 
             $pilier->delete();
 
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Pilier supprimé avec succès'
-            ]);
+            return $this->successResponse(null, 'Pilier supprimé avec succès');
         } catch (\Exception $e) {
             Log::error("PilierController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression du pilier'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression du pilier', 500, $e->getMessage());
         }
     }
 }

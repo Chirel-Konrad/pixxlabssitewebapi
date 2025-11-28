@@ -4,19 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\SocialLoginRequest;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 use Illuminate\Auth\Events\Verified;
-use App\Helpers\ApiResponse;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
     /**
      * @OA\Post(
      *     path="/api/register",
@@ -52,40 +57,31 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-            'phone' => 'nullable|string|max:20',
-            'role' => 'nullable|string|in:user,admin,superadmin',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'phone' => $request->phone,
-            'slug' => Str::slug($request->name) . '-' . uniqid(),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'] ?? null,
+            'slug' => Str::slug($validated['name']) . '-' . uniqid(),
             'provider' => null,
             'provider_id' => null,
             'is_2fa_enable' => false,
             'email_verified_at' => null,
             'status' => 'inactive',
-            'role' => $request->role ?? 'user',
+            'role' => $validated['role'] ?? 'user',
         ]);
 
         $user->sendEmailVerificationNotification();
         $token = $user->createToken('PolariixToken')->accessToken;
 
-        return response()->json([
-            'user' => $user->makeHidden(['password']),
+        return $this->successResponse([
+            'user' => new UserResource($user),
             'token' => $token,
-            'message' => 'Inscription réussie. Un email de vérification a été envoyé.',
-        ],201, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        ], 'Inscription réussie. Un email de vérification a été envoyé.', 201);
     }
 
     /**
@@ -135,23 +131,20 @@ class AuthController extends Controller
         $user = User::findOrFail($id);
 
         if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            return response()->json(['message' => 'Lien de vérification invalide.'], 400);
+            return $this->errorResponse('Lien de vérification invalide.', 400);
         }
 
         if ($user->hasVerifiedEmail() && !$user->is_2fa_enable) {
-            return response()->json(['message' => 'Email déjà vérifié.'], 200);
+            return $this->successResponse(null, 'Email déjà vérifié.');
         }
 
         $user->markEmailAsVerified();
         event(new Verified($user));
         $user->update(['status' => 'active']);
 
-        return response()->json([
-            'message' => 'Email vérifié avec succès. Statut activé.',
-            'user' => $user->makeHidden(['password']),
-        ],200, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        return $this->successResponse([
+            'user' => new UserResource($user),
+        ], 'Email vérifié avec succès. Statut activé.');
     }
 
     /**
@@ -210,35 +203,31 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
 
         if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+            return $this->errorResponse('Utilisateur non trouvé', 404);
         }
 
         if ($user->status == 'banned') {
-            return response()->json(['message' => 'Compte banni'], 403);
+            return $this->errorResponse('Compte banni', 403);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Identifiants invalides'], 401);
+        if (!Auth::attempt($validated)) {
+            return $this->errorResponse('Identifiants invalides', 401);
         }
 
         if ($user->is_2fa_enable && $user->status == 'inactive') {
             $user->sendEmailVerificationNotification();
             Auth::logout();
 
-            return response()->json([
-                'message' => 'Connexion réussie, mais vérification 2FA requise. Consultez votre email.',
+            return $this->successResponse([
                 'two_factor_required' => true
-            ]);
+            ], 'Connexion réussie, mais vérification 2FA requise. Consultez votre email.');
         }
 
         $token = $user->createToken('PolariixToken')->accessToken;
@@ -248,15 +237,12 @@ class AuthController extends Controller
             'notifications' => [],
         ]);
 
-        return response()->json([
+        return $this->successResponse([
             'status' => true,
-            'message' => 'Connexion réussie',
             'token' => $token,
             'session_id' => session()->getId(),
-            'user' => $user->makeHidden(['password']),
-        ], 200, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            'user' => new UserResource($user),
+        ], 'Connexion réussie');
     }
 
     /**
@@ -295,34 +281,27 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function socialLogin(Request $request)
+    public function socialLogin(SocialLoginRequest $request)
     {
-        $request->validate([
-            'provider' => 'required|string',
-            'provider_id' => 'required|string',
-            'email' => 'required|email',
-            'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
-            'role' => 'nullable|string|in:user,admin,superadmin',
-        ]);
+        $validated = $request->validated();
 
-        $user = User::where('provider', $request->provider)
-                    ->where('provider_id', $request->provider_id)
+        $user = User::where('provider', $validated['provider'])
+                    ->where('provider_id', $validated['provider_id'])
                     ->first();
 
         if (!$user) {
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
                 'password' => null,
-                'phone' => $request->phone,
-                'provider' => $request->provider,
-                'provider_id' => $request->provider_id,
+                'phone' => $validated['phone'] ?? null,
+                'provider' => $validated['provider'],
+                'provider_id' => $validated['provider_id'],
                 'is_2fa_enable' => false,
                 'email_verified_at' => Carbon::now(),
                 'status' => 'active',
-                'slug' => Str::slug($request->name) . '-' . uniqid(),
-                'role' => $request->role ?? 'user',
+                'slug' => Str::slug($validated['name']) . '-' . uniqid(),
+                'role' => $validated['role'] ?? 'user',
             ]);
         }
 
@@ -333,15 +312,12 @@ class AuthController extends Controller
             'notifications' => [],
         ]);
 
-        return response()->json([
+        return $this->successResponse([
             'status' => true,
-            'message' => 'Connexion sociale réussie',
             'token' => $token,
             'session_id' => session()->getId(),
-            'user' => $user->makeHidden(['password']),
-        ], 201, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            'user' => new UserResource($user),
+        ], 'Connexion sociale réussie', 201);
     }
 
     /**
@@ -374,9 +350,7 @@ class AuthController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        return response()->json(['message' => '2FA activée, un email de validation vous a été envoyé.'],200, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        return $this->successResponse(null, '2FA activée, un email de validation vous a été envoyé.');
     }
 
     /**
@@ -409,10 +383,7 @@ class AuthController extends Controller
         $user = $request->user();
 
         if (!$user) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Aucun utilisateur connecté'
-            ], 401);
+            return $this->errorResponse('Aucun utilisateur connecté', 401);
         }
 
         if ($user->is_2fa_enable) {
@@ -426,12 +397,9 @@ class AuthController extends Controller
         session()->invalidate();
         session()->regenerateToken();
 
-        return response()->json([
+        return $this->successResponse([
             'status' => true,
-            'message' => 'Déconnecté avec succès. Session et token révoqués.'
-        ], 200, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        ], 'Déconnecté avec succès. Session et token révoqués.');
     }
 
     /**
@@ -468,14 +436,14 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function sendPasswordResetLink(Request $request)
+    public function sendPasswordResetLink(ForgotPasswordRequest $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $validated = $request->validated();
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
 
         if (!$user) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+            return $this->errorResponse('Utilisateur non trouvé', 404);
         }
 
         $token = Str::random(64);
@@ -494,9 +462,7 @@ class AuthController extends Controller
                 ->subject('Réinitialisation de votre mot de passe');
         });
 
-        return response()->json(['message' => 'Lien de réinitialisation envoyé par email'],200, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        return $this->successResponse(null, 'Lien de réinitialisation envoyé par email');
     }
 
     /**
@@ -535,31 +501,26 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
-        $request->validate([
-            'token' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $validated = $request->validated();
 
-        $user = User::where('password_reset_token', $request->token)->first();
+        $user = User::where('password_reset_token', $validated['token'])->first();
 
         if (!$user) {
-            return response()->json(['message' => 'Token invalide'], 400);
+            return $this->errorResponse('Token invalide', 400);
         }
 
         if (Carbon::parse($user->password_reset_sent_at)->addMinutes(10)->isPast()) {
-            return response()->json(['message' => 'Token expiré'], 400);
+            return $this->errorResponse('Token expiré', 400);
         }
 
-        $user->password = bcrypt($request->password);
+        $user->password = bcrypt($validated['password']);
         $user->status = 'active';
         $user->password_reset_token = null;
         $user->password_reset_sent_at = null;
         $user->save();
 
-        return response()->json(['message' => 'Mot de passe réinitialisé avec succès'],200, [
-            'Content-Type' => 'application/json; charset=UTF-8'
-        ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        return $this->successResponse(null, 'Mot de passe réinitialisé avec succès');
     }
 }

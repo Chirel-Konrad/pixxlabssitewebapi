@@ -3,12 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Webinar;
+use App\Http\Resources\WebinarResource;
+use App\Http\Requests\StoreWebinarRequest;
+use App\Http\Requests\UpdateWebinarRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class WebinarController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/webinars",
@@ -25,15 +32,7 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Webinar")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -43,18 +42,10 @@ class WebinarController extends Controller
             $perPage = $request->get('per_page', 20);
             $webinars = Webinar::latest()->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $webinars,
-                'message' => 'Webinaires récupérés avec succès'
-            ]);
+            return $this->paginatedResponse(WebinarResource::collection($webinars), 'Webinaires récupérés avec succès');
         } catch (\Exception $e) {
             Log::error("WebinarController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des webinaires'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des webinaires', 500, $e->getMessage());
         }
     }
 
@@ -84,26 +75,14 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Webinaire créé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StoreWebinarRequest $request)
     {
         try {
-            $validated = $request->validate([
-                "title" => "required|string|max:255",
-                "description" => "nullable|string",
-                "whose" => "required|string|max:255",
-                "date" => "required|string|max:255",
-                "time" => "required|string|max:255",
-                "image" => "nullable|image|mimes:jpg,jpeg,png|max:2048",
-                "video" => "nullable|file|mimes:mp4,mov,avi,webm|max:51200", // max 50MB
-            ]);
+            $validated = $request->validated();
 
             // Génération automatique du slug unique
             $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
@@ -122,19 +101,11 @@ class WebinarController extends Controller
 
             $webinar = Webinar::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $webinar,
-                'message' => 'Webinaire créé avec succès'
-            ], 201);
+            return $this->successResponse(new WebinarResource($webinar), 'Webinaire créé avec succès', 201);
 
         } catch (\Exception $e) {
             Log::error("WebinarController@store: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création du webinaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création du webinaire', 500, $e->getMessage());
         }
     }
 
@@ -153,11 +124,7 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Webinaire trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -165,7 +132,7 @@ class WebinarController extends Controller
      *     path="/api/webinars/slug/{slug}",
      *     tags={"Webinars"},
      *     summary="Détails d'un webinaire par Slug",
-     *     description="Récupère les détails d'un webinaire via son slug.",
+     *     description="Récupère les détails d'un webinaire via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -175,21 +142,13 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Webinaire trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Webinar $webinar)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $webinar,
-            'message' => 'Webinaire récupéré avec succès'
-        ]);
+        return $this->successResponse(new WebinarResource($webinar), 'Webinaire récupéré avec succès');
     }
 
     /**
@@ -222,11 +181,7 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Webinaire mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -259,26 +214,14 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Webinaire mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Webinar"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Webinar $webinar)
+    public function update(UpdateWebinarRequest $request, Webinar $webinar)
     {
         try {
-            $validated = $request->validate([
-                "title" => "required|string|max:255",
-                "description" => "nullable|string",
-                "whose" => "required|string|max:255",
-                "date" => "required|string|max:255",
-                "time" => "required|string|max:255",
-                "image" => "nullable|image|mimes:jpg,jpeg,png|max:2048",
-                "video" => "nullable|file|mimes:mp4,mov,avi,webm|max:51200", // max 50MB
-            ]);
+            $validated = $request->validated();
 
             // Ne plus modifier le slug lors de la mise à jour
 
@@ -302,19 +245,11 @@ class WebinarController extends Controller
 
             $webinar->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $webinar,
-                'message' => 'Webinaire mis à jour avec succès'
-            ]);
+            return $this->successResponse(new WebinarResource($webinar), 'Webinaire mis à jour avec succès');
 
         } catch (\Exception $e) {
             Log::error("WebinarController@update: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour du webinaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour du webinaire', 500, $e->getMessage());
         }
     }
 
@@ -334,10 +269,7 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Webinaire supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -356,10 +288,7 @@ class WebinarController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Webinaire supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -367,18 +296,10 @@ class WebinarController extends Controller
     {
         try {
             $webinar->delete();
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Webinaire supprimé avec succès'
-            ]);
+            return $this->successResponse(null, 'Webinaire supprimé avec succès');
         } catch (\Exception $e) {
             Log::error("WebinarController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression du webinaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression du webinaire', 500, $e->getMessage());
         }
     }
 }

@@ -29,6 +29,10 @@ php artisan migrate:fresh --force
 echo "🌱 Running seeders..."
 php artisan db:seed --force || true
 
+# ✅ AJOUT : Générer la documentation Swagger
+echo "📖 Generating Swagger documentation..."
+php artisan l5-swagger:generate || echo "⚠️  Swagger generation failed"
+
 echo "📋 Configuration des logs Laravel..."
 # Créer un lien symbolique de laravel.log vers stderr
 rm -f /var/www/html/storage/logs/laravel.log

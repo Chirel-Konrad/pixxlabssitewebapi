@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contact;
+use App\Http\Resources\ContactResource;
+use App\Http\Requests\StoreContactRequest;
+use App\Http\Requests\UpdateContactRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ContactController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +28,7 @@ class ContactController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Contact"))
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -30,9 +36,9 @@ class ContactController extends Controller
     {
         try {
             $contacts = Contact::all();
-            return response()->json($contacts);
+            return $this->successResponse(ContactResource::collection($contacts), 'Liste des contacts récupérée avec succès');
         } catch (\Exception $e) {
-            return response()->json(["message" => "Erreur lors de la récupération des contacts: " . $e->getMessage()], 500);
+            return $this->errorResponse("Erreur lors de la récupération des contacts", 500, $e->getMessage());
         }
     }
 
@@ -58,30 +64,25 @@ class ContactController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Message envoyé avec succès",
-     *         @OA\JsonContent(ref="#/components/schemas/Contact")
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-   public function store(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            "firstname" => "required|string|max:255",
-            "lastname" => "required|string|max:255",
-            "email" => "required|email|max:255",
-            "message" => "required|string",
-        ]);
+    public function store(StoreContactRequest $request)
+    {
+        try {
+            $validated = $request->validated();
 
-        $validated['slug'] = Str::slug($validated['firstname'] . ' ' . $validated['lastname']) . '-' . uniqid();
+            $validated['slug'] = Str::slug($validated['firstname'] . ' ' . $validated['lastname']) . '-' . uniqid();
 
+            $contact = Contact::create($validated);
 
-        $contact = Contact::create($validated);
-
-        return response()->json($contact, 201);
-    } catch (\Exception $e) {
-        return response()->json(["message" => "Erreur lors de la création du contact: " . $e->getMessage()], 500);
+            return $this->successResponse(new ContactResource($contact), 'Message envoyé avec succès', 201);
+        } catch (\Exception $e) {
+            return $this->errorResponse("Erreur lors de la création du contact", 500, $e->getMessage());
+        }
     }
-}
+
     /**
      * Display the specified resource.
      */
@@ -101,16 +102,36 @@ class ContactController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Contact trouvé",
-     *         @OA\JsonContent(ref="#/components/schemas/Contact")
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+     *     )
+     * )
+     *
+     * @OA\Get(
+     *     path="/api/contacts/slug/{slug}",
+     *     tags={"Contacts"},
+     *     summary="Détails d'un contact par slug",
+     *     description="Récupère un message de contact via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         description="Slug du contact",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Contact trouvé",
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Contact $contact)
     {
         try {
-            return response()->json($contact);
+            return $this->successResponse(new ContactResource($contact), 'Contact récupéré avec succès');
         } catch (\Exception $e) {
-            return response()->json(["message" => "Erreur lors de la récupération du contact: " . $e->getMessage()], 500);
+            return $this->errorResponse("Erreur lors de la récupération du contact", 500, $e->getMessage());
         }
     }
 
@@ -139,11 +160,7 @@ class ContactController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Message mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Contact"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -168,33 +185,24 @@ class ContactController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Message mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Contact"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-   public function update(Request $request, Contact $contact)
-{
-    try {
-        $validated = $request->validate([
-            "firstname" => "required|string|max:255",
-            "lastname" => "required|string|max:255",
-            "email" => "required|email|max:255",
-            "message" => "required|string",
-        ]);
+    public function update(UpdateContactRequest $request, Contact $contact)
+    {
+        try {
+            $validated = $request->validated();
 
-        // Ne plus modifier le slug lors de la mise à jour
+            // Ne plus modifier le slug lors de la mise à jour
 
-        $contact->update($validated);
+            $contact->update($validated);
 
-        return response()->json($contact);
-    } catch (\Exception $e) {
-        return response()->json(["message" => "Erreur lors de la mise à jour du contact: " . $e->getMessage()], 500);
+            return $this->successResponse(new ContactResource($contact), 'Contact mis à jour avec succès');
+        } catch (\Exception $e) {
+            return $this->errorResponse("Erreur lors de la mise à jour du contact", 500, $e->getMessage());
+        }
     }
-}
 
     /**
      * Remove the specified resource from storage.
@@ -215,20 +223,17 @@ class ContactController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Contact supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Contact supprimé avec succès")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function destroy(Contact $contact)
-{
-    try {
-        $contact->delete();
-        return response()->json(["message" => "Contact supprimé avec succès"]);
-    } catch (\Exception $e) {
-        return response()->json(["message" => "Erreur lors de la suppression du contact: " . $e->getMessage()], 500);
+    {
+        try {
+            $contact->delete();
+            return $this->successResponse(null, "Contact supprimé avec succès");
+        } catch (\Exception $e) {
+            return $this->errorResponse("Erreur lors de la suppression du contact", 500, $e->getMessage());
+        }
     }
-}
-
 }

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Http\Resources\ProductResource;
+use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\UpdateProductRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +14,8 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/products",
@@ -33,15 +39,7 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Product")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -49,29 +47,20 @@ class ProductController extends Controller
     {
         try {
             $perPage = $request->get('per_page', 10);
-            $status = $request->get('status'); // ✅ récupère le filtre depuis l'URL
+            $status = $request->get('status');
 
             $query = Product::latest();
 
-            // ✅ Ajout du filtre
             if ($status && in_array($status, ['available', 'pending'])) {
                 $query->where('status', $status);
             }
 
             $products = $query->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $products,
-                'message' => 'Produits récupérés avec succès'
-            ]);
+            return $this->paginatedResponse(ProductResource::collection($products), 'Produits récupérés avec succès');
         } catch (\Exception $e) {
             Log::error("ProductController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des produits'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des produits', 500, $e->getMessage());
         }
     }
 
@@ -99,24 +88,14 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Produit créé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Product"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-     public function store(Request $request)
+     public function store(StoreProductRequest $request)
     {
         try {
-            $validated = $request->validate([
-                "name" => "required|string|max:255",
-                "description" => "nullable|string",
-                "price" => "required|numeric",
-                "image" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
-                "status" => "in:available,pending"
-            ]);
+            $validated = $request->validated();
 
             // Génération automatique du slug
             $validated['slug'] = Str::slug($request->name) . '-' . uniqid();
@@ -128,18 +107,10 @@ class ProductController extends Controller
 
             $product = Product::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $product,
-                'message' => 'Produit créé avec succès'
-            ], 201);
+            return $this->successResponse(new ProductResource($product), 'Produit créé avec succès', 201);
         } catch (\Exception $e) {
             Log::error("ProductController@store: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création du produit'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création du produit', 500, $e->getMessage());
         }
     }
 
@@ -159,11 +130,7 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produit trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Product"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -171,7 +138,7 @@ class ProductController extends Controller
      *     path="/api/products/slug/{slug}",
      *     tags={"Products"},
      *     summary="Détails d'un produit par Slug",
-     *     description="Récupère les détails d'un produit via son slug (chaîne URL-friendly). Cette méthode est recommandée pour le frontend public car elle améliore le SEO et masque l'ID interne.",
+     *     description="Récupère les détails d'un produit via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -182,21 +149,13 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produit trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Product"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Product $product)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $product,
-            'message' => 'Produit récupéré avec succès'
-        ]);
+        return $this->successResponse(new ProductResource($product), 'Produit récupéré avec succès');
     }
 
     /**
@@ -229,11 +188,7 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produit mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Product"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -266,24 +221,14 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produit mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Product"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product)
     {
         try {
-            $validated = $request->validate([
-                "name" => "required|string|max:255",
-                "description" => "nullable|string",
-                "price" => "required|numeric",
-                "image" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048",
-                "status" => "in:available,pending"
-            ]);
+            $validated = $request->validated();
 
             // Ne plus modifier le slug lors de la mise à jour
 
@@ -297,18 +242,10 @@ class ProductController extends Controller
 
             $product->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $product,
-                'message' => 'Produit mis à jour avec succès'
-            ]);
+            return $this->successResponse(new ProductResource($product), 'Produit mis à jour avec succès');
         } catch (\Exception $e) {
             Log::error("ProductController@update: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour du produit'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour du produit', 500, $e->getMessage());
         }
     }
 
@@ -329,10 +266,7 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produit supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -351,10 +285,7 @@ class ProductController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Produit supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -366,18 +297,10 @@ class ProductController extends Controller
             }
             $product->delete();
 
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Produit supprimé avec succès'
-            ]);
+            return $this->successResponse(null, 'Produit supprimé avec succès');
         } catch (\Exception $e) {
             Log::error("ProductController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression du produit'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression du produit', 500, $e->getMessage());
         }
     }
 }

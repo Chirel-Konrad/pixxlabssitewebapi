@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Newsletter;
+use App\Http\Resources\NewsletterResource;
+use App\Http\Requests\StoreNewsletterRequest;
+use App\Http\Requests\UpdateNewsletterRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class NewsletterController extends Controller
 {
+    use ApiResponse;
+
     /**
      * Display a paginated listing of the resource.
      */
@@ -29,15 +35,7 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Newsletter")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -47,18 +45,10 @@ class NewsletterController extends Controller
             $perPage = $request->get('per_page', 20);
             $newsletters = Newsletter::latest()->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $newsletters,
-                'message' => 'Newsletters récupérées avec succès'
-            ]);
+            return $this->paginatedResponse(NewsletterResource::collection($newsletters), 'Newsletters récupérées avec succès');
         } catch (\Exception $e) {
             Log::error("Erreur NewsletterController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des newsletters'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des newsletters', 500, $e->getMessage());
         }
     }
 
@@ -81,40 +71,26 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Inscription réussie",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            'email' => 'required|email|unique:newsletters,email|max:255',
-        ]);
+    public function store(StoreNewsletterRequest $request)
+    {
+        try {
+            $validated = $request->validated();
 
-        // Génération d'un slug unique basé sur l'email
-        $validated['slug'] = Str::slug(explode('@', $validated['email'])[0]) . '-' . uniqid();
+            // Génération d'un slug unique basé sur l'email
+            $validated['slug'] = Str::slug(explode('@', $validated['email'])[0]) . '-' . uniqid();
 
-        $newsletter = Newsletter::create($validated);
+            $newsletter = Newsletter::create($validated);
 
-        return response()->json([
-            'success' => true,
-            'data' => $newsletter,
-            'message' => 'Inscription à la newsletter réussie'
-        ], 201);
-    } catch (\Exception $e) {
-        Log::error("Erreur NewsletterController@store: " . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'data' => null,
-            'message' => 'Erreur lors de l’inscription à la newsletter'
-        ], 500);
+            return $this->successResponse(new NewsletterResource($newsletter), 'Inscription à la newsletter réussie', 201);
+        } catch (\Exception $e) {
+            Log::error("Erreur NewsletterController@store: " . $e->getMessage());
+            return $this->errorResponse('Erreur lors de l’inscription à la newsletter', 500, $e->getMessage());
+        }
     }
-}
 
     /**
      * Display the specified resource.
@@ -135,11 +111,7 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Abonné trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -147,7 +119,7 @@ class NewsletterController extends Controller
      *     path="/api/newsletters/slug/{slug}",
      *     tags={"Newsletters"},
      *     summary="Détails d'un abonné par Slug",
-     *     description="Récupère un abonné via son slug.",
+     *     description="Récupère un abonné via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -158,27 +130,19 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Abonné trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Newsletter $newsletter)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $newsletter,
-            'message' => 'Newsletter récupérée avec succès'
-        ]);
+        return $this->successResponse(new NewsletterResource($newsletter), 'Newsletter récupérée avec succès');
     }
 
     /**
      * Update the specified resource in storage.
      */
-   /**
+    /**
      * @OA\Put(
      *     path="/api/newsletters/{newsletter}",
      *     tags={"Newsletters"},
@@ -200,11 +164,7 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Abonné mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -229,39 +189,25 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Abonné mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Newsletter"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Newsletter $newsletter)
-{
-    try {
-        $validated = $request->validate([
-            'email' => 'required|email|unique:newsletters,email,' . $newsletter->id . ',id|max:255',
-        ]);
+    public function update(UpdateNewsletterRequest $request, Newsletter $newsletter)
+    {
+        try {
+            $validated = $request->validated();
 
-        // Ne plus modifier le slug lors de la mise à jour
+            // Ne plus modifier le slug lors de la mise à jour
 
-        $newsletter->update($validated);
+            $newsletter->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'data' => $newsletter,
-            'message' => 'Newsletter mise à jour avec succès'
-        ]);
-    } catch (\Exception $e) {
-        Log::error("Erreur NewsletterController@update: " . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'data' => null,
-            'message' => 'Erreur lors de la mise à jour de la newsletter'
-        ], 500);
+            return $this->successResponse(new NewsletterResource($newsletter), 'Newsletter mise à jour avec succès');
+        } catch (\Exception $e) {
+            Log::error("Erreur NewsletterController@update: " . $e->getMessage());
+            return $this->errorResponse('Erreur lors de la mise à jour de la newsletter', 500, $e->getMessage());
+        }
     }
-}
 
 
     /**
@@ -283,10 +229,7 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Abonné supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -305,10 +248,7 @@ class NewsletterController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Abonné supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -316,18 +256,10 @@ class NewsletterController extends Controller
     {
         try {
             $newsletter->delete();
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Newsletter supprimée avec succès'
-            ]);
+            return $this->successResponse(null, 'Newsletter supprimée avec succès');
         } catch (\Exception $e) {
             Log::error("Erreur NewsletterController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression de la newsletter'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression de la newsletter', 500, $e->getMessage());
         }
     }
 }

@@ -24,41 +24,6 @@ namespace App\OpenApi\Schemas;
  * )
  *
  * @OA\Schema(
- *     schema="ErrorResponse",
- *     title="Error Response",
- *     description="Format de réponse d'erreur standard",
- *     @OA\Property(property="message", type="string", example="Une erreur est survenue"),
- *     @OA\Property(
- *         property="errors",
- *         type="object",
- *         example={"email": {"L'email est requis"}}
- *     )
- * )
- *
- * @OA\Schema(
- *     schema="ValidationError",
- *     title="Validation Error",
- *     description="Erreur de validation des données",
- *     @OA\Property(property="message", type="string", example="The given data was invalid."),
- *     @OA\Property(
- *         property="errors",
- *         type="object",
- *         example={
- *             "email": {"Le champ email est requis."},
- *             "password": {"Le mot de passe doit contenir au moins 8 caractères."}
- *         }
- *     )
- * )
- *
- * @OA\Schema(
- *     schema="SuccessResponse",
- *     title="Success Response",
- *     description="Réponse de succès standard",
- *     @OA\Property(property="message", type="string", example="Opération réussie"),
- *     @OA\Property(property="data", type="object")
- * )
- *
- * @OA\Schema(
  *     schema="PaginatedResponse",
  *     title="Paginated Response",
  *     description="Réponse paginée standard",

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Privilege;
+use App\Http\Resources\PrivilegeResource;
+use App\Http\Requests\StorePrivilegeRequest;
+use App\Http\Requests\UpdatePrivilegeRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +15,8 @@ use Illuminate\Validation\ValidationException;
 
 class PrivilegeController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/privileges",
@@ -27,15 +33,7 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Privilege")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -45,18 +43,10 @@ class PrivilegeController extends Controller
             $perPage = $request->get('per_page', 20);
             $privileges = Privilege::latest()->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $privileges,
-                'message' => 'Privilèges récupérés avec succès'
-            ]);
+            return $this->paginatedResponse(PrivilegeResource::collection($privileges), 'Privilèges récupérés avec succès');
         } catch (\Exception $e) {
             Log::error("PrivilegeController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des privilèges'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des privilèges', 500, $e->getMessage());
         }
     }
 
@@ -82,22 +72,14 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Privilège créé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Privilege"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StorePrivilegeRequest $request)
     {
         try {
-            $validated = $request->validate([
-                "title" => "required|string|max:255",
-                "description" => "nullable|string",
-                "image" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048"
-            ]);
+            $validated = $request->validated();
 
             // Slug unique
             $validated['slug'] = Str::slug($validated['title']) . '-' . uniqid();
@@ -107,24 +89,12 @@ class PrivilegeController extends Controller
 
             $privilege = Privilege::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $privilege,
-                'message' => 'Privilège créé avec succès'
-            ], 201);
+            return $this->successResponse(new PrivilegeResource($privilege), 'Privilège créé avec succès', 201);
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur de validation',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->errorResponse('Erreur de validation', 422, $e->errors());
         } catch (\Exception $e) {
             Log::error("PrivilegeController@store: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création du privilège'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création du privilège', 500, $e->getMessage());
         }
     }
 
@@ -143,11 +113,7 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Privilège trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Privilege"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -155,7 +121,7 @@ class PrivilegeController extends Controller
      *     path="/api/privileges/slug/{slug}",
      *     tags={"Privileges"},
      *     summary="Détails d'un privilège par Slug",
-     *     description="Récupère les détails d'un privilège via son slug.",
+     *     description="Récupère les détails d'un privilège via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -165,21 +131,13 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Privilège trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Privilege"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Privilege $privilege)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $privilege,
-            'message' => 'Privilège récupéré avec succès'
-        ]);
+        return $this->successResponse(new PrivilegeResource($privilege), 'Privilège récupéré avec succès');
     }
 
     /**
@@ -210,11 +168,7 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Privilège mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Privilege"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -245,22 +199,14 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Privilège mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Privilege"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Privilege $privilege)
+    public function update(UpdatePrivilegeRequest $request, Privilege $privilege)
     {
         try {
-            $validated = $request->validate([
-                "title" => "required|string|max:255",
-                "description" => "nullable|string",
-                "image" => "nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048"
-            ]);
+            $validated = $request->validated();
 
             // Ne plus modifier le slug lors de la mise à jour
 
@@ -273,24 +219,12 @@ class PrivilegeController extends Controller
 
             $privilege->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $privilege,
-                'message' => 'Privilège mis à jour avec succès'
-            ]);
+            return $this->successResponse(new PrivilegeResource($privilege), 'Privilège mis à jour avec succès');
         } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur de validation',
-                'errors' => $e->errors(),
-            ], 422);
+            return $this->errorResponse('Erreur de validation', 422, $e->errors());
         } catch (\Exception $e) {
             Log::error("PrivilegeController@update: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour du privilège'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour du privilège', 500, $e->getMessage());
         }
     }
 
@@ -310,10 +244,7 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Privilège supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -332,10 +263,7 @@ class PrivilegeController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Privilège supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -347,18 +275,10 @@ class PrivilegeController extends Controller
             }
             $privilege->delete();
 
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Privilège supprimé avec succès'
-            ]);
+            return $this->successResponse(null, 'Privilège supprimé avec succès');
         } catch (\Exception $e) {
             Log::error("PrivilegeController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression du privilège'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression du privilège', 500, $e->getMessage());
         }
     }
 }

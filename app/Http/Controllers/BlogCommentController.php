@@ -3,11 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogComment;
+use App\Http\Resources\BlogCommentResource;
+use App\Http\Requests\StoreBlogCommentRequest;
+use App\Http\Requests\UpdateBlogCommentRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class BlogCommentController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/blog-comments",
@@ -17,11 +23,7 @@ class BlogCommentController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/BlogComment")),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -30,18 +32,10 @@ class BlogCommentController extends Controller
         try {
             $comments = BlogComment::with('blog', 'user')->latest()->get();
 
-            return response()->json([
-                'success' => true,
-                'data' => $comments,
-                'message' => 'Commentaires récupérés avec succès'
-            ]);
+            return $this->successResponse(BlogCommentResource::collection($comments), 'Commentaires récupérés avec succès');
         } catch (\Exception $e) {
             Log::error('BlogCommentController@index: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des commentaires'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des commentaires', 500, $e->getMessage());
         }
     }
 
@@ -64,37 +58,21 @@ class BlogCommentController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Commentaire créé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/BlogComment"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StoreBlogCommentRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'blog_id' => 'required|exists:blogs,id',
-                'user_id' => 'required|exists:users,id',
-                'comment' => 'required|string',
-            ]);
+            $validated = $request->validated();
 
             $comment = BlogComment::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $comment,
-                'message' => 'Commentaire créé avec succès'
-            ], 201);
+            return $this->successResponse(new BlogCommentResource($comment), 'Commentaire créé avec succès', 201);
         } catch (\Exception $e) {
             Log::error('BlogCommentController@store: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création du commentaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création du commentaire', 500, $e->getMessage());
         }
     }
 
@@ -113,29 +91,17 @@ class BlogCommentController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Commentaire trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/BlogComment"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(BlogComment $blogComment)
     {
         try {
-            return response()->json([
-                'success' => true,
-                'data' => $blogComment->load('blog', 'user'),
-                'message' => 'Commentaire récupéré avec succès'
-            ]);
+            return $this->successResponse(new BlogCommentResource($blogComment->load('blog', 'user')), 'Commentaire récupéré avec succès');
         } catch (\Exception $e) {
             Log::error('BlogCommentController@show: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération du commentaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération du commentaire', 500, $e->getMessage());
         }
     }
 
@@ -161,35 +127,21 @@ class BlogCommentController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Commentaire mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/BlogComment"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, BlogComment $blogComment)
+    public function update(UpdateBlogCommentRequest $request, BlogComment $blogComment)
     {
         try {
-            $validated = $request->validate([
-                'comment' => 'sometimes|string',
-            ]);
+            $validated = $request->validated();
 
             $blogComment->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $blogComment,
-                'message' => 'Commentaire mis à jour avec succès'
-            ]);
+            return $this->successResponse(new BlogCommentResource($blogComment), 'Commentaire mis à jour avec succès');
         } catch (\Exception $e) {
             Log::error('BlogCommentController@update: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour du commentaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour du commentaire', 500, $e->getMessage());
         }
     }
 
@@ -209,10 +161,7 @@ class BlogCommentController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Commentaire supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -221,18 +170,10 @@ class BlogCommentController extends Controller
         try {
             $blogComment->delete();
 
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Commentaire supprimé avec succès'
-            ]);
+            return $this->successResponse(null, 'Commentaire supprimé avec succès');
         } catch (\Exception $e) {
             Log::error('BlogCommentController@destroy: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression du commentaire'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression du commentaire', 500, $e->getMessage());
         }
     }
 }

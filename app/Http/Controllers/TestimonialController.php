@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Testimonial;
+use App\Http\Resources\TestimonialResource;
+use App\Http\Requests\StoreTestimonialRequest;
+use App\Http\Requests\UpdateTestimonialRequest;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TestimonialController extends Controller
 {
+    use ApiResponse;
+
     /**
      * @OA\Get(
      *     path="/api/testimonials",
@@ -25,15 +31,7 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Liste récupérée avec succès",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/Testimonial")),
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             ),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -43,18 +41,10 @@ class TestimonialController extends Controller
             $perPage = $request->get('per_page', 20);
             $testimonials = Testimonial::with('user')->latest()->paginate($perPage);
 
-            return response()->json([
-                'success' => true,
-                'data' => $testimonials,
-                'message' => 'Témoignages récupérés avec succès'
-            ]);
+            return $this->paginatedResponse(TestimonialResource::collection($testimonials), 'Témoignages récupérés avec succès');
         } catch (\Exception $e) {
             Log::error("TestimonialController@index: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la récupération des témoignages'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la récupération des témoignages', 500, $e->getMessage());
         }
     }
 
@@ -76,38 +66,23 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="Témoignage créé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function store(Request $request)
+    public function store(StoreTestimonialRequest $request)
     {
         try {
-            $validated = $request->validate([
-                "user_id" => "nullable|exists:users,id",
-                "content" => "required|string",
-            ]);
+            $validated = $request->validated();
         // Génération du slug unique
         $validated['slug'] = Str::slug(substr($validated['content'], 0, 50)) . '-' . uniqid();
 
             $testimonial = Testimonial::create($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $testimonial,
-                'message' => 'Témoignage créé avec succès'
-            ], 201);
+            return $this->successResponse(new TestimonialResource($testimonial), 'Témoignage créé avec succès', 201);
         } catch (\Exception $e) {
             Log::error("TestimonialController@store: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la création du témoignage'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la création du témoignage', 500, $e->getMessage());
         }
     }
 
@@ -126,11 +101,7 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Témoignage trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -138,7 +109,7 @@ class TestimonialController extends Controller
      *     path="/api/testimonials/slug/{slug}",
      *     tags={"Testimonials"},
      *     summary="Détails d'un témoignage par Slug",
-     *     description="Récupère les détails d'un témoignage via son slug.",
+     *     description="Récupère les détails d'un témoignage via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -148,21 +119,13 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Témoignage trouvé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
     public function show(Testimonial $testimonial)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $testimonial,
-            'message' => 'Témoignage récupéré avec succès'
-        ]);
+        return $this->successResponse(new TestimonialResource($testimonial), 'Témoignage récupéré avec succès');
     }
 
     /**
@@ -188,11 +151,7 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Témoignage mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -218,36 +177,21 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Témoignage mis à jour",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="data", ref="#/components/schemas/Testimonial"),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
-    public function update(Request $request, Testimonial $testimonial)
+    public function update(UpdateTestimonialRequest $request, Testimonial $testimonial)
     {
         try {
-            $validated = $request->validate([
-                "user_id" => "nullable|exists:users,id",
-                "content" => "required|string",
-            ]);
+            $validated = $request->validated();
            // Ne plus modifier le slug lors de la mise à jour
             $testimonial->update($validated);
 
-            return response()->json([
-                'success' => true,
-                'data' => $testimonial,
-                'message' => 'Témoignage mis à jour avec succès'
-            ]);
+            return $this->successResponse(new TestimonialResource($testimonial), 'Témoignage mis à jour avec succès');
         } catch (\Exception $e) {
             Log::error("TestimonialController@update: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la mise à jour du témoignage'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la mise à jour du témoignage', 500, $e->getMessage());
         }
     }
 
@@ -267,10 +211,7 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Témoignage supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      *
@@ -289,10 +230,7 @@ class TestimonialController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="Témoignage supprimé",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string")
-     *         )
+     *         @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      */
@@ -300,18 +238,10 @@ class TestimonialController extends Controller
     {
         try {
             $testimonial->delete();
-            return response()->json([
-                'success' => true,
-                'data' => null,
-                'message' => 'Témoignage supprimé avec succès'
-            ]);
+            return $this->successResponse(null, 'Témoignage supprimé avec succès');
         } catch (\Exception $e) {
             Log::error("TestimonialController@destroy: " . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'data' => null,
-                'message' => 'Erreur lors de la suppression du témoignage'
-            ], 500);
+            return $this->errorResponse('Erreur lors de la suppression du témoignage', 500, $e->getMessage());
         }
     }
 }
