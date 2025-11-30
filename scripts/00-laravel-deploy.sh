@@ -17,6 +17,26 @@ php artisan config:clear
 php artisan route:clear
 php artisan cache:clear || true
 
+# ✅ Créer les répertoires nécessaires
+echo "📁 Creating necessary directories..."
+mkdir -p /var/www/html/storage/api-docs
+mkdir -p /var/www/html/public/vendor
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/public/vendor
+
+# ✅ Publier les assets Swagger (IMPORTANT !)
+echo "📦 Publishing Swagger assets..."
+php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider" --force
+
+# ✅ Vérifier que les assets ont été publiés
+echo "🔍 Checking published assets..."
+if [ -d "/var/www/html/public/vendor/swagger-api" ]; then
+    echo "✅ Swagger assets published successfully"
+    ls -la /var/www/html/public/vendor/swagger-api/
+else
+    echo "❌ Swagger assets not found!"
+fi
+
 echo "📝 Caching config..."
 php artisan config:cache
 
@@ -29,15 +49,26 @@ php artisan migrate:fresh --force
 echo "🌱 Running seeders..."
 php artisan db:seed --force || true
 
-# ✅ AJOUT : Générer la documentation Swagger
+# ✅ Générer la documentation Swagger
 echo "📖 Generating Swagger documentation..."
-php artisan l5-swagger:generate || echo "⚠️  Swagger generation failed"
+php artisan l5-swagger:generate
+
+# ✅ Vérifier que la documentation a été générée
+echo "🔍 Checking generated documentation..."
+if [ -f "/var/www/html/storage/api-docs/api-docs.json" ]; then
+    echo "✅ Swagger documentation generated successfully"
+    ls -lh /var/www/html/storage/api-docs/
+else
+    echo "❌ Swagger documentation not generated!"
+fi
 
 echo "📋 Configuration des logs Laravel..."
-# Créer un lien symbolique de laravel.log vers stderr
 rm -f /var/www/html/storage/logs/laravel.log
 ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
 
 echo "✅ Déploiement terminé avec succès!"
-echo "📂 Contenu de /var/www/html:"
-ls -la /var/www/html/
+echo "📂 Structure des fichiers Swagger:"
+echo "Public assets:"
+ls -la /var/www/html/public/vendor/ || echo "Pas d'assets publics"
+echo "Documentation JSON:"
+ls -la /var/www/html/storage/api-docs/ || echo "Pas de documentation"
