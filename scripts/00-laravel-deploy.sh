@@ -16,11 +16,13 @@ echo "🧹 Clearing caches..."
 php artisan config:clear
 php artisan route:clear
 php artisan cache:clear || true
+php artisan view:clear
 
 # ✅ Créer les répertoires nécessaires
 echo "📁 Creating necessary directories..."
 mkdir -p /var/www/html/storage/api-docs
-mkdir -p /var/www/html/public/docs/asset
+mkdir -p /var/www/html/storage/logs
+mkdir -p /var/www/html/public/vendor/swagger-api/swagger-ui/dist
 chmod -R 775 /var/www/html/storage
 chmod -R 775 /var/www/html/public
 
@@ -28,9 +30,9 @@ chmod -R 775 /var/www/html/public
 echo "📦 Copying Swagger UI assets..."
 if [ -d "/var/www/html/vendor/swagger-api/swagger-ui/dist" ]; then
     echo "✅ Found Swagger UI in vendor, copying..."
-    cp -r /var/www/html/vendor/swagger-api/swagger-ui/dist/* /var/www/html/public/docs/asset/
+    cp -r /var/www/html/vendor/swagger-api/swagger-ui/dist/* /var/www/html/public/vendor/swagger-api/swagger-ui/dist/
     echo "✅ Assets copied successfully"
-    ls -la /var/www/html/public/docs/asset/
+    ls -la /var/www/html/public/vendor/swagger-api/swagger-ui/dist/
 else
     echo "❌ Swagger UI not found in vendor!"
     echo "Trying alternative paths..."
@@ -59,15 +61,15 @@ php artisan l5-swagger:generate
 
 # ✅ Vérifications finales
 echo "🔍 Final verification..."
-echo "Public docs/asset directory:"
-ls -la /var/www/html/public/docs/asset/ 2>/dev/null || echo "❌ docs/asset not found"
+echo "Public vendor swagger directory:"
+ls -la /var/www/html/public/vendor/swagger-api/swagger-ui/dist/ 2>/dev/null || echo "❌ vendor swagger assets not found"
 
 echo "Storage api-docs directory:"
 ls -la /var/www/html/storage/api-docs/ 2>/dev/null || echo "❌ api-docs not found"
 
 echo "Checking for key Swagger files:"
-[ -f "/var/www/html/public/docs/asset/swagger-ui.css" ] && echo "✅ swagger-ui.css found" || echo "❌ swagger-ui.css NOT found"
-[ -f "/var/www/html/public/docs/asset/swagger-ui-bundle.js" ] && echo "✅ swagger-ui-bundle.js found" || echo "❌ swagger-ui-bundle.js NOT found"
+[ -f "/var/www/html/public/vendor/swagger-api/swagger-ui/dist/swagger-ui.css" ] && echo "✅ swagger-ui.css found" || echo "❌ swagger-ui.css NOT found"
+[ -f "/var/www/html/public/vendor/swagger-api/swagger-ui/dist/swagger-ui-bundle.js" ] && echo "✅ swagger-ui-bundle.js found" || echo "❌ swagger-ui-bundle.js NOT found"
 [ -f "/var/www/html/storage/api-docs/api-docs.json" ] && echo "✅ api-docs.json found" || echo "❌ api-docs.json NOT found"
 
 echo "📋 Configuration des logs Laravel..."
