@@ -20,22 +20,26 @@ php artisan cache:clear || true
 # ✅ Créer les répertoires nécessaires
 echo "📁 Creating necessary directories..."
 mkdir -p /var/www/html/storage/api-docs
-mkdir -p /var/www/html/public/vendor
+mkdir -p /var/www/html/public/docs/asset
 chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/public/vendor
+chmod -R 775 /var/www/html/public
 
-# ✅ Publier les assets Swagger (IMPORTANT !)
-echo "📦 Publishing Swagger assets..."
-php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider" --force
-
-# ✅ Vérifier que les assets ont été publiés
-echo "🔍 Checking published assets..."
-if [ -d "/var/www/html/public/vendor/swagger-api" ]; then
-    echo "✅ Swagger assets published successfully"
-    ls -la /var/www/html/public/vendor/swagger-api/
+# ✅ Copier manuellement les assets Swagger depuis vendor
+echo "📦 Copying Swagger UI assets..."
+if [ -d "/var/www/html/vendor/swagger-api/swagger-ui/dist" ]; then
+    echo "✅ Found Swagger UI in vendor, copying..."
+    cp -r /var/www/html/vendor/swagger-api/swagger-ui/dist/* /var/www/html/public/docs/asset/
+    echo "✅ Assets copied successfully"
+    ls -la /var/www/html/public/docs/asset/
 else
-    echo "❌ Swagger assets not found!"
+    echo "❌ Swagger UI not found in vendor!"
+    echo "Trying alternative paths..."
+    find /var/www/html/vendor -name "swagger-ui" -type d
 fi
+
+# ✅ Publier via artisan (au cas où)
+echo "📦 Publishing Swagger assets via artisan..."
+php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider" --force || echo "⚠️ Vendor publish failed"
 
 echo "📝 Caching config..."
 php artisan config:cache
@@ -53,22 +57,21 @@ php artisan db:seed --force || true
 echo "📖 Generating Swagger documentation..."
 php artisan l5-swagger:generate
 
-# ✅ Vérifier que la documentation a été générée
-echo "🔍 Checking generated documentation..."
-if [ -f "/var/www/html/storage/api-docs/api-docs.json" ]; then
-    echo "✅ Swagger documentation generated successfully"
-    ls -lh /var/www/html/storage/api-docs/
-else
-    echo "❌ Swagger documentation not generated!"
-fi
+# ✅ Vérifications finales
+echo "🔍 Final verification..."
+echo "Public docs/asset directory:"
+ls -la /var/www/html/public/docs/asset/ 2>/dev/null || echo "❌ docs/asset not found"
+
+echo "Storage api-docs directory:"
+ls -la /var/www/html/storage/api-docs/ 2>/dev/null || echo "❌ api-docs not found"
+
+echo "Checking for key Swagger files:"
+[ -f "/var/www/html/public/docs/asset/swagger-ui.css" ] && echo "✅ swagger-ui.css found" || echo "❌ swagger-ui.css NOT found"
+[ -f "/var/www/html/public/docs/asset/swagger-ui-bundle.js" ] && echo "✅ swagger-ui-bundle.js found" || echo "❌ swagger-ui-bundle.js NOT found"
+[ -f "/var/www/html/storage/api-docs/api-docs.json" ] && echo "✅ api-docs.json found" || echo "❌ api-docs.json NOT found"
 
 echo "📋 Configuration des logs Laravel..."
 rm -f /var/www/html/storage/logs/laravel.log
 ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
 
 echo "✅ Déploiement terminé avec succès!"
-echo "📂 Structure des fichiers Swagger:"
-echo "Public assets:"
-ls -la /var/www/html/public/vendor/ || echo "Pas d'assets publics"
-echo "Documentation JSON:"
-ls -la /var/www/html/storage/api-docs/ || echo "Pas de documentation"
