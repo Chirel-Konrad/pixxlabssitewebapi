@@ -12,8 +12,7 @@ ls -la /var/www/html/vendor || echo "❌ ERREUR: vendor n'existe pas!"
 echo "🔑 Generating application key..."
 php artisan key:generate --show --force
 
-# ✅ CRITIQUE : Vider le cache de configuration TÔT pour que le .env et l5-swagger.php mis à jour soient lus.
-echo "🧹 Clearing ALL caches (config, route, cache)..."
+echo "🧹 Clearing caches..."
 php artisan config:clear
 php artisan route:clear
 php artisan cache:clear || true
@@ -23,40 +22,41 @@ php artisan view:clear
 echo "📁 Creating necessary directories..."
 mkdir -p /var/www/html/storage/api-docs
 mkdir -p /var/www/html/storage/logs
-mkdir -p /var/www/html/public/docs/asset  
+mkdir -p /var/www/html/public/docs/asset  # ✅ CORRECTION ICI
 chmod -R 775 /var/www/html/storage
 chmod -R 775 /var/www/html/public
 
-# ✅ Copier les assets Swagger (filet de sécurité)
-echo "📦 Copying Swagger UI assets (fallback)..."
+# ✅ Copier les assets Swagger vers le BON chemin
+echo "📦 Copying Swagger UI assets..."
 if [ -d "/var/www/html/vendor/swagger-api/swagger-ui/dist" ]; then
-    echo "✅ Found Swagger UI in vendor, copying to public/docs/asset/..."
-    cp -r /var/www/html/vendor/swagger-api/swagger-ui/dist/* /var/www/html/public/docs/asset/
+    echo "✅ Found Swagger UI in vendor, copying to public/docs/asset/..."
+    cp -r /var/www/html/vendor/swagger-api/swagger-ui/dist/* /var/www/html/public/docs/asset/
+    echo "✅ Assets copied successfully"
+    ls -la /var/www/html/public/docs/asset/
 else
-    echo "❌ Swagger UI not found in vendor!"
+    echo "❌ Swagger UI not found in vendor!"
+    find /var/www/html/vendor -name "swagger-ui" -type d
 fi
 
 # ✅ Publier via artisan
-echo "📦 Publishing L5 Swagger assets via artisan..."
+echo "📦 Publishing Swagger assets via artisan..."
 php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider" --force || echo "⚠️ Vendor publish failed"
 
-# ✅ Générer la documentation Swagger APRÈS le clear cache et la publication
-echo "📖 Generating Swagger documentation..."
-php artisan l5-swagger:generate
-
-# Lancer la mise en cache de la configuration APRÈS toutes les modifications de configuration
 echo "📝 Caching config..."
 php artisan config:cache
 
-echo "🛣️  Caching routes..."
+echo "🛣️  Caching routes..."
 php artisan route:cache
 
-echo "🗄️  Running migrations..."
+echo "🗄️  Running migrations..."
 php artisan migrate:fresh --force
 
 echo "🌱 Running seeders..."
 php artisan db:seed --force || true
 
+# ✅ Générer la documentation Swagger
+echo "📖 Generating Swagger documentation..."
+php artisan l5-swagger:generate
 
 # ✅ Vérifications finales
 echo "🔍 Final verification..."
@@ -67,4 +67,12 @@ echo "Storage api-docs directory:"
 ls -la /var/www/html/storage/api-docs/ 2>/dev/null || echo "❌ api-docs not found"
 
 echo "Checking for key Swagger files:"
-[ -f "/var/www/html/public/docs/asset/swagger-
+[ -f "/var/www/html/public/docs/asset/swagger-ui.css" ] && echo "✅ swagger-ui.css found" || echo "❌ swagger-ui.css NOT found"
+[ -f "/var/www/html/public/docs/asset/swagger-ui-bundle.js" ] && echo "✅ swagger-ui-bundle.js found" || echo "❌ swagger-ui-bundle.js NOT found"
+[ -f "/var/www/html/storage/api-docs/api-docs.json" ] && echo "✅ api-docs.json found" || echo "❌ api-docs.json NOT found"
+
+echo "📋 Configuration des logs Laravel..."
+rm -f /var/www/html/storage/logs/laravel.log
+ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
+
+echo "✅ Déploiement terminé avec succès!"
