@@ -18,7 +18,7 @@ return [
                 // ✅ CORRECTION : Pointer vers docs/asset au lieu de vendor/...
                 'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'docs/asset/'),
 
-               'docs_json' => 'docs/api-docs.json',
+                'docs_json' => 'api-docs.json',
                 'docs_yaml' => 'api-docs.yaml',
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
 
@@ -27,11 +27,14 @@ return [
                 ],
             ],
             
-            // ✅ CORRECTION CRITIQUE : Définir l'URL du document JSON pour l'interface utilisateur
+            // ✅ CORRECTION CRITIQUE : Définir l'URL du document JSON pour l'interface utilisateur. 
+            // Utilisation d'un chemin relatif pour une meilleure compatibilité.
             'extra_config' => [
                 'urls' => [
                     [
-                        'url' => env('L5_SWAGGER_CONST_HOST') . '/docs/api-docs.json',
+                        // Ancienne valeur: env('L5_SWAGGER_CONST_HOST') . '/docs/api-docs.json'
+                        // Nouvelle valeur: /docs/api-docs.json (chemin relatif basé sur la racine)
+                        'url' => '/docs/api-docs.json', 
                         'name' => 'Piixlabs API Documentation',
                     ],
                 ],
