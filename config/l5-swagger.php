@@ -18,7 +18,7 @@ return [
                 // ✅ CORRECTION : Pointer vers docs/asset au lieu de vendor/...
                 'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'docs/asset/'),
 
-                'docs_json' => 'api-docs.json',
+               'docs_json' => 'docs/api-docs.json',
                 'docs_yaml' => 'api-docs.yaml',
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
 
