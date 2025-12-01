@@ -1,32 +1,43 @@
 <?php
 
 return [
-    'default' => 'default','documentations' => [
-    'default' => [
-        'api' => [
-            'title' => 'Piixlabs API Documentation',
-        ],
+    'default' => 'default',
+    'documentations' => [
+        'default' => [
+            'api' => [
+                'title' => 'Piixlabs API Documentation',
+            ],
 
-        'routes' => [
-            'api' => 'api/documentation',
-        ],
-        
-        'paths' => [
-            'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
+            'routes' => [
+                'api' => 'api/documentation',
+            ],
+            
+            'paths' => [
+                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
 
-            // ✅ CORRECTION : Pointer vers docs/asset au lieu de vendor/...
-            'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'docs/asset/'),
+                // ✅ CORRECTION : Pointer vers docs/asset au lieu de vendor/...
+                'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'docs/asset/'),
 
-            'docs_json' => 'api-docs.json',
-            'docs_yaml' => 'api-docs.yaml',
-            'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
+                'docs_json' => 'api-docs.json',
+                'docs_yaml' => 'api-docs.yaml',
+                'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
 
-            'annotations' => [
-                base_path('app'),
+                'annotations' => [
+                    base_path('app'),
+                ],
+            ],
+            
+            // ✅ CORRECTION CRITIQUE : Définir l'URL du document JSON pour l'interface utilisateur
+            'extra_config' => [
+                'urls' => [
+                    [
+                        'url' => env('L5_SWAGGER_CONST_HOST') . '/docs/api-docs.json',
+                        'name' => 'Piixlabs API Documentation',
+                    ],
+                ],
             ],
         ],
     ],
-],
     'defaults' => [
         'routes' => [
             /*
@@ -123,7 +134,7 @@ return [
             ],
 
             /**
-             * pattern: string       $pattern File pattern(s) to scan (default: *.php) .
+             * pattern: string       $pattern File pattern(s) to scan (default: *.php) .
              *
              * @see \OpenApi\scan
              */
@@ -145,7 +156,7 @@ return [
 
         /*
          * API security definitions. Will be generated into documentation file.
-        */
+         */
         'securityDefinitions' => [
             'securitySchemes' => [
                 /*
@@ -290,7 +301,8 @@ return [
          * Constants which can be used in annotations
          */
         'constants' => [
-            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', 'http://localhost:8000'),
+            // ✅ CORRECTION CRITIQUE : Utiliser APP_URL comme fallback si L5_SWAGGER_CONST_HOST n'est pas défini
+            'L5_SWAGGER_CONST_HOST' => env('L5_SWAGGER_CONST_HOST', env('APP_URL', 'http://localhost:8000')),
         ],
     ],
 ];
