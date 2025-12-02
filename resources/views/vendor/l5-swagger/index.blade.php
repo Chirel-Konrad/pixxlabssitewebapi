@@ -123,8 +123,6 @@
 <script src="{{ asset('vendor/swagger-api/swagger-ui/dist/swagger-ui-standalone-preset.js') }}"></script>
 <script>
     window.onload = function() {
-        const urls = [];
-
         // ✅ FORCE STATIC URL
         const urls = [{
             url: "/docs/api-docs.json",

@@ -48,13 +48,8 @@ php artisan l5-swagger:generate
 
 # ✅ Copier api-docs.json dans public/docs pour l'accès direct
 # ✅ Copier api-docs.json dans public/docs pour l'accès direct
-echo "📄 Copying api-docs.json to public/docs..."
-if [ -f "/var/www/html/storage/api-docs/api-docs.json" ]; then
-    cp /var/www/html/storage/api-docs/api-docs.json /var/www/html/public/docs/api-docs.json
-    echo "✅ api-docs.json copied to public/docs/"
-else
-    echo "❌ api-docs.json not found in storage!"
-fi
+# (Désactivé : L5-Swagger génère maintenant directement dans public/docs)
+# if [ -f "/var/www/html/storage/api-docs/api-docs.json" ]; then ...
 
 echo "📝 Caching config..."
 php artisan config:cache
