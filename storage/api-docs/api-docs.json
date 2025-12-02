@@ -6172,9 +6172,9 @@
         "securitySchemes": {
             "bearerAuth": {
                 "type": "http",
-                "description": "Authentification via JWT Token. Entrez votre token sans le préfixe 'Bearer'",
+                "scheme": "bearer",
                 "bearerFormat": "JWT",
-                "scheme": "bearer"
+                "description": "Entrez votre token Passport (sans le préfixe Bearer)"
             }
         }
     },
@@ -6238,6 +6238,11 @@
         {
             "name": "Webinar Registrations",
             "description": "Webinar Registrations"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
         }
     ]
 }
