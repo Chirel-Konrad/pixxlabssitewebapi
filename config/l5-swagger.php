@@ -13,7 +13,7 @@ return [
             ],
             
             'paths' => [
-                'use_absolute_path' => env('L5_SWAGGER_USE_ABSOLUTE_PATH', true),
+                'use_absolute_path' => true,
                 'swagger_ui_assets_path' => env('L5_SWAGGER_UI_ASSETS_PATH', 'docs/asset/'),
                 
                 // ✅ CORRECTION CRITIQUE : Utiliser le bon nom de fichier
