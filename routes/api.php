@@ -183,3 +183,15 @@ Route::prefix('users')->group(function () {
     Route::delete('{id}', [UserController::class, 'destroy']);
 });
 
+Route::get('/docs/api-docs.json', function () {
+    $path = storage_path('api-docs/api-docs.json');
+    
+    if (!file_exists($path)) {
+        abort(404, 'API documentation not found');
+    }
+    
+    return response()->file($path, [
+        'Content-Type' => 'application/json',
+        'Access-Control-Allow-Origin' => '*',
+    ]);
+})->name('l5-swagger.default.docs');
