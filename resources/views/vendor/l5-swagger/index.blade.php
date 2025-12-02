@@ -125,9 +125,11 @@
     window.onload = function() {
         const urls = [];
 
-        @foreach($urlsToDocs as $title => $url)
-            urls.push({name: "{{ $title }}", url: "{{ $url }}"});
-        @endforeach
+        // ✅ FORCE STATIC URL
+        const urls = [{
+            url: "/docs/api-docs.json",
+            name: "{{ $documentationTitle }}"
+        }];
 
         // Build a system
         const ui = SwaggerUIBundle({
