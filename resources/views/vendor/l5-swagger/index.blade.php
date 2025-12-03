@@ -124,7 +124,7 @@
 <script>
     window.onload = function() {
         // Build a system
-        const openApiUrl = "{{ rtrim(route('l5-swagger.'.$documentation.'.docs', [], true), '/') }}/{{ config('l5-swagger.documentations.'.$documentation.'.paths.docs_json') }}";
+        const openApiUrl = "/docs/{{ config('l5-swagger.documentations.'.$documentation.'.paths.docs_json') }}";
         const ui = SwaggerUIBundle({
             dom_id: '#swagger-ui',
             url: openApiUrl,
