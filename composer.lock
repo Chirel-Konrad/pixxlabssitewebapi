@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0adaff4746d211f6c05b53b713a84e97",
+    "content-hash": "1319526989c41024eb62410452696a8e",
     "packages": [
         {
             "name": "brick/math",
@@ -137,16 +137,16 @@
         },
         {
             "name": "darkaonline/l5-swagger",
-            "version": "9.0.1",
+            "version": "9.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "2c26427f8c41db8e72232415e7287313e6b6a2e2"
+                "reference": "7fffe3de03f2cf36ab38e40e864feb8f392b9458"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/2c26427f8c41db8e72232415e7287313e6b6a2e2",
-                "reference": "2c26427f8c41db8e72232415e7287313e6b6a2e2",
+                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/7fffe3de03f2cf36ab38e40e864feb8f392b9458",
+                "reference": "7fffe3de03f2cf36ab38e40e864feb8f392b9458",
                 "shasum": ""
             },
             "require": {
@@ -206,7 +206,7 @@
             ],
             "support": {
                 "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/9.0.1"
+                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/9.0.0"
             },
             "funding": [
                 {
@@ -214,87 +214,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-02-28T06:25:02+00:00"
-        },
-        {
-            "name": "dedoc/scramble",
-            "version": "v0.12.35",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dedoc/scramble.git",
-                "reference": "b6d06a1cec5f8a8ad08ebce9c2df37a1ef4a2629"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dedoc/scramble/zipball/b6d06a1cec5f8a8ad08ebce9c2df37a1ef4a2629",
-                "reference": "b6d06a1cec5f8a8ad08ebce9c2df37a1ef4a2629",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/contracts": "^10.0|^11.0|^12.0",
-                "myclabs/deep-copy": "^1.12",
-                "nikic/php-parser": "^5.0",
-                "php": "^8.1",
-                "phpstan/phpdoc-parser": "^1.0|^2.0",
-                "spatie/laravel-package-tools": "^1.9.2"
-            },
-            "require-dev": {
-                "larastan/larastan": "^3.3",
-                "laravel/pint": "^v1.1.0",
-                "nunomaduro/collision": "^7.0|^8.0",
-                "orchestra/testbench": "^8.0|^9.0|^10.0",
-                "pestphp/pest": "^2.34|^3.7",
-                "pestphp/pest-plugin-laravel": "^2.3|^3.1",
-                "phpstan/extension-installer": "^1.4",
-                "phpstan/phpstan-deprecation-rules": "^2.0",
-                "phpstan/phpstan-phpunit": "^2.0",
-                "phpunit/phpunit": "^10.5|^11.5.3",
-                "spatie/laravel-permission": "^6.10",
-                "spatie/pest-plugin-snapshots": "^2.1"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Dedoc\\Scramble\\ScrambleServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Dedoc\\Scramble\\": "src",
-                    "Dedoc\\Scramble\\Database\\Factories\\": "database/factories"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Roman Lytvynenko",
-                    "email": "litvinenko95@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Automatic generation of API documentation for Laravel applications.",
-            "homepage": "https://github.com/dedoc/scramble",
-            "keywords": [
-                "documentation",
-                "laravel",
-                "openapi"
-            ],
-            "support": {
-                "issues": "https://github.com/dedoc/scramble/issues",
-                "source": "https://github.com/dedoc/scramble/tree/v0.12.35"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/romalytvynenko",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-09-24T07:18:11+00:00"
+            "time": "2025-02-24T14:41:30+00:00"
         },
         {
             "name": "defuse/php-encryption",
@@ -2960,66 +2880,6 @@
             "time": "2025-03-24T10:02:05+00:00"
         },
         {
-            "name": "myclabs/deep-copy",
-            "version": "1.13.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/07d290f0c47959fd5eed98c95ee5602db07e0b6a",
-                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1 || ^8.0"
-            },
-            "conflict": {
-                "doctrine/collections": "<1.6.8",
-                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
-            },
-            "require-dev": {
-                "doctrine/collections": "^1.6.8",
-                "doctrine/common": "^2.13.3 || ^3.2.2",
-                "phpspec/prophecy": "^1.10",
-                "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/DeepCopy/deep_copy.php"
-                ],
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Create deep copies (clones) of your objects",
-            "keywords": [
-                "clone",
-                "copy",
-                "duplicate",
-                "object",
-                "object graph"
-            ],
-            "support": {
-                "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.4"
-            },
-            "funding": [
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2025-08-01T08:46:24+00:00"
-        },
-        {
             "name": "nesbot/carbon",
             "version": "3.10.2",
             "source": {
@@ -4812,78 +4672,17 @@
             "time": "2025-06-25T14:20:11+00:00"
         },
         {
-            "name": "spatie/laravel-package-tools",
-            "version": "1.92.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/spatie/laravel-package-tools.git",
-                "reference": "f09a799850b1ed765103a4f0b4355006360c49a5"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/f09a799850b1ed765103a4f0b4355006360c49a5",
-                "reference": "f09a799850b1ed765103a4f0b4355006360c49a5",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/contracts": "^9.28|^10.0|^11.0|^12.0",
-                "php": "^8.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.5",
-                "orchestra/testbench": "^7.7|^8.0|^9.0|^10.0",
-                "pestphp/pest": "^1.23|^2.1|^3.1",
-                "phpunit/php-code-coverage": "^9.0|^10.0|^11.0",
-                "phpunit/phpunit": "^9.5.24|^10.5|^11.5",
-                "spatie/pest-plugin-test-time": "^1.1|^2.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Spatie\\LaravelPackageTools\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Freek Van der Herten",
-                    "email": "freek@spatie.be",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Tools for creating Laravel packages",
-            "homepage": "https://github.com/spatie/laravel-package-tools",
-            "keywords": [
-                "laravel-package-tools",
-                "spatie"
-            ],
-            "support": {
-                "issues": "https://github.com/spatie/laravel-package-tools/issues",
-                "source": "https://github.com/spatie/laravel-package-tools/tree/1.92.7"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/spatie",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-07-17T15:46:43+00:00"
-        },
-        {
             "name": "swagger-api/swagger-ui",
-            "version": "v5.30.2",
+            "version": "v5.30.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swagger-api/swagger-ui.git",
-                "reference": "30d8f985caeca5bb9400cf21403686ec5a82c1cc"
+                "reference": "199761a94d03753ec62c23bb4ba162bb73c3cfc7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/30d8f985caeca5bb9400cf21403686ec5a82c1cc",
-                "reference": "30d8f985caeca5bb9400cf21403686ec5a82c1cc",
+                "url": "https://api.github.com/repos/swagger-api/swagger-ui/zipball/199761a94d03753ec62c23bb4ba162bb73c3cfc7",
+                "reference": "199761a94d03753ec62c23bb4ba162bb73c3cfc7",
                 "shasum": ""
             },
             "type": "library",
@@ -4929,9 +4728,9 @@
             ],
             "support": {
                 "issues": "https://github.com/swagger-api/swagger-ui/issues",
-                "source": "https://github.com/swagger-api/swagger-ui/tree/v5.30.2"
+                "source": "https://github.com/swagger-api/swagger-ui/tree/v5.30.3"
             },
-            "time": "2025-11-04T09:41:42+00:00"
+            "time": "2025-11-25T12:39:47+00:00"
         },
         {
             "name": "symfony/clock",
@@ -7830,16 +7629,16 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "5.7.3",
+            "version": "5.7.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "4d0d3086d7c876626167d198cec285e98d3629dc"
+                "reference": "9a37739401485b42d779495e70548309820d11d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/4d0d3086d7c876626167d198cec285e98d3629dc",
-                "reference": "4d0d3086d7c876626167d198cec285e98d3629dc",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/9a37739401485b42d779495e70548309820d11d6",
+                "reference": "9a37739401485b42d779495e70548309820d11d6",
                 "shasum": ""
             },
             "require": {
@@ -7849,8 +7648,8 @@
                 "phpstan/phpdoc-parser": "^2.0",
                 "psr/log": "^1.1 || ^2.0 || ^3.0",
                 "symfony/deprecation-contracts": "^2 || ^3",
-                "symfony/finder": "^5.0 || ^6.0 || ^7.0",
-                "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
+                "symfony/finder": "^5.0 || ^6.0 || ^7.0 || ^8.0",
+                "symfony/yaml": "^5.4 || ^6.0 || ^7.0 || ^8.0"
             },
             "conflict": {
                 "symfony/process": ">=6, <6.4.14"
@@ -7912,9 +7711,9 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/5.7.3"
+                "source": "https://github.com/zircote/swagger-php/tree/5.7.5"
             },
-            "time": "2025-11-17T20:56:13+00:00"
+            "time": "2025-11-28T23:22:21+00:00"
         }
     ],
     "packages-dev": [
@@ -8610,6 +8409,66 @@
                 "source": "https://github.com/mockery/mockery"
             },
             "time": "2024-05-16T03:13:13+00:00"
+        },
+        {
+            "name": "myclabs/deep-copy",
+            "version": "1.13.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/DeepCopy.git",
+                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/07d290f0c47959fd5eed98c95ee5602db07e0b6a",
+                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "conflict": {
+                "doctrine/collections": "<1.6.8",
+                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
+            },
+            "require-dev": {
+                "doctrine/collections": "^1.6.8",
+                "doctrine/common": "^2.13.3 || ^3.2.2",
+                "phpspec/prophecy": "^1.10",
+                "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/DeepCopy/deep_copy.php"
+                ],
+                "psr-4": {
+                    "DeepCopy\\": "src/DeepCopy/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Create deep copies (clones) of your objects",
+            "keywords": [
+                "clone",
+                "copy",
+                "duplicate",
+                "object",
+                "object graph"
+            ],
+            "support": {
+                "issues": "https://github.com/myclabs/DeepCopy/issues",
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.4"
+            },
+            "funding": [
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-08-01T08:46:24+00:00"
         },
         {
             "name": "nunomaduro/collision",
