@@ -12,7 +12,7 @@ ls -la /var/www/html/vendor || echo "❌ ERREUR: vendor n'existe pas!"
 echo "🔑 Generating application key..."
 php artisan key:generate --show --force
 
-# Vider le cache de configuration.
+# Vider les caches principaux (peut rester, mais on ajoutera optimize:clear plus bas)
 echo "🧹 Clearing ALL caches (config, route, cache)..."
 php artisan config:clear
 php artisan route:clear
@@ -45,6 +45,9 @@ if [ -d "/var/www/html/vendor/swagger-api/swagger-ui/dist" ]; then
 else
     echo "⚠️  Swagger UI not found in vendor, skipping asset copy"
 fi
+
+echo "🧹 Optimizing (clear all caches with optimize:clear)..."
+php artisan optimize:clear
 
 echo "📖 Generating Swagger documentation..."
 php artisan l5-swagger:generate || echo "⚠️  Swagger generation failed (will retry after cache)"
