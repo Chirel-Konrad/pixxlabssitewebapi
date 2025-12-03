@@ -123,17 +123,11 @@
 <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
 <script>
     window.onload = function() {
-        const urls = [];
-
-        @foreach($urlsToDocs as $title => $url)
-            urls.push({name: "{{ $title }}", url: "{{ $url }}"});
-        @endforeach
-
         // Build a system
+        const openApiUrl = "{{ rtrim(route('l5-swagger.'.$documentation.'.docs', [], true), '/') }}/{{ config('l5-swagger.documentations.'.$documentation.'.paths.docs_json') }}";
         const ui = SwaggerUIBundle({
             dom_id: '#swagger-ui',
-            urls: urls,
-            "urls.primaryName": "{{ $documentationTitle }}",
+            url: openApiUrl,
             operationsSorter: {!! isset($operationsSorter) ? '"' . $operationsSorter . '"' : 'null' !!},
             configUrl: {!! isset($configUrl) ? '"' . $configUrl . '"' : 'null' !!},
             validatorUrl: {!! isset($validatorUrl) ? '"' . $validatorUrl . '"' : 'null' !!},
