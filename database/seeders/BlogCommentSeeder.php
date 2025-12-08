@@ -53,7 +53,7 @@ class BlogCommentSeeder extends Seeder
 
             BlogComment::create([
                 'blog_id' => $faker->randomElement($blogIds),
-                'user_id' => $faker->optional()->randomElement($userIds), // certains anonymes
+                'user_id' => $faker->randomElement($userIds), // toujours un auteur (non nul)
                 'comment' => trim("$start $middle $end"),
             ]);
         }

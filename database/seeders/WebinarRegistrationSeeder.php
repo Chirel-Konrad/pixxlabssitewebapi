@@ -18,22 +18,23 @@ class WebinarRegistrationSeeder extends Seeder
         $userIds = User::pluck('id')->toArray();      // IDs des utilisateurs existants
         $webinarIds = Webinar::pluck('id')->toArray(); // IDs des webinaires existants
 
-        // Générer 50 inscriptions aléatoires
-        for ($i = 0; $i < 50; $i++) {
-            $userId = $faker->randomElement($userIds);
-            $webinarId = $faker->randomElement($webinarIds);
+        // Pour chaque utilisateur, créer 1 à 3 inscriptions aléatoires (sans doublon)
+        foreach ($userIds as $uid) {
+            $count = $faker->numberBetween(1, min(3, count($webinarIds)));
+            $picked = $faker->randomElements($webinarIds, $count);
 
-            // Empêche la duplication : un utilisateur ne peut pas être inscrit deux fois au même webinaire
-            $exists = WebinarRegistration::where('user_id', $userId)
-                ->where('webinar_id', $webinarId)
-                ->exists();
+            foreach ($picked as $wid) {
+                $exists = WebinarRegistration::where('user_id', $uid)
+                    ->where('webinar_id', $wid)
+                    ->exists();
 
-            if (!$exists) {
-                WebinarRegistration::create([
-                    'user_id' => $userId,
-                    'webinar_id' => $webinarId,
-                    'slug' => Str::slug($userId . '-' . $webinarId) . '-' . uniqid(),
-                ]);
+                if (!$exists) {
+                    WebinarRegistration::create([
+                        'user_id' => (int) $uid,
+                        'webinar_id' => (int) $wid,
+                        'slug' => Str::slug($uid . '-' . $wid) . '-' . uniqid(),
+                    ]);
+                }
             }
         }
     }

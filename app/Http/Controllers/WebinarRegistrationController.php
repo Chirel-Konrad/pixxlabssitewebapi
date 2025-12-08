@@ -17,7 +17,7 @@ class WebinarRegistrationController extends Controller
     // Liste des inscriptions de l'utilisateur connecté
     /**
      * @OA\Get(
-     *     path="/api/webinar-registrations",
+     *     path="/api/v1/webinar-registrations",
      *     tags={"Webinar Registrations"},
      *     summary="Mes inscriptions aux webinaires",
      *     description="Récupère la liste des inscriptions de l'utilisateur connecté",
@@ -49,7 +49,7 @@ class WebinarRegistrationController extends Controller
     // S'inscrire à un webinaire
     /**
      * @OA\Post(
-     *     path="/api/webinar-registrations",
+     *     path="/api/v1/webinar-registrations",
      *     tags={"Webinar Registrations"},
      *     summary="S'inscrire à un webinaire",
      *     description="Inscrit l'utilisateur connecté à un webinaire",
@@ -93,7 +93,7 @@ class WebinarRegistrationController extends Controller
     // Détails d'une inscription
     /**
      * @OA\Get(
-     *     path="/api/webinar-registrations/{webinarRegistration}",
+     *     path="/api/v1/webinar-registrations/{webinarRegistration}",
      *     tags={"Webinar Registrations"},
      *     summary="Détails d'une inscription par ID",
      *     description="Récupère les détails d'une inscription via son ID.",
@@ -112,7 +112,7 @@ class WebinarRegistrationController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/webinar-registrations/slug/{slug}",
+     *     path="/api/v1/webinar-registrations/slug/{slug}",
      *     tags={"Webinar Registrations"},
      *     summary="Détails d'une inscription par Slug",
      *     description="Récupère les détails d'une inscription via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
@@ -145,7 +145,7 @@ class WebinarRegistrationController extends Controller
     // Se désinscrire d'un webinaire
     /**
      * @OA\Delete(
-     *     path="/api/webinar-registrations/{webinarRegistration}",
+     *     path="/api/v1/webinar-registrations/{webinarRegistration}",
      *     tags={"Webinar Registrations"},
      *     summary="Supprimer une inscription par ID",
      *     description="Supprime une inscription via son ID.",
@@ -164,7 +164,7 @@ class WebinarRegistrationController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/webinar-registrations/slug/{slug}",
+     *     path="/api/v1/webinar-registrations/slug/{slug}",
      *     tags={"Webinar Registrations"},
      *     summary="Supprimer une inscription par Slug",
      *     description="Supprime une inscription via son slug.",

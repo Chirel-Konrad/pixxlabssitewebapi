@@ -16,7 +16,7 @@ class BlogCommentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/blog-comments",
+     *     path="/api/v1/blog-comments",
      *     tags={"Blog Comments"},
      *     summary="Liste des commentaires de blog",
      *     description="Récupère tous les commentaires de blog",
@@ -41,7 +41,7 @@ class BlogCommentController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/blog-comments",
+     *     path="/api/v1/blog-comments",
      *     tags={"Blog Comments"},
      *     summary="Ajouter un commentaire",
      *     description="Ajoute un commentaire à un article de blog",
@@ -78,7 +78,7 @@ class BlogCommentController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/blog-comments/{blogComment}",
+     *     path="/api/v1/blog-comments/{blogComment}",
      *     tags={"Blog Comments"},
      *     summary="Détails d'un commentaire",
      *     description="Récupère un commentaire par ID",
@@ -107,7 +107,7 @@ class BlogCommentController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/blog-comments/{blogComment}",
+     *     path="/api/v1/blog-comments/{blogComment}",
      *     tags={"Blog Comments"},
      *     summary="Mettre à jour un commentaire",
      *     description="Met à jour un commentaire existant",
@@ -147,7 +147,7 @@ class BlogCommentController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/blog-comments/{blogComment}",
+     *     path="/api/v1/blog-comments/{blogComment}",
      *     tags={"Blog Comments"},
      *     summary="Supprimer un commentaire",
      *     description="Supprime un commentaire",

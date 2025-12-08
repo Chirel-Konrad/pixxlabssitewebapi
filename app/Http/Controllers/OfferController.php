@@ -17,7 +17,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/offers",
+     *     path="/api/v1/offers",
      *     tags={"Offers"},
      *     summary="Liste des offres",
      *     description="Récupère la liste paginée des offres",
@@ -50,7 +50,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/offers",
+     *     path="/api/v1/offers",
      *     tags={"Offers"},
      *     summary="Créer une offre",
      *     description="Crée une nouvelle offre",
@@ -89,7 +89,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/offers/{offer}",
+     *     path="/api/v1/offers/{offer}",
      *     tags={"Offers"},
      *     summary="Détails d'une offre par ID",
      *     description="Récupère les détails d'une offre via son ID.",
@@ -107,10 +107,10 @@ class OfferController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/offers/slug/{slug}",
+     *     path="/api/v1/offers/slug/{slug}",
      *     tags={"Offers"},
-     *     summary="Détails d'une offre par Slug",
-     *     description="Récupère les détails d'une offre via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter une offre via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère une offre par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -131,7 +131,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/offers/{offer}",
+     *     path="/api/v1/offers/{offer}",
      *     tags={"Offers"},
      *     summary="Mettre à jour une offre par ID",
      *     description="Met à jour une offre existante via son ID.",
@@ -163,10 +163,10 @@ class OfferController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/offers/slug/{slug}",
+     *     path="/api/v1/offers/slug/{slug}",
      *     tags={"Offers"},
-     *     summary="Mettre à jour une offre par Slug",
-     *     description="Met à jour une offre existante via son slug.",
+     *     summary="Mettre à jour une offre via son slug (référence URL‑friendly)",
+     *     description="Met à jour une offre en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -212,7 +212,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/offers/{offer}",
+     *     path="/api/v1/offers/{offer}",
      *     tags={"Offers"},
      *     summary="Supprimer une offre par ID",
      *     description="Supprime une offre via son ID.",
@@ -231,10 +231,10 @@ class OfferController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/offers/slug/{slug}",
+     *     path="/api/v1/offers/slug/{slug}",
      *     tags={"Offers"},
-     *     summary="Supprimer une offre par Slug",
-     *     description="Supprime une offre via son slug.",
+     *     summary="Supprimer une offre via son slug (URL publique)",
+     *     description="Supprime une offre en la ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

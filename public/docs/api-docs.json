@@ -20,14 +20,14 @@
         }
     ],
     "paths": {
-        "/api/register": {
+        "/api/v1/register": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Inscription d'un nouvel utilisateur",
                 "description": "Crée un nouveau compte utilisateur. Un email de vérification est envoyé automatiquement. Le compte reste inactif jusqu'à la vérification de l'email.",
-                "operationId": "8a56853624e025573120a09a4c75d468",
+                "operationId": "6796c44e1f6079c411abbfed066c5907",
                 "requestBody": {
                     "description": "Données d'inscription de l'utilisateur",
                     "required": true,
@@ -126,14 +126,14 @@
                 }
             }
         },
-        "/api/email/verify/{id}/{hash}": {
+        "/api/v1/email/verify/{id}/{hash}": {
             "get": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Vérification de l'email utilisateur",
                 "description": "Valide l'adresse email de l'utilisateur via le lien reçu par email. Active automatiquement le compte après vérification.",
-                "operationId": "4af257178d5a9abf76c64c62e3a677cb",
+                "operationId": "19aaa873091d0a21743efdf13d858d14",
                 "parameters": [
                     {
                         "name": "id",
@@ -205,14 +205,14 @@
                 }
             }
         },
-        "/api/login": {
+        "/api/v1/login": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Connexion utilisateur classique",
                 "description": "Authentifie un utilisateur avec email et mot de passe. Crée une session et retourne un token Passport. Gère la vérification 2FA si activée.",
-                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "operationId": "da2ca4d7a5cdec77b8b45a20373535cb",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -339,14 +339,14 @@
                 }
             }
         },
-        "/api/social-login": {
+        "/api/v1/social-login": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Connexion via réseaux sociaux",
                 "description": "Authentifie ou crée un utilisateur via un provider social (Google, Facebook, etc.). Le compte est automatiquement vérifié et activé.",
-                "operationId": "800f04d8843b9d221176f8ef88f062a8",
+                "operationId": "83c3876bd1dcb341ca894a0b36f91bcd",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -445,14 +445,14 @@
                 }
             }
         },
-        "/api/enable-2fa": {
+        "/api/v1/enable-2fa": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Activer l'authentification à deux facteurs (2FA)",
                 "description": "Active la 2FA pour l'utilisateur connecté. Le compte passe en statut 'inactive' et un email de validation est envoyé.",
-                "operationId": "bc32abdf03851667bd41d2220931f67f",
+                "operationId": "d3104bdb8c67feeb6175ef933dab217f",
                 "responses": {
                     "200": {
                         "description": "2FA activée avec succès",
@@ -488,14 +488,14 @@
                 ]
             }
         },
-        "/api/logout": {
+        "/api/v1/logout": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Déconnexion utilisateur",
                 "description": "Déconnecte l'utilisateur en révoquant son token Passport et en supprimant sa session. Si la 2FA est activée, le compte repasse en statut 'inactive'.",
-                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "operationId": "c4eddaf1a2e990cc90e4326c0d731d41",
                 "responses": {
                     "200": {
                         "description": "Déconnexion réussie",
@@ -545,14 +545,14 @@
                 ]
             }
         },
-        "/api/password/email": {
+        "/api/v1/password/email": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Demander un lien de réinitialisation du mot de passe",
                 "description": "Envoie un email contenant un lien pour réinitialiser le mot de passe. Le compte passe en statut 'inactive' jusqu'à la réinitialisation. Le token expire après 10 minutes.",
-                "operationId": "2a9b95348b4ddf980b0ebd9ea46571b8",
+                "operationId": "61601351b93c8d08042db770cd1bb0cb",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -620,14 +620,14 @@
                 }
             }
         },
-        "/api/password/reset": {
+        "/api/v1/password/reset": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Réinitialiser le mot de passe",
                 "description": "Réinitialise le mot de passe de l'utilisateur avec le token reçu par email. Le compte est automatiquement réactivé après la réinitialisation. Le token expire après 10 minutes.",
-                "operationId": "5f9daa4e2d9a09acda465d6b8455a1cd",
+                "operationId": "3c711d255371a1b4b1432add9e1d1d28",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -709,14 +709,14 @@
                 }
             }
         },
-        "/api/blog-comments": {
+        "/api/v1/blog-comments": {
             "get": {
                 "tags": [
                     "Blog Comments"
                 ],
                 "summary": "Liste des commentaires de blog",
                 "description": "Récupère tous les commentaires de blog",
-                "operationId": "2da9a55a70eef0655b5961a855fc606c",
+                "operationId": "9fa5c6ab0482b2f8a122514ce8e084a7",
                 "responses": {
                     "200": {
                         "description": "Liste récupérée avec succès",
@@ -736,7 +736,7 @@
                 ],
                 "summary": "Ajouter un commentaire",
                 "description": "Ajoute un commentaire à un article de blog",
-                "operationId": "4aa3a04fc9d164ba45e749b52be49c46",
+                "operationId": "38f382a4c22d34fd3edaf23a4d867e33",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -785,14 +785,14 @@
                 ]
             }
         },
-        "/api/blog-comments/{blogComment}": {
+        "/api/v1/blog-comments/{blogComment}": {
             "get": {
                 "tags": [
                     "Blog Comments"
                 ],
                 "summary": "Détails d'un commentaire",
                 "description": "Récupère un commentaire par ID",
-                "operationId": "0d9abc14978bef68183cf7302c4ec6b8",
+                "operationId": "edf9122a4d3f244e4929f9c9a2803b40",
                 "parameters": [
                     {
                         "name": "blogComment",
@@ -822,7 +822,7 @@
                 ],
                 "summary": "Mettre à jour un commentaire",
                 "description": "Met à jour un commentaire existant",
-                "operationId": "c1cd95d5fd3e92037596e2c1d6edf5da",
+                "operationId": "4d49e7258421f54bb3bb70543e881453",
                 "parameters": [
                     {
                         "name": "blogComment",
@@ -873,7 +873,7 @@
                 ],
                 "summary": "Supprimer un commentaire",
                 "description": "Supprime un commentaire",
-                "operationId": "630a155e4cc1a22a7480e5124a02758d",
+                "operationId": "57aaaddbb95bcf6442ad58338cf00272",
                 "parameters": [
                     {
                         "name": "blogComment",
@@ -903,14 +903,14 @@
                 ]
             }
         },
-        "/api/blogs": {
+        "/api/v1/blogs": {
             "get": {
                 "tags": [
                     "Blogs"
                 ],
                 "summary": "Liste de tous les articles de blog",
                 "description": "Récupère la liste paginée de tous les articles de blog avec leurs auteurs et commentaires",
-                "operationId": "9819e5802278e060898795fe3c919599",
+                "operationId": "49ee5f5b11b0fe9409399029dac30f30",
                 "parameters": [
                     {
                         "name": "page",
@@ -953,7 +953,7 @@
                 ],
                 "summary": "Créer un nouvel article de blog",
                 "description": "Crée un nouvel article de blog avec upload d'image optionnel. L'utilisateur doit être authentifié.",
-                "operationId": "514d226035b3d74b6ccf9837b3d1ed36",
+                "operationId": "678ca615c913b934ed5db814351a737d",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1053,14 +1053,14 @@
                 ]
             }
         },
-        "/api/blogs/{blog}": {
+        "/api/v1/blogs/{blog}": {
             "get": {
                 "tags": [
                     "Blogs"
                 ],
                 "summary": "Détails d'un article de blog par ID",
                 "description": "Récupère les détails complets d'un article avec son auteur et ses commentaires",
-                "operationId": "613e985902f9179f2cadc2cfdc534ad0",
+                "operationId": "f03852adf3878b6bf6f5ca5f82fb466d",
                 "parameters": [
                     {
                         "name": "blog",
@@ -1112,7 +1112,7 @@
                 ],
                 "summary": "Mettre à jour un article de blog par ID",
                 "description": "Met à jour un article existant. Tous les champs sont optionnels. L'image peut être remplacée.",
-                "operationId": "4e37803d04a07df6d43250f9001da12f",
+                "operationId": "e4f0a39baad47b7527ab7693925ed1b1",
                 "parameters": [
                     {
                         "name": "blog",
@@ -1226,7 +1226,7 @@
                 ],
                 "summary": "Supprimer un article de blog par ID",
                 "description": "Supprime définitivement un article et son image associée du stockage",
-                "operationId": "c73beb6344986846567a20863dc6c8eb",
+                "operationId": "4e98a3ad20fae4e6b9b52aa0d4114b84",
                 "parameters": [
                     {
                         "name": "blog",
@@ -1288,14 +1288,14 @@
                 ]
             }
         },
-        "/api/blogs/slug/{slug}": {
+        "/api/v1/blogs/slug/{slug}": {
             "get": {
                 "tags": [
                     "Blogs"
                 ],
-                "summary": "Consultation publique (SEO Friendly)",
-                "description": "Récupère les détails complets d'un article via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "e12cc3836d7df75c04f60cdd7019472f",
+                "summary": "Consulter un article via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère un article par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "047c3fe38e4f0280abe6fe4a034d8e96",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1335,9 +1335,9 @@
                 "tags": [
                     "Blogs"
                 ],
-                "summary": "Mise à jour via URL publique",
-                "description": "Met à jour un article existant via son slug",
-                "operationId": "f8d97bae3d06915ee28b3a327572eba5",
+                "summary": "Mettre à jour un article via son slug (référence URL‑friendly)",
+                "description": "Met à jour un article en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "fb6661277e06e5765ef71fd5337c52a1",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1401,9 +1401,9 @@
                 "tags": [
                     "Blogs"
                 ],
-                "summary": "Suppression via URL publique",
-                "description": "Supprime définitivement un article via son slug",
-                "operationId": "a664517b8a7f44cf31b091382cf3eb92",
+                "summary": "Supprimer un article via son slug (URL publique)",
+                "description": "Supprime un article en le ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "566618ace26bec65b35e2b207477ad9a",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1435,14 +1435,14 @@
                 ]
             }
         },
-        "/api/contacts": {
+        "/api/v1/contacts": {
             "get": {
                 "tags": [
                     "Contacts"
                 ],
                 "summary": "Liste des contacts",
                 "description": "Récupère tous les messages de contact",
-                "operationId": "0f9efb5609dbb039b35ecafb28e492a2",
+                "operationId": "852ed2762dbbe0a94ccfc4c97587621a",
                 "responses": {
                     "200": {
                         "description": "Liste récupérée avec succès",
@@ -1467,7 +1467,7 @@
                 ],
                 "summary": "Envoyer un message de contact",
                 "description": "Enregistre un nouveau message de contact",
-                "operationId": "a3b0baf957a16c1ed505f2e8985c254c",
+                "operationId": "379869295076c3201047aea1a0ece726",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1517,14 +1517,14 @@
                 }
             }
         },
-        "/api/contacts/{contact}": {
+        "/api/v1/contacts/{contact}": {
             "get": {
                 "tags": [
                     "Contacts"
                 ],
                 "summary": "Détails d'un contact",
                 "description": "Récupère un message de contact par ID",
-                "operationId": "1a9a36d323d70f1d5d15a163b14bb811",
+                "operationId": "6f9a8d5448a7bbe1be3a61e52a1b35ae",
                 "parameters": [
                     {
                         "name": "contact",
@@ -1559,7 +1559,7 @@
                 ],
                 "summary": "Mettre à jour un message par ID",
                 "description": "Met à jour un message de contact existant via son ID.",
-                "operationId": "e1c8ae746be20a66f17d489d3cf0d86c",
+                "operationId": "915525604a2e19f03e87ae4b93f7e0a9",
                 "parameters": [
                     {
                         "name": "contact",
@@ -1610,7 +1610,7 @@
                 ],
                 "summary": "Supprimer un contact",
                 "description": "Supprime un message de contact",
-                "operationId": "d98daa627c7df51be8d4689b627532ab",
+                "operationId": "d2c59072318af4ec5dd5302b5f2c8c16",
                 "parameters": [
                     {
                         "name": "contact",
@@ -1640,14 +1640,14 @@
                 ]
             }
         },
-        "/api/contacts/slug/{slug}": {
+        "/api/v1/contacts/slug/{slug}": {
             "get": {
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Détails d'un contact par slug",
-                "description": "Récupère un message de contact via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "36a361c225463a51e8e5db9648a023c7",
+                "summary": "Consulter un contact via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère un contact par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "4c4c4c52715ba0239f9da4825a7e0806",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1681,9 +1681,9 @@
                 "tags": [
                     "Contacts"
                 ],
-                "summary": "Mettre à jour un message par Slug",
-                "description": "Met à jour un message de contact existant via son slug.",
-                "operationId": "1960417eaa25303983556efabc50cbde",
+                "summary": "Mettre à jour un contact via son slug (référence URL‑friendly)",
+                "description": "Met à jour un message de contact en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "11fc5cae1597e0dfececd3f5f8b98766",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1729,14 +1729,14 @@
                 ]
             }
         },
-        "/api/eva-features": {
+        "/api/v1/eva-features": {
             "get": {
                 "tags": [
                     "Eva Features"
                 ],
                 "summary": "Liste des fonctionnalités Eva",
                 "description": "Récupère la liste paginée des fonctionnalités",
-                "operationId": "9cf8146f82d2c6a142f372f6cd7586a7",
+                "operationId": "a2f8bfa55948623f6cfb2c7b2e861c71",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -1768,7 +1768,7 @@
                 ],
                 "summary": "Créer une fonctionnalité",
                 "description": "Crée une nouvelle fonctionnalité Eva",
-                "operationId": "956be009eb34c33173b65c2094e63926",
+                "operationId": "d00eaf40cd666295890f834c7755fb88",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1816,14 +1816,14 @@
                 ]
             }
         },
-        "/api/eva-features/{evaFeature}": {
+        "/api/v1/eva-features/{evaFeature}": {
             "get": {
                 "tags": [
                     "Eva Features"
                 ],
                 "summary": "Détails d'une fonctionnalité par ID",
                 "description": "Récupère les détails d'une fonctionnalité via son ID.",
-                "operationId": "648d7d3a82540472f7a0a58f331cfda7",
+                "operationId": "3fbf300e2bb382e825625a4672ffa6eb",
                 "parameters": [
                     {
                         "name": "evaFeature",
@@ -1853,7 +1853,7 @@
                 ],
                 "summary": "Mettre à jour une fonctionnalité par ID",
                 "description": "Met à jour une fonctionnalité existante via son ID.",
-                "operationId": "54a79b2e3dca6c97ff7d62585ea3d3b1",
+                "operationId": "3a4e90279e97a36ab176c57b22899330",
                 "parameters": [
                     {
                         "name": "evaFeature",
@@ -1914,7 +1914,7 @@
                 ],
                 "summary": "Supprimer une fonctionnalité par ID",
                 "description": "Supprime une fonctionnalité via son ID.",
-                "operationId": "1ddde9b6c26c13c1b6b0cc95f351521a",
+                "operationId": "fba81a9425f09ef2f01436e77881ff63",
                 "parameters": [
                     {
                         "name": "evaFeature",
@@ -1944,14 +1944,14 @@
                 ]
             }
         },
-        "/api/eva-features/slug/{slug}": {
+        "/api/v1/eva-features/slug/{slug}": {
             "get": {
                 "tags": [
                     "Eva Features"
                 ],
-                "summary": "Détails d'une fonctionnalité par Slug",
-                "description": "Récupère les détails d'une fonctionnalité via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "ad0954faeddf65946807fbfda52bf3c1",
+                "summary": "Consulter une fonctionnalité via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère une fonctionnalité par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "f0176430a351b294bcdd5907bb2f8e9d",
                 "parameters": [
                     {
                         "name": "slug",
@@ -1979,9 +1979,9 @@
                 "tags": [
                     "Eva Features"
                 ],
-                "summary": "Mettre à jour une fonctionnalité par Slug",
-                "description": "Met à jour une fonctionnalité existante via son slug.",
-                "operationId": "545ec84029ec71635f020b6789bc4c28",
+                "summary": "Mettre à jour une fonctionnalité via son slug (référence URL‑friendly)",
+                "description": "Met à jour une fonctionnalité en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "805a175f24714d1659ad83d89cad68c0",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2040,9 +2040,9 @@
                 "tags": [
                     "Eva Features"
                 ],
-                "summary": "Supprimer une fonctionnalité par Slug",
-                "description": "Supprime une fonctionnalité via son slug.",
-                "operationId": "96ac0d56417b4673cf563dc7c2bad50f",
+                "summary": "Supprimer une fonctionnalité via son slug (URL publique)",
+                "description": "Supprime une fonctionnalité en la ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "058df08be81a5d97dac2806105041e17",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2072,14 +2072,14 @@
                 ]
             }
         },
-        "/api/faqs": {
+        "/api/v1/faqs": {
             "get": {
                 "tags": [
                     "FAQs"
                 ],
                 "summary": "Liste des FAQs",
                 "description": "Récupère la liste paginée des questions fréquentes",
-                "operationId": "00535134383f42bd4a8ec4e8657e2c0e",
+                "operationId": "5d91194d21cc31de7d867c1e96951f2c",
                 "parameters": [
                     {
                         "name": "type",
@@ -2116,7 +2116,7 @@
                 ],
                 "summary": "Créer une FAQ",
                 "description": "Crée une nouvelle question fréquente avec ses réponses",
-                "operationId": "31f236837e37c6bdcd21b2ba75936129",
+                "operationId": "b956357874079d0298a16a13b95043ec",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2177,14 +2177,14 @@
                 ]
             }
         },
-        "/api/faqs/{faq}": {
+        "/api/v1/faqs/{faq}": {
             "get": {
                 "tags": [
                     "FAQs"
                 ],
                 "summary": "Détails d'une FAQ par ID",
                 "description": "Récupère une question fréquente via son ID.",
-                "operationId": "25cd3d39f1c5360d52717d4aefb7ff2c",
+                "operationId": "cfb1e62c0c131ad1b325d88f2ec06f93",
                 "parameters": [
                     {
                         "name": "faq",
@@ -2214,7 +2214,7 @@
                 ],
                 "summary": "Mettre à jour une FAQ par ID",
                 "description": "Met à jour une question fréquente via son ID.",
-                "operationId": "30547728c13bb78fc51b473136495251",
+                "operationId": "39d29527eeee1b334dc6ae5e72f9693a",
                 "parameters": [
                     {
                         "name": "faq",
@@ -2284,7 +2284,7 @@
                 ],
                 "summary": "Supprimer une FAQ par ID",
                 "description": "Supprime une FAQ via son ID.",
-                "operationId": "55ffb08d057816be27b60dea0da6a5eb",
+                "operationId": "cd6a0ab6c472fcd3d1ea10e6ac7d3211",
                 "parameters": [
                     {
                         "name": "faq",
@@ -2314,14 +2314,14 @@
                 ]
             }
         },
-        "/api/faqs/slug/{slug}": {
+        "/api/v1/faqs/slug/{slug}": {
             "get": {
                 "tags": [
                     "FAQs"
                 ],
                 "summary": "Détails d'une FAQ par Slug",
                 "description": "Récupère une question fréquente via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "80c95ca9d6a6b0eed7c68aabf2596d94",
+                "operationId": "c3d4fdbc5da8a809e2aa6f5a4de22adb",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2351,7 +2351,7 @@
                 ],
                 "summary": "Mettre à jour une FAQ par Slug",
                 "description": "Met à jour une question fréquente via son slug.",
-                "operationId": "f0b51e296cc51e113bb8b27632a5e7c3",
+                "operationId": "4116bb2864d62fd283ec3c6bdbfdeb43",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2421,7 +2421,7 @@
                 ],
                 "summary": "Supprimer une FAQ par Slug",
                 "description": "Supprime une FAQ via son slug.",
-                "operationId": "7df97f83e5704155d736943e1a791e28",
+                "operationId": "31d96a49480bff2960e5bfdbd786e956",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2451,14 +2451,14 @@
                 ]
             }
         },
-        "/api/newsletters": {
+        "/api/v1/newsletters": {
             "get": {
                 "tags": [
                     "Newsletters"
                 ],
                 "summary": "Liste des abonnés newsletter",
                 "description": "Récupère la liste paginée des abonnés",
-                "operationId": "48b508c17e56d6af5aab416ff8ad4451",
+                "operationId": "00222648109ea5d5ecc6329e3372dfa7",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -2495,7 +2495,7 @@
                 ],
                 "summary": "S'abonner à la newsletter",
                 "description": "Ajoute un email à la liste de diffusion",
-                "operationId": "adebf94e671e5ae506b61feb3d04e8eb",
+                "operationId": "7df6b927f473a28e69840ebbb662029d",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2530,14 +2530,14 @@
                 }
             }
         },
-        "/api/newsletters/{newsletter}": {
+        "/api/v1/newsletters/{newsletter}": {
             "get": {
                 "tags": [
                     "Newsletters"
                 ],
                 "summary": "Détails d'un abonné par ID",
                 "description": "Récupère un abonné via son ID.",
-                "operationId": "ebb7eb1b99590a0cc0fc40346b927e97",
+                "operationId": "d4e3727bae9c08b7dbaf565c33aba347",
                 "parameters": [
                     {
                         "name": "newsletter",
@@ -2572,7 +2572,7 @@
                 ],
                 "summary": "Mettre à jour un abonné par ID",
                 "description": "Met à jour l'email d'un abonné via son ID.",
-                "operationId": "5120f43182b14c6993bab43e1397a1ea",
+                "operationId": "cb6a12f051deda024b914d0fd6614fc3",
                 "parameters": [
                     {
                         "name": "newsletter",
@@ -2624,7 +2624,7 @@
                 ],
                 "summary": "Supprimer un abonné par ID",
                 "description": "Supprime un abonné de la newsletter via son ID.",
-                "operationId": "8458e401302f46af6145d6ab8cf5516d",
+                "operationId": "9526099e20a228a9929dc59547179c6a",
                 "parameters": [
                     {
                         "name": "newsletter",
@@ -2654,14 +2654,14 @@
                 ]
             }
         },
-        "/api/newsletters/slug/{slug}": {
+        "/api/v1/newsletters/slug/{slug}": {
             "get": {
                 "tags": [
                     "Newsletters"
                 ],
                 "summary": "Détails d'un abonné par Slug",
                 "description": "Récupère un abonné via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "89a0475a57b680f87b1749c098534226",
+                "operationId": "9ef8c2e3eb067e7ab889cacb0e910e26",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2696,7 +2696,7 @@
                 ],
                 "summary": "Mettre à jour un abonné par Slug",
                 "description": "Met à jour l'email d'un abonné via son slug.",
-                "operationId": "6203cd1e340d935045a10eee5da58053",
+                "operationId": "47e51e0d4d682df9b07b0c02796418ec",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2748,7 +2748,7 @@
                 ],
                 "summary": "Supprimer un abonné par Slug",
                 "description": "Supprime un abonné de la newsletter via son slug.",
-                "operationId": "8194a4a0cb5e52d428f97324a76dbdc0",
+                "operationId": "ab73f1a2d5e0a0cd812404ef01920973",
                 "parameters": [
                     {
                         "name": "slug",
@@ -2778,14 +2778,14 @@
                 ]
             }
         },
-        "/api/offers": {
+        "/api/v1/offers": {
             "get": {
                 "tags": [
                     "Offers"
                 ],
                 "summary": "Liste des offres",
                 "description": "Récupère la liste paginée des offres",
-                "operationId": "3a56496f000faffd87f42c4036770f0e",
+                "operationId": "de92af251b5f32c80b5c9629d0362563",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -2817,7 +2817,7 @@
                 ],
                 "summary": "Créer une offre",
                 "description": "Crée une nouvelle offre",
-                "operationId": "4b4cc5dac461b7ed0b8d56a8a2ce22d2",
+                "operationId": "5fa9fe9d5123caae5dbfc0d14bf17664",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2860,14 +2860,14 @@
                 ]
             }
         },
-        "/api/offers/{offer}": {
+        "/api/v1/offers/{offer}": {
             "get": {
                 "tags": [
                     "Offers"
                 ],
                 "summary": "Détails d'une offre par ID",
                 "description": "Récupère les détails d'une offre via son ID.",
-                "operationId": "15f5327f8c5f925d892965a098a26027",
+                "operationId": "89b631545720c8b489eca0981f98f63d",
                 "parameters": [
                     {
                         "name": "offer",
@@ -2897,7 +2897,7 @@
                 ],
                 "summary": "Mettre à jour une offre par ID",
                 "description": "Met à jour une offre existante via son ID.",
-                "operationId": "d065775809273c286b7eb92c3ee32dc3",
+                "operationId": "847b1cd49d711d9e9b9ed896ca4b1c8a",
                 "parameters": [
                     {
                         "name": "offer",
@@ -2962,7 +2962,7 @@
                 ],
                 "summary": "Supprimer une offre par ID",
                 "description": "Supprime une offre via son ID.",
-                "operationId": "e4e44a826ea897849a6af183eb06843f",
+                "operationId": "d9704c5d3d631dea79dec39720c01d06",
                 "parameters": [
                     {
                         "name": "offer",
@@ -2992,14 +2992,14 @@
                 ]
             }
         },
-        "/api/offers/slug/{slug}": {
+        "/api/v1/offers/slug/{slug}": {
             "get": {
                 "tags": [
                     "Offers"
                 ],
-                "summary": "Détails d'une offre par Slug",
-                "description": "Récupère les détails d'une offre via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "8bf8e6a81bfdf5c71c8fb402e634a24f",
+                "summary": "Consulter une offre via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère une offre par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "56f47ebbdfc4773756a113ee8db833b3",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3027,9 +3027,9 @@
                 "tags": [
                     "Offers"
                 ],
-                "summary": "Mettre à jour une offre par Slug",
-                "description": "Met à jour une offre existante via son slug.",
-                "operationId": "5cab7e835cd49c8810823dc966c1244d",
+                "summary": "Mettre à jour une offre via son slug (référence URL‑friendly)",
+                "description": "Met à jour une offre en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "72ae4ff735ca675fde77fce0f82acac3",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3092,9 +3092,9 @@
                 "tags": [
                     "Offers"
                 ],
-                "summary": "Supprimer une offre par Slug",
-                "description": "Supprime une offre via son slug.",
-                "operationId": "9fd3be0f1fa2dd74b5c413779eb4cc4a",
+                "summary": "Supprimer une offre via son slug (URL publique)",
+                "description": "Supprime une offre en la ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "1a24f546db9e1ad21fbc10e2881746c8",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3124,14 +3124,14 @@
                 ]
             }
         },
-        "/api/piliers": {
+        "/api/v1/piliers": {
             "get": {
                 "tags": [
                     "Piliers"
                 ],
                 "summary": "Liste des piliers",
                 "description": "Récupère la liste paginée des piliers",
-                "operationId": "38a85d7a0a60e81bd3ab25f5acf1f9b1",
+                "operationId": "865b974ff9c0c43242bbcee0073af4b2",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -3163,7 +3163,7 @@
                 ],
                 "summary": "Créer un pilier",
                 "description": "Crée un nouveau pilier",
-                "operationId": "3ea7fd0351c13c9e91222cb70715dfaa",
+                "operationId": "9352bcaed5c7c08307668f28e855be6b",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -3211,14 +3211,14 @@
                 ]
             }
         },
-        "/api/piliers/{pilier}": {
+        "/api/v1/piliers/{pilier}": {
             "get": {
                 "tags": [
                     "Piliers"
                 ],
                 "summary": "Détails d'un pilier par ID",
                 "description": "Récupère les détails d'un pilier via son ID.",
-                "operationId": "b133b852728b8a3ac7ea92ca8f65acaa",
+                "operationId": "950e0946566e1c500b0ed28e450cadb2",
                 "parameters": [
                     {
                         "name": "pilier",
@@ -3248,7 +3248,7 @@
                 ],
                 "summary": "Mettre à jour un pilier par ID",
                 "description": "Met à jour un pilier existant via son ID.",
-                "operationId": "a6d465e2a311b9401b9b196d384bc157",
+                "operationId": "4d24379ee1f8b6997db8340e1d9e447c",
                 "parameters": [
                     {
                         "name": "pilier",
@@ -3309,7 +3309,7 @@
                 ],
                 "summary": "Supprimer un pilier par ID",
                 "description": "Supprime un pilier via son ID.",
-                "operationId": "53fec3ff8ebb8b37412196aa77b3724a",
+                "operationId": "cbe290a73b482895451e7d970686b8cd",
                 "parameters": [
                     {
                         "name": "pilier",
@@ -3339,14 +3339,14 @@
                 ]
             }
         },
-        "/api/piliers/slug/{slug}": {
+        "/api/v1/piliers/slug/{slug}": {
             "get": {
                 "tags": [
                     "Piliers"
                 ],
-                "summary": "Détails d'un pilier par Slug",
-                "description": "Récupère les détails d'un pilier via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "6a028a62931011666ac5b705a966a0c9",
+                "summary": "Consulter un pilier via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère un pilier par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "ed250f135e3bdb3a5876ea1e23b916cd",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3374,9 +3374,9 @@
                 "tags": [
                     "Piliers"
                 ],
-                "summary": "Mettre à jour un pilier par Slug",
-                "description": "Met à jour un pilier existant via son slug.",
-                "operationId": "a879c48d4ce1e430e7a7ef9392fa2611",
+                "summary": "Mettre à jour un pilier via son slug (référence URL‑friendly)",
+                "description": "Met à jour un pilier en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "3c673d31b8a097d9ac2c2e6c9aca67b9",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3435,9 +3435,9 @@
                 "tags": [
                     "Piliers"
                 ],
-                "summary": "Supprimer un pilier par Slug",
-                "description": "Supprime un pilier via son slug.",
-                "operationId": "d5df2c42e94f573f52d1d78e5b8eb59b",
+                "summary": "Supprimer un pilier via son slug (URL publique)",
+                "description": "Supprime un pilier en le ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "dc7417b29e0afb12a6eefce231e7d205",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3467,14 +3467,14 @@
                 ]
             }
         },
-        "/api/privileges": {
+        "/api/v1/privileges": {
             "get": {
                 "tags": [
                     "Privileges"
                 ],
                 "summary": "Liste des privilèges",
                 "description": "Récupère la liste paginée des privilèges",
-                "operationId": "a36be52629d0cdf3a5e080af0d8d1fbb",
+                "operationId": "10ddedf4af20af75e39c46bb44145726",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -3506,7 +3506,7 @@
                 ],
                 "summary": "Créer un privilège",
                 "description": "Crée un nouveau privilège",
-                "operationId": "64f9844aaaa9f14cdfc7812edd76d1ae",
+                "operationId": "5cd3800141e06ff53a2e04ed8e2a32b6",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -3553,14 +3553,14 @@
                 ]
             }
         },
-        "/api/privileges/{privilege}": {
+        "/api/v1/privileges/{privilege}": {
             "get": {
                 "tags": [
                     "Privileges"
                 ],
                 "summary": "Détails d'un privilège par ID",
                 "description": "Récupère les détails d'un privilège via son ID.",
-                "operationId": "6b90a624b9eb6ff7666ecc1aa3734ef6",
+                "operationId": "92528ca2d2f699bb9a16e7b83965c1b1",
                 "parameters": [
                     {
                         "name": "privilege",
@@ -3590,7 +3590,7 @@
                 ],
                 "summary": "Mettre à jour un privilège par ID",
                 "description": "Met à jour un privilège existant via son ID.",
-                "operationId": "649bdc8db77e05e5ad7529130cb5ebc8",
+                "operationId": "a3d2657aace7afedbfc9d7a7ebeb2cf2",
                 "parameters": [
                     {
                         "name": "privilege",
@@ -3651,7 +3651,7 @@
                 ],
                 "summary": "Supprimer un privilège par ID",
                 "description": "Supprime un privilège via son ID.",
-                "operationId": "66ef64d272bf98141640d7aced5fbb81",
+                "operationId": "12296f3ba975f5f0a3e115e0a1d178a9",
                 "parameters": [
                     {
                         "name": "privilege",
@@ -3681,14 +3681,14 @@
                 ]
             }
         },
-        "/api/privileges/slug/{slug}": {
+        "/api/v1/privileges/slug/{slug}": {
             "get": {
                 "tags": [
                     "Privileges"
                 ],
-                "summary": "Détails d'un privilège par Slug",
-                "description": "Récupère les détails d'un privilège via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "0cb3b49fd36c5b336f41f5277c99e26a",
+                "summary": "Consulter un privilège via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère un privilège par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "8e3a3bed269246a898ccee276023f519",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3716,9 +3716,9 @@
                 "tags": [
                     "Privileges"
                 ],
-                "summary": "Mettre à jour un privilège par Slug",
-                "description": "Met à jour un privilège existant via son slug.",
-                "operationId": "82ca2981e4e43fb5c1161d7932fab10e",
+                "summary": "Mettre à jour un privilège via son slug (référence URL‑friendly)",
+                "description": "Met à jour un privilège en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "08b5ff2ca248ce61a4cb3e1e9bbd2375",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3777,9 +3777,9 @@
                 "tags": [
                     "Privileges"
                 ],
-                "summary": "Supprimer un privilège par Slug",
-                "description": "Supprime un privilège via son slug.",
-                "operationId": "dfba13330788a41179c75946d42d6c6b",
+                "summary": "Supprimer un privilège via son slug (URL publique)",
+                "description": "Supprime un privilège en le ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "a3bf3644eea96aca47383a1c94c0db19",
                 "parameters": [
                     {
                         "name": "slug",
@@ -3809,14 +3809,14 @@
                 ]
             }
         },
-        "/api/products": {
+        "/api/v1/products": {
             "get": {
                 "tags": [
                     "Products"
                 ],
                 "summary": "Liste des produits",
                 "description": "Récupère la liste paginée des produits",
-                "operationId": "1bfaa78d1c2c3848ab8165c5dadcad3e",
+                "operationId": "7ca3593d05653d957ae7be1ac648ca44",
                 "parameters": [
                     {
                         "name": "page",
@@ -3861,7 +3861,7 @@
                 ],
                 "summary": "Créer un produit",
                 "description": "Crée un nouveau produit",
-                "operationId": "e8185e307706e2cd84bbcf5171e2f09d",
+                "operationId": "cfdb2a3921bee30f9cad135e1c5f1452",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -3918,14 +3918,14 @@
                 ]
             }
         },
-        "/api/products/{product}": {
+        "/api/v1/products/{product}": {
             "get": {
                 "tags": [
                     "Products"
                 ],
                 "summary": "Détails d'un produit par ID",
                 "description": "Récupère les détails d'un produit via son identifiant numérique unique. Utile pour les opérations internes ou d'administration.",
-                "operationId": "05f6ffcb49f47b4f4fc1a1c21ed60011",
+                "operationId": "1b3973cfd4ef8d02667eb21c9a1aae08",
                 "parameters": [
                     {
                         "name": "product",
@@ -3956,7 +3956,7 @@
                 ],
                 "summary": "Mettre à jour un produit par ID",
                 "description": "Met à jour un produit existant via son ID. Permet de modifier les informations sans changer l'URL publique (slug).",
-                "operationId": "c474d1318e5b8c3de1f4d52b6053111f",
+                "operationId": "07a50707a0554924c3f002624c528147",
                 "parameters": [
                     {
                         "name": "product",
@@ -4028,7 +4028,7 @@
                 ],
                 "summary": "Supprimer un produit par ID",
                 "description": "Supprime définitivement un produit via son ID.",
-                "operationId": "1a0a353d0842ff4f9347bb66ec53e3ea",
+                "operationId": "f11912b363d212daeeaa89eceecfe004",
                 "parameters": [
                     {
                         "name": "product",
@@ -4058,14 +4058,14 @@
                 ]
             }
         },
-        "/api/products/slug/{slug}": {
+        "/api/v1/products/slug/{slug}": {
             "get": {
                 "tags": [
                     "Products"
                 ],
-                "summary": "Détails d'un produit par Slug",
-                "description": "Récupère les détails d'un produit via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "e2371a9862f2321ec46febdb1f0f2c23",
+                "summary": "Consulter un produit via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère un produit par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "4f9139c8297f1e5c5c5493d1efff4c85",
                 "parameters": [
                     {
                         "name": "slug",
@@ -4094,9 +4094,9 @@
                 "tags": [
                     "Products"
                 ],
-                "summary": "Mettre à jour un produit par Slug",
-                "description": "Met à jour un produit en l'identifiant par son slug. Utile si le client ne connaît que l'URL publique du produit.",
-                "operationId": "3c3b5eb12a28b940e0ea6aa4fdc98b1d",
+                "summary": "Mettre à jour un produit via son slug (référence URL‑friendly)",
+                "description": "Met à jour un produit en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "076fb211f7353e1387238a5d79851556",
                 "parameters": [
                     {
                         "name": "slug",
@@ -4166,9 +4166,9 @@
                 "tags": [
                     "Products"
                 ],
-                "summary": "Supprimer un produit par Slug",
-                "description": "Supprime définitivement un produit via son slug.",
-                "operationId": "4473988af710947dc606e48dcf44b801",
+                "summary": "Supprimer un produit via son slug (URL publique)",
+                "description": "Supprime un produit en le ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "615f62ce7490b1b347fb0186b13fce6c",
                 "parameters": [
                     {
                         "name": "slug",
@@ -4198,14 +4198,14 @@
                 ]
             }
         },
-        "/api/testimonials": {
+        "/api/v1/testimonials": {
             "get": {
                 "tags": [
                     "Testimonials"
                 ],
                 "summary": "Liste des témoignages",
                 "description": "Récupère la liste paginée des témoignages",
-                "operationId": "321a02623ad0fe4449f638acabca2bcb",
+                "operationId": "4f4c5713934b1ac9e9a14fa4736e52d1",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -4237,7 +4237,7 @@
                 ],
                 "summary": "Ajouter un témoignage",
                 "description": "Ajoute un nouveau témoignage",
-                "operationId": "e8776deeaec685ccc5864afa10a65681",
+                "operationId": "1bc2345d58ff77d9d1c8b04dbcbf095f",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -4280,14 +4280,14 @@
                 ]
             }
         },
-        "/api/testimonials/{testimonial}": {
+        "/api/v1/testimonials/{testimonial}": {
             "get": {
                 "tags": [
                     "Testimonials"
                 ],
                 "summary": "Détails d'un témoignage par ID",
                 "description": "Récupère les détails d'un témoignage via son ID.",
-                "operationId": "cf1ac1995348c58d6c78022912cb2b57",
+                "operationId": "6a55eb1c6d4e44b67c19c1f52b0a4f93",
                 "parameters": [
                     {
                         "name": "testimonial",
@@ -4317,7 +4317,7 @@
                 ],
                 "summary": "Mettre à jour un témoignage par ID",
                 "description": "Met à jour un témoignage existant via son ID.",
-                "operationId": "6137264aaeaa614c890ff570cff7e331",
+                "operationId": "65b35ee3fa3e88f7e10dc24438b452a0",
                 "parameters": [
                     {
                         "name": "testimonial",
@@ -4372,7 +4372,7 @@
                 ],
                 "summary": "Supprimer un témoignage par ID",
                 "description": "Supprime un témoignage via son ID.",
-                "operationId": "f1f08fef5252f3fdb5f9c8dce60c7f5b",
+                "operationId": "d723857528609d5a0406f33cf5b08fb1",
                 "parameters": [
                     {
                         "name": "testimonial",
@@ -4402,14 +4402,14 @@
                 ]
             }
         },
-        "/api/testimonials/slug/{slug}": {
+        "/api/v1/testimonials/slug/{slug}": {
             "get": {
                 "tags": [
                     "Testimonials"
                 ],
                 "summary": "Détails d'un témoignage par Slug",
                 "description": "Récupère les détails d'un témoignage via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "51064ede0d0433d166271baed60c7e9e",
+                "operationId": "b9dd075fa4e42259378f4d29138ed130",
                 "parameters": [
                     {
                         "name": "slug",
@@ -4439,7 +4439,7 @@
                 ],
                 "summary": "Mettre à jour un témoignage par Slug",
                 "description": "Met à jour un témoignage existant via son slug.",
-                "operationId": "bd3ca41b51c560c005007827c4f0b605",
+                "operationId": "de7b0d7b28a41d6e565ac97e4db7db9e",
                 "parameters": [
                     {
                         "name": "slug",
@@ -4494,7 +4494,7 @@
                 ],
                 "summary": "Supprimer un témoignage par Slug",
                 "description": "Supprime un témoignage via son slug.",
-                "operationId": "9baacd7d9b02c2fdec7485ff91759d42",
+                "operationId": "603222b2bf4d5c37ab370cc5f9c06e01",
                 "parameters": [
                     {
                         "name": "slug",
@@ -4524,14 +4524,14 @@
                 ]
             }
         },
-        "/api/users": {
+        "/api/v1/users": {
             "get": {
                 "tags": [
                     "Users"
                 ],
                 "summary": "Liste des utilisateurs",
                 "description": "Récupère la liste paginée des utilisateurs",
-                "operationId": "c457726701591d1183b53aa71fc13441",
+                "operationId": "3ab81e3f9b24b4f36ab08d72349ac632",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -4595,7 +4595,7 @@
                 ],
                 "summary": "Créer un utilisateur",
                 "description": "Crée un nouvel utilisateur (Admin seulement)",
-                "operationId": "592819a0265360b2014512d6dbfaf0e7",
+                "operationId": "ba548b97148bb5c0d8cab3bc3f128bfd",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -4671,14 +4671,14 @@
                 ]
             }
         },
-        "/api/users/{user}": {
+        "/api/v1/users/{user}": {
             "get": {
                 "tags": [
                     "Users"
                 ],
                 "summary": "Détails d'un utilisateur",
                 "description": "Récupère les détails d'un utilisateur spécifique",
-                "operationId": "d3a14968f8b7a072620c75c7c78ed6f8",
+                "operationId": "b5fbd828b3d60d54bc5df329c76a7387",
                 "parameters": [
                     {
                         "name": "user",
@@ -4727,7 +4727,7 @@
                 ],
                 "summary": "Mettre à jour un utilisateur",
                 "description": "Met à jour les informations d'un utilisateur",
-                "operationId": "e29fc231c7937ab09483d35e6e3d1214",
+                "operationId": "ae3157efb4d508fc919d0dd75f609c84",
                 "parameters": [
                     {
                         "name": "user",
@@ -4809,7 +4809,7 @@
                 ],
                 "summary": "Supprimer un utilisateur",
                 "description": "Supprime un utilisateur définitivement",
-                "operationId": "e0f9a385a1d6788b99e519bd98cf7239",
+                "operationId": "a102899d74ed05385e56bcee7408453c",
                 "parameters": [
                     {
                         "name": "user",
@@ -4850,14 +4850,14 @@
                 ]
             }
         },
-        "/api/webinars": {
+        "/api/v1/webinars": {
             "get": {
                 "tags": [
                     "Webinars"
                 ],
                 "summary": "Liste des webinaires",
                 "description": "Récupère la liste paginée des webinaires",
-                "operationId": "084d1c92af7f5407dfd35da2855ad7dc",
+                "operationId": "6c3437a58a8502b4eff6e2d16c8b5a9f",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -4889,7 +4889,7 @@
                 ],
                 "summary": "Créer un webinaire",
                 "description": "Crée un nouveau webinaire",
-                "operationId": "24bace38a546b33cef7649415c57aa7c",
+                "operationId": "d282423fa295167acc4ab78b8628e96a",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -4953,14 +4953,14 @@
                 ]
             }
         },
-        "/api/webinars/{webinar}": {
+        "/api/v1/webinars/{webinar}": {
             "get": {
                 "tags": [
                     "Webinars"
                 ],
                 "summary": "Détails d'un webinaire par ID",
                 "description": "Récupère les détails d'un webinaire via son ID.",
-                "operationId": "92566c762de3ce5351c3ee5ee57b0d02",
+                "operationId": "5c8c20d07c8a2b0e87e12e779054d68e",
                 "parameters": [
                     {
                         "name": "webinar",
@@ -4990,7 +4990,7 @@
                 ],
                 "summary": "Mettre à jour un webinaire par ID",
                 "description": "Met à jour un webinaire existant via son ID.",
-                "operationId": "2e88cb2d4d1f6e9f8c64f51ad56c02a7",
+                "operationId": "8a43a1984631eda4ee2ba98277ba88b5",
                 "parameters": [
                     {
                         "name": "webinar",
@@ -5058,7 +5058,7 @@
                 ],
                 "summary": "Supprimer un webinaire par ID",
                 "description": "Supprime un webinaire via son ID.",
-                "operationId": "40c0ad68206817780b1d8f0440e09718",
+                "operationId": "8846b82aac8e1622ac2666370dad7495",
                 "parameters": [
                     {
                         "name": "webinar",
@@ -5088,14 +5088,14 @@
                 ]
             }
         },
-        "/api/webinars/slug/{slug}": {
+        "/api/v1/webinars/slug/{slug}": {
             "get": {
                 "tags": [
                     "Webinars"
                 ],
-                "summary": "Détails d'un webinaire par Slug",
-                "description": "Récupère les détails d'un webinaire via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "8855d7fa68dacda8ce248c408895d2c1",
+                "summary": "Consulter un webinaire via son slug (URL publique SEO‑friendly)",
+                "description": "Récupère un webinaire par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
+                "operationId": "f5a176f2f5b721b8632063f38bf30f7d",
                 "parameters": [
                     {
                         "name": "slug",
@@ -5123,9 +5123,9 @@
                 "tags": [
                     "Webinars"
                 ],
-                "summary": "Mettre à jour un webinaire par Slug",
-                "description": "Met à jour un webinaire existant via son slug.",
-                "operationId": "ca0104065736f8425473222b6baf8073",
+                "summary": "Mettre à jour un webinaire via son slug (référence URL‑friendly)",
+                "description": "Met à jour un webinaire en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
+                "operationId": "b94104a9ef2a53505007eba18abe45db",
                 "parameters": [
                     {
                         "name": "slug",
@@ -5191,9 +5191,9 @@
                 "tags": [
                     "Webinars"
                 ],
-                "summary": "Supprimer un webinaire par Slug",
-                "description": "Supprime un webinaire via son slug.",
-                "operationId": "24378b61bbc8c316d352d42662e1e4a4",
+                "summary": "Supprimer un webinaire via son slug (URL publique)",
+                "description": "Supprime un webinaire en le ciblant via son slug public, sans exposer l'ID interne.",
+                "operationId": "ce70d6b9807d1d09c71bae3f7e53f61e",
                 "parameters": [
                     {
                         "name": "slug",
@@ -5223,14 +5223,14 @@
                 ]
             }
         },
-        "/api/webinar-registrations": {
+        "/api/v1/webinar-registrations": {
             "get": {
                 "tags": [
                     "Webinar Registrations"
                 ],
                 "summary": "Mes inscriptions aux webinaires",
                 "description": "Récupère la liste des inscriptions de l'utilisateur connecté",
-                "operationId": "c30062a5cc40a4193a59742c12c15ac3",
+                "operationId": "67aa7f91f67d53eb3e484d44b55d48b5",
                 "responses": {
                     "200": {
                         "description": "Liste récupérée avec succès",
@@ -5255,7 +5255,7 @@
                 ],
                 "summary": "S'inscrire à un webinaire",
                 "description": "Inscrit l'utilisateur connecté à un webinaire",
-                "operationId": "d005da287bb2e9a96b29ed2dd722e081",
+                "operationId": "6187db0980344fba94abc58980236626",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -5294,14 +5294,14 @@
                 ]
             }
         },
-        "/api/webinar-registrations/{webinarRegistration}": {
+        "/api/v1/webinar-registrations/{webinarRegistration}": {
             "get": {
                 "tags": [
                     "Webinar Registrations"
                 ],
                 "summary": "Détails d'une inscription par ID",
                 "description": "Récupère les détails d'une inscription via son ID.",
-                "operationId": "accf1611414f79e6b2cd2a2a98a72f04",
+                "operationId": "233d2904dfa018546d845d1f88d043f5",
                 "parameters": [
                     {
                         "name": "webinarRegistration",
@@ -5336,7 +5336,7 @@
                 ],
                 "summary": "Supprimer une inscription par ID",
                 "description": "Supprime une inscription via son ID.",
-                "operationId": "91d90a294290c5317390dcfb6fb6a5dd",
+                "operationId": "7f63508932fa5ba847d7ea85e07d3aaf",
                 "parameters": [
                     {
                         "name": "webinarRegistration",
@@ -5366,14 +5366,14 @@
                 ]
             }
         },
-        "/api/webinar-registrations/slug/{slug}": {
+        "/api/v1/webinar-registrations/slug/{slug}": {
             "get": {
                 "tags": [
                     "Webinar Registrations"
                 ],
                 "summary": "Détails d'une inscription par Slug",
                 "description": "Récupère les détails d'une inscription via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
-                "operationId": "609cc187812ebe068a19120f73c74475",
+                "operationId": "d5cac31f2680241b3d21f1e4a32ac811",
                 "parameters": [
                     {
                         "name": "slug",
@@ -5408,7 +5408,7 @@
                 ],
                 "summary": "Supprimer une inscription par Slug",
                 "description": "Supprime une inscription via son slug.",
-                "operationId": "022c84430ce18f007caab3faf021c8e6",
+                "operationId": "f801f86d02b82f8d7acec41d9048ac45",
                 "parameters": [
                     {
                         "name": "slug",

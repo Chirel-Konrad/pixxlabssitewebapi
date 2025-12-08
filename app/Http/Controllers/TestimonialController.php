@@ -17,7 +17,7 @@ class TestimonialController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/testimonials",
+     *     path="/api/v1/testimonials",
      *     tags={"Testimonials"},
      *     summary="Liste des témoignages",
      *     description="Récupère la liste paginée des témoignages",
@@ -50,7 +50,7 @@ class TestimonialController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/testimonials",
+     *     path="/api/v1/testimonials",
      *     tags={"Testimonials"},
      *     summary="Ajouter un témoignage",
      *     description="Ajoute un nouveau témoignage",
@@ -88,7 +88,7 @@ class TestimonialController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/testimonials/{testimonial}",
+     *     path="/api/v1/testimonials/{testimonial}",
      *     tags={"Testimonials"},
      *     summary="Détails d'un témoignage par ID",
      *     description="Récupère les détails d'un témoignage via son ID.",
@@ -106,7 +106,7 @@ class TestimonialController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/testimonials/slug/{slug}",
+     *     path="/api/v1/testimonials/slug/{slug}",
      *     tags={"Testimonials"},
      *     summary="Détails d'un témoignage par Slug",
      *     description="Récupère les détails d'un témoignage via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
@@ -130,7 +130,7 @@ class TestimonialController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/testimonials/{testimonial}",
+     *     path="/api/v1/testimonials/{testimonial}",
      *     tags={"Testimonials"},
      *     summary="Mettre à jour un témoignage par ID",
      *     description="Met à jour un témoignage existant via son ID.",
@@ -156,7 +156,7 @@ class TestimonialController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/testimonials/slug/{slug}",
+     *     path="/api/v1/testimonials/slug/{slug}",
      *     tags={"Testimonials"},
      *     summary="Mettre à jour un témoignage par Slug",
      *     description="Met à jour un témoignage existant via son slug.",
@@ -197,7 +197,7 @@ class TestimonialController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/testimonials/{testimonial}",
+     *     path="/api/v1/testimonials/{testimonial}",
      *     tags={"Testimonials"},
      *     summary="Supprimer un témoignage par ID",
      *     description="Supprime un témoignage via son ID.",
@@ -216,7 +216,7 @@ class TestimonialController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/testimonials/slug/{slug}",
+     *     path="/api/v1/testimonials/slug/{slug}",
      *     tags={"Testimonials"},
      *     summary="Supprimer un témoignage par Slug",
      *     description="Supprime un témoignage via son slug.",

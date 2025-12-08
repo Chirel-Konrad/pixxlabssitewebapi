@@ -18,7 +18,7 @@ class BlogController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/blogs",
+     *     path="/api/v1/blogs",
      *     tags={"Blogs"},
      *     summary="Liste de tous les articles de blog",
      *     description="Récupère la liste paginée de tous les articles de blog avec leurs auteurs et commentaires",
@@ -44,7 +44,7 @@ class BlogController extends Controller
     public function index()
     {
         try {
-            $blogs = Blog::with('user', 'comments')->latest()->paginate(10);
+            $blogs = Blog::with(['user', 'comments.user'])->latest()->paginate(10);
             return $this->paginatedResponse(BlogResource::collection($blogs), 'Liste des articles récupérée avec succès');
         } catch (\Exception $e) {
             return $this->errorResponse('Erreur lors de la récupération des articles', 500, $e->getMessage());
@@ -53,7 +53,7 @@ class BlogController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/blogs",
+     *     path="/api/v1/blogs",
      *     tags={"Blogs"},
      *     summary="Créer un nouvel article de blog",
      *     description="Crée un nouvel article de blog avec upload d'image optionnel. L'utilisateur doit être authentifié.",
@@ -127,7 +127,7 @@ class BlogController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/blogs/{blog}",
+     *     path="/api/v1/blogs/{blog}",
      *     tags={"Blogs"},
      *     summary="Détails d'un article de blog par ID",
      *     description="Récupère les détails complets d'un article avec son auteur et ses commentaires",
@@ -156,10 +156,10 @@ class BlogController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/blogs/slug/{slug}",
+     *     path="/api/v1/blogs/slug/{slug}",
      *     tags={"Blogs"},
-     *     summary="Consultation publique (SEO Friendly)",
-     *     description="Récupère les détails complets d'un article via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter un article via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère un article par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -182,7 +182,7 @@ class BlogController extends Controller
     public function show(Blog $blog)
     {
         try {
-            return $this->successResponse(new BlogResource($blog->load('user', 'comments')), 'Article récupéré avec succès');
+            return $this->successResponse(new BlogResource($blog->load('user', 'comments.user')), 'Article récupéré avec succès');
         } catch (\Exception $e) {
             return $this->errorResponse("Erreur lors de la récupération de l'article", 500, $e->getMessage());
         }
@@ -190,7 +190,7 @@ class BlogController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/blogs/{blog}",
+     *     path="/api/v1/blogs/{blog}",
      *     tags={"Blogs"},
      *     summary="Mettre à jour un article de blog par ID",
      *     description="Met à jour un article existant. Tous les champs sont optionnels. L'image peut être remplacée.",
@@ -253,10 +253,10 @@ class BlogController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/blogs/slug/{slug}",
+     *     path="/api/v1/blogs/slug/{slug}",
      *     tags={"Blogs"},
-     *     summary="Mise à jour via URL publique",
-     *     description="Met à jour un article existant via son slug",
+     *     summary="Mettre à jour un article via son slug (référence URL‑friendly)",
+     *     description="Met à jour un article en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -308,7 +308,7 @@ class BlogController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/blogs/{blog}",
+     *     path="/api/v1/blogs/{blog}",
      *     tags={"Blogs"},
      *     summary="Supprimer un article de blog par ID",
      *     description="Supprime définitivement un article et son image associée du stockage",
@@ -343,10 +343,10 @@ class BlogController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/blogs/slug/{slug}",
+     *     path="/api/v1/blogs/slug/{slug}",
      *     tags={"Blogs"},
-     *     summary="Suppression via URL publique",
-     *     description="Supprime définitivement un article via son slug",
+     *     summary="Supprimer un article via son slug (URL publique)",
+     *     description="Supprime un article en le ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

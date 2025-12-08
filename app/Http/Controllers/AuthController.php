@@ -24,7 +24,7 @@ class AuthController extends Controller
     use ApiResponse;
     /**
      * @OA\Post(
-     *     path="/api/register",
+     *     path="/api/v1/register",
      *     tags={"Authentication"},
      *     summary="Inscription d'un nouvel utilisateur",
      *     description="Crée un nouveau compte utilisateur. Un email de vérification est envoyé automatiquement. Le compte reste inactif jusqu'à la vérification de l'email.",
@@ -86,7 +86,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/email/verify/{id}/{hash}",
+     *     path="/api/v1/email/verify/{id}/{hash}",
      *     tags={"Authentication"},
      *     summary="Vérification de l'email utilisateur",
      *     description="Valide l'adresse email de l'utilisateur via le lien reçu par email. Active automatiquement le compte après vérification.",
@@ -149,7 +149,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/login",
+     *     path="/api/v1/login",
      *     tags={"Authentication"},
      *     summary="Connexion utilisateur classique",
      *     description="Authentifie un utilisateur avec email et mot de passe. Crée une session et retourne un token Passport. Gère la vérification 2FA si activée.",
@@ -247,7 +247,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/social-login",
+     *     path="/api/v1/social-login",
      *     tags={"Authentication"},
      *     summary="Connexion via réseaux sociaux",
      *     description="Authentifie ou crée un utilisateur via un provider social (Google, Facebook, etc.). Le compte est automatiquement vérifié et activé.",
@@ -322,7 +322,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/enable-2fa",
+     *     path="/api/v1/enable-2fa",
      *     tags={"Authentication"},
      *     summary="Activer l'authentification à deux facteurs (2FA)",
      *     description="Active la 2FA pour l'utilisateur connecté. Le compte passe en statut 'inactive' et un email de validation est envoyé.",
@@ -355,7 +355,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/logout",
+     *     path="/api/v1/logout",
      *     tags={"Authentication"},
      *     summary="Déconnexion utilisateur",
      *     description="Déconnecte l'utilisateur en révoquant son token Passport et en supprimant sa session. Si la 2FA est activée, le compte repasse en statut 'inactive'.",
@@ -404,7 +404,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/password/email",
+     *     path="/api/v1/password/email",
      *     tags={"Authentication"},
      *     summary="Demander un lien de réinitialisation du mot de passe",
      *     description="Envoie un email contenant un lien pour réinitialiser le mot de passe. Le compte passe en statut 'inactive' jusqu'à la réinitialisation. Le token expire après 10 minutes.",
@@ -455,7 +455,7 @@ class AuthController extends Controller
         ]);
         $user->save();
 
-        $resetLink = url("/api/password/reset?token={$token}");
+        $resetLink = url("/api/v1/password/reset?token={$token}");
 
         Mail::raw("Cliquez ici pour réinitialiser votre mot de passe : $resetLink", function ($message) use ($user) {
             $message->to($user->email)
@@ -467,7 +467,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/password/reset",
+     *     path="/api/v1/password/reset",
      *     tags={"Authentication"},
      *     summary="Réinitialiser le mot de passe",
      *     description="Réinitialise le mot de passe de l'utilisateur avec le token reçu par email. Le compte est automatiquement réactivé après la réinitialisation. Le token expire après 10 minutes.",

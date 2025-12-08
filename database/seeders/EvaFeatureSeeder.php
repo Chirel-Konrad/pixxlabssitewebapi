@@ -17,37 +17,47 @@ class EvaFeatureSeeder extends Seeder
             [
                 'title' => 'Réponses instantanées',
                 'description' => 'Une FAQ dynamique et interactive pour obtenir rapidement des réponses claires à vos questions fréquentes.',
-                'logo' => 'https://img.icons8.com/fluency/96/faq.png',
+                'logo' => null,
             ],
             [
                 'title' => 'Orientation personnalisée',
                 'description' => 'Guidage intelligent pour explorer efficacement l’univers Piixlabs et découvrir les services adaptés à vos besoins.',
-                'logo' => 'https://img.icons8.com/fluency/96/compass.png',
+                'logo' => null,
             ],
             [
                 'title' => 'Assistance intelligente',
                 'description' => 'Un chat IA disponible 24/7 pour vous accompagner avec des conseils, solutions et recommandations sur mesure.',
-                'logo' => 'https://img.icons8.com/fluency/96/chatbot.png',
+                'logo' => null,
             ],
             [
                 'title' => 'Suivi de vos performances',
                 'description' => 'Visualisez vos ventes, paiements et progression dans le programme partenaire grâce à un tableau de bord clair.',
-                'logo' => 'https://img.icons8.com/fluency/96/combo-chart.png',
+                'logo' => null,
             ],
             [
                 'title' => 'Boost de réussite',
                 'description' => 'Recevez des rappels intelligents et des conseils concrets pour améliorer continuellement vos résultats.',
-                'logo' => 'https://img.icons8.com/fluency/96/rocket.png',
+                'logo' => null,
             ],
             [
                 'title' => 'Suggestions ciblées',
                 'description' => 'EVA vous propose les produits et services les plus pertinents selon vos besoins, objectifs et audience.',
-                'logo' => 'https://img.icons8.com/fluency/96/target.png',
+                'logo' => null,
             ],
         ];
 
         foreach ($features as $feature) {
-            EvaFeature::create($feature + [
+            // Construire une requête Unsplash à partir du titre
+            $query = strtolower($feature['title']);
+            $query = str_replace(['é','è','ê','à','ù','ï','î','ô','ç'], ['e','e','e','a','u','i','i','o','c'], $query);
+            $query = preg_replace('/[^a-z0-9\s]/', ' ', $query);
+            $query = trim(preg_replace('/\s+/', ',', $query));
+            $unsplash = 'https://source.unsplash.com/160x160/?'.($query ? $query.',' : '').'ai,technology,assistant';
+
+            EvaFeature::create([
+                'title' => $feature['title'],
+                'description' => $feature['description'],
+                'logo' => $feature['logo'] ?: $unsplash,
                 'slug' => Str::slug($feature['title']) . '-' . uniqid(),
                 'created_at' => now(),
                 'updated_at' => now(),

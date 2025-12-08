@@ -18,7 +18,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/products",
+     *     path="/api/v1/products",
      *     tags={"Products"},
      *     summary="Liste des produits",
      *     description="Récupère la liste paginée des produits",
@@ -66,7 +66,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/products",
+     *     path="/api/v1/products",
      *     tags={"Products"},
      *     summary="Créer un produit",
      *     description="Crée un nouveau produit",
@@ -116,7 +116,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/products/{product}",
+     *     path="/api/v1/products/{product}",
      *     tags={"Products"},
      *     summary="Détails d'un produit par ID",
      *     description="Récupère les détails d'un produit via son identifiant numérique unique. Utile pour les opérations internes ou d'administration.",
@@ -135,10 +135,10 @@ class ProductController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/products/slug/{slug}",
+     *     path="/api/v1/products/slug/{slug}",
      *     tags={"Products"},
-     *     summary="Détails d'un produit par Slug",
-     *     description="Récupère les détails d'un produit via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter un produit via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère un produit par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -160,7 +160,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/products/{product}",
+     *     path="/api/v1/products/{product}",
      *     tags={"Products"},
      *     summary="Mettre à jour un produit par ID",
      *     description="Met à jour un produit existant via son ID. Permet de modifier les informations sans changer l'URL publique (slug).",
@@ -193,10 +193,10 @@ class ProductController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/products/slug/{slug}",
+     *     path="/api/v1/products/slug/{slug}",
      *     tags={"Products"},
-     *     summary="Mettre à jour un produit par Slug",
-     *     description="Met à jour un produit en l'identifiant par son slug. Utile si le client ne connaît que l'URL publique du produit.",
+     *     summary="Mettre à jour un produit via son slug (référence URL‑friendly)",
+     *     description="Met à jour un produit en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -252,7 +252,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/products/{product}",
+     *     path="/api/v1/products/{product}",
      *     tags={"Products"},
      *     summary="Supprimer un produit par ID",
      *     description="Supprime définitivement un produit via son ID.",
@@ -271,10 +271,10 @@ class ProductController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/products/slug/{slug}",
+     *     path="/api/v1/products/slug/{slug}",
      *     tags={"Products"},
-     *     summary="Supprimer un produit par Slug",
-     *     description="Supprime définitivement un produit via son slug.",
+     *     summary="Supprimer un produit via son slug (URL publique)",
+     *     description="Supprime un produit en le ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

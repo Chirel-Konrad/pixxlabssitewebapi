@@ -19,7 +19,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/privileges",
+     *     path="/api/v1/privileges",
      *     tags={"Privileges"},
      *     summary="Liste des privilèges",
      *     description="Récupère la liste paginée des privilèges",
@@ -52,7 +52,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/privileges",
+     *     path="/api/v1/privileges",
      *     tags={"Privileges"},
      *     summary="Créer un privilège",
      *     description="Crée un nouveau privilège",
@@ -100,7 +100,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/privileges/{privilege}",
+     *     path="/api/v1/privileges/{privilege}",
      *     tags={"Privileges"},
      *     summary="Détails d'un privilège par ID",
      *     description="Récupère les détails d'un privilège via son ID.",
@@ -118,10 +118,10 @@ class PrivilegeController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/privileges/slug/{slug}",
+     *     path="/api/v1/privileges/slug/{slug}",
      *     tags={"Privileges"},
-     *     summary="Détails d'un privilège par Slug",
-     *     description="Récupère les détails d'un privilège via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter un privilège via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère un privilège par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -142,7 +142,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/privileges/{privilege}",
+     *     path="/api/v1/privileges/{privilege}",
      *     tags={"Privileges"},
      *     summary="Mettre à jour un privilège par ID",
      *     description="Met à jour un privilège existant via son ID.",
@@ -173,10 +173,10 @@ class PrivilegeController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/privileges/slug/{slug}",
+     *     path="/api/v1/privileges/slug/{slug}",
      *     tags={"Privileges"},
-     *     summary="Mettre à jour un privilège par Slug",
-     *     description="Met à jour un privilège existant via son slug.",
+     *     summary="Mettre à jour un privilège via son slug (référence URL‑friendly)",
+     *     description="Met à jour un privilège en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -230,7 +230,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/privileges/{privilege}",
+     *     path="/api/v1/privileges/{privilege}",
      *     tags={"Privileges"},
      *     summary="Supprimer un privilège par ID",
      *     description="Supprime un privilège via son ID.",
@@ -249,10 +249,10 @@ class PrivilegeController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/privileges/slug/{slug}",
+     *     path="/api/v1/privileges/slug/{slug}",
      *     tags={"Privileges"},
-     *     summary="Supprimer un privilège par Slug",
-     *     description="Supprime un privilège via son slug.",
+     *     summary="Supprimer un privilège via son slug (URL publique)",
+     *     description="Supprime un privilège en le ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

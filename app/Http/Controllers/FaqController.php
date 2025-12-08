@@ -16,7 +16,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/faqs",
+     *     path="/api/v1/faqs",
      *     tags={"FAQs"},
      *     summary="Liste des FAQs",
      *     description="Récupère la liste paginée des questions fréquentes",
@@ -54,7 +54,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/faqs",
+     *     path="/api/v1/faqs",
      *     tags={"FAQs"},
      *     summary="Créer une FAQ",
      *     description="Crée une nouvelle question fréquente avec ses réponses",
@@ -103,7 +103,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/faqs/{faq}",
+     *     path="/api/v1/faqs/{faq}",
      *     tags={"FAQs"},
      *     summary="Mettre à jour une FAQ par ID",
      *     description="Met à jour une question fréquente via son ID.",
@@ -131,7 +131,7 @@ class FaqController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/faqs/slug/{slug}",
+     *     path="/api/v1/faqs/slug/{slug}",
      *     tags={"FAQs"},
      *     summary="Mettre à jour une FAQ par Slug",
      *     description="Met à jour une question fréquente via son slug.",
@@ -188,7 +188,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/faqs/{faq}",
+     *     path="/api/v1/faqs/{faq}",
      *     tags={"FAQs"},
      *     summary="Détails d'une FAQ par ID",
      *     description="Récupère une question fréquente via son ID.",
@@ -206,7 +206,7 @@ class FaqController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/faqs/slug/{slug}",
+     *     path="/api/v1/faqs/slug/{slug}",
      *     tags={"FAQs"},
      *     summary="Détails d'une FAQ par Slug",
      *     description="Récupère une question fréquente via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
@@ -230,7 +230,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/faqs/{faq}",
+     *     path="/api/v1/faqs/{faq}",
      *     tags={"FAQs"},
      *     summary="Supprimer une FAQ par ID",
      *     description="Supprime une FAQ via son ID.",
@@ -249,7 +249,7 @@ class FaqController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/faqs/slug/{slug}",
+     *     path="/api/v1/faqs/slug/{slug}",
      *     tags={"FAQs"},
      *     summary="Supprimer une FAQ par Slug",
      *     description="Supprime une FAQ via son slug.",

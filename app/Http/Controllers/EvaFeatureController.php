@@ -18,7 +18,7 @@ class EvaFeatureController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/eva-features",
+     *     path="/api/v1/eva-features",
      *     tags={"Eva Features"},
      *     summary="Liste des fonctionnalités Eva",
      *     description="Récupère la liste paginée des fonctionnalités",
@@ -51,7 +51,7 @@ class EvaFeatureController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/eva-features",
+     *     path="/api/v1/eva-features",
      *     tags={"Eva Features"},
      *     summary="Créer une fonctionnalité",
      *     description="Crée une nouvelle fonctionnalité Eva",
@@ -99,7 +99,7 @@ class EvaFeatureController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/eva-features/{evaFeature}",
+     *     path="/api/v1/eva-features/{evaFeature}",
      *     tags={"Eva Features"},
      *     summary="Détails d'une fonctionnalité par ID",
      *     description="Récupère les détails d'une fonctionnalité via son ID.",
@@ -117,10 +117,10 @@ class EvaFeatureController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/eva-features/slug/{slug}",
+     *     path="/api/v1/eva-features/slug/{slug}",
      *     tags={"Eva Features"},
-     *     summary="Détails d'une fonctionnalité par Slug",
-     *     description="Récupère les détails d'une fonctionnalité via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter une fonctionnalité via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère une fonctionnalité par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -141,7 +141,7 @@ class EvaFeatureController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/eva-features/{evaFeature}",
+     *     path="/api/v1/eva-features/{evaFeature}",
      *     tags={"Eva Features"},
      *     summary="Mettre à jour une fonctionnalité par ID",
      *     description="Met à jour une fonctionnalité existante via son ID.",
@@ -172,10 +172,10 @@ class EvaFeatureController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/eva-features/slug/{slug}",
+     *     path="/api/v1/eva-features/slug/{slug}",
      *     tags={"Eva Features"},
-     *     summary="Mettre à jour une fonctionnalité par Slug",
-     *     description="Met à jour une fonctionnalité existante via son slug.",
+     *     summary="Mettre à jour une fonctionnalité via son slug (référence URL‑friendly)",
+     *     description="Met à jour une fonctionnalité en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -227,7 +227,7 @@ class EvaFeatureController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/eva-features/{evaFeature}",
+     *     path="/api/v1/eva-features/{evaFeature}",
      *     tags={"Eva Features"},
      *     summary="Supprimer une fonctionnalité par ID",
      *     description="Supprime une fonctionnalité via son ID.",
@@ -246,10 +246,10 @@ class EvaFeatureController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/eva-features/slug/{slug}",
+     *     path="/api/v1/eva-features/slug/{slug}",
      *     tags={"Eva Features"},
-     *     summary="Supprimer une fonctionnalité par Slug",
-     *     description="Supprime une fonctionnalité via son slug.",
+     *     summary="Supprimer une fonctionnalité via son slug (URL publique)",
+     *     description="Supprime une fonctionnalité en la ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

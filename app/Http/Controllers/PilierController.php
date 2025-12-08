@@ -18,7 +18,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/piliers",
+     *     path="/api/v1/piliers",
      *     tags={"Piliers"},
      *     summary="Liste des piliers",
      *     description="Récupère la liste paginée des piliers",
@@ -51,7 +51,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/piliers",
+     *     path="/api/v1/piliers",
      *     tags={"Piliers"},
      *     summary="Créer un pilier",
      *     description="Crée un nouveau pilier",
@@ -97,7 +97,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/piliers/{pilier}",
+     *     path="/api/v1/piliers/{pilier}",
      *     tags={"Piliers"},
      *     summary="Détails d'un pilier par ID",
      *     description="Récupère les détails d'un pilier via son ID.",
@@ -115,10 +115,10 @@ class PilierController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/piliers/slug/{slug}",
+     *     path="/api/v1/piliers/slug/{slug}",
      *     tags={"Piliers"},
-     *     summary="Détails d'un pilier par Slug",
-     *     description="Récupère les détails d'un pilier via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter un pilier via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère un pilier par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -139,7 +139,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/piliers/{pilier}",
+     *     path="/api/v1/piliers/{pilier}",
      *     tags={"Piliers"},
      *     summary="Mettre à jour un pilier par ID",
      *     description="Met à jour un pilier existant via son ID.",
@@ -170,10 +170,10 @@ class PilierController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/piliers/slug/{slug}",
+     *     path="/api/v1/piliers/slug/{slug}",
      *     tags={"Piliers"},
-     *     summary="Mettre à jour un pilier par Slug",
-     *     description="Met à jour un pilier existant via son slug.",
+     *     summary="Mettre à jour un pilier via son slug (référence URL‑friendly)",
+     *     description="Met à jour un pilier en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -223,7 +223,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/piliers/{pilier}",
+     *     path="/api/v1/piliers/{pilier}",
      *     tags={"Piliers"},
      *     summary="Supprimer un pilier par ID",
      *     description="Supprime un pilier via son ID.",
@@ -242,10 +242,10 @@ class PilierController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/piliers/slug/{slug}",
+     *     path="/api/v1/piliers/slug/{slug}",
      *     tags={"Piliers"},
-     *     summary="Supprimer un pilier par Slug",
-     *     description="Supprime un pilier via son slug.",
+     *     summary="Supprimer un pilier via son slug (URL publique)",
+     *     description="Supprime un pilier en le ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

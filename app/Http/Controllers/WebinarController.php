@@ -18,7 +18,7 @@ class WebinarController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/webinars",
+     *     path="/api/v1/webinars",
      *     tags={"Webinars"},
      *     summary="Liste des webinaires",
      *     description="Récupère la liste paginée des webinaires",
@@ -51,7 +51,7 @@ class WebinarController extends Controller
 
    /**
      * @OA\Post(
-     *     path="/api/webinars",
+     *     path="/api/v1/webinars",
      *     tags={"Webinars"},
      *     summary="Créer un webinaire",
      *     description="Crée un nouveau webinaire",
@@ -111,7 +111,7 @@ class WebinarController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/webinars/{webinar}",
+     *     path="/api/v1/webinars/{webinar}",
      *     tags={"Webinars"},
      *     summary="Détails d'un webinaire par ID",
      *     description="Récupère les détails d'un webinaire via son ID.",
@@ -129,10 +129,10 @@ class WebinarController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/webinars/slug/{slug}",
+     *     path="/api/v1/webinars/slug/{slug}",
      *     tags={"Webinars"},
-     *     summary="Détails d'un webinaire par Slug",
-     *     description="Récupère les détails d'un webinaire via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
+     *     summary="Consulter un webinaire via son slug (URL publique SEO‑friendly)",
+     *     description="Récupère un webinaire par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
      *     @OA\Parameter(
      *         name="slug",
      *         in="path",
@@ -153,7 +153,7 @@ class WebinarController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/webinars/{webinar}",
+     *     path="/api/v1/webinars/{webinar}",
      *     tags={"Webinars"},
      *     summary="Mettre à jour un webinaire par ID",
      *     description="Met à jour un webinaire existant via son ID.",
@@ -186,10 +186,10 @@ class WebinarController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/webinars/slug/{slug}",
+     *     path="/api/v1/webinars/slug/{slug}",
      *     tags={"Webinars"},
-     *     summary="Mettre à jour un webinaire par Slug",
-     *     description="Met à jour un webinaire existant via son slug.",
+     *     summary="Mettre à jour un webinaire via son slug (référence URL‑friendly)",
+     *     description="Met à jour un webinaire en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",
@@ -255,7 +255,7 @@ class WebinarController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/webinars/{webinar}",
+     *     path="/api/v1/webinars/{webinar}",
      *     tags={"Webinars"},
      *     summary="Supprimer un webinaire par ID",
      *     description="Supprime un webinaire via son ID.",
@@ -274,10 +274,10 @@ class WebinarController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/webinars/slug/{slug}",
+     *     path="/api/v1/webinars/slug/{slug}",
      *     tags={"Webinars"},
-     *     summary="Supprimer un webinaire par Slug",
-     *     description="Supprime un webinaire via son slug.",
+     *     summary="Supprimer un webinaire via son slug (URL publique)",
+     *     description="Supprime un webinaire en le ciblant via son slug public, sans exposer l'ID interne.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="slug",

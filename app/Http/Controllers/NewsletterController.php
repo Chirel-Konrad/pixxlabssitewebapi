@@ -20,7 +20,7 @@ class NewsletterController extends Controller
      */
     /**
      * @OA\Get(
-     *     path="/api/newsletters",
+     *     path="/api/v1/newsletters",
      *     tags={"Newsletters"},
      *     summary="Liste des abonnés newsletter",
      *     description="Récupère la liste paginée des abonnés",
@@ -57,7 +57,7 @@ class NewsletterController extends Controller
      */
     /**
      * @OA\Post(
-     *     path="/api/newsletters",
+     *     path="/api/v1/newsletters",
      *     tags={"Newsletters"},
      *     summary="S'abonner à la newsletter",
      *     description="Ajoute un email à la liste de diffusion",
@@ -97,7 +97,7 @@ class NewsletterController extends Controller
      */
     /**
      * @OA\Get(
-     *     path="/api/newsletters/{newsletter}",
+     *     path="/api/v1/newsletters/{newsletter}",
      *     tags={"Newsletters"},
      *     summary="Détails d'un abonné par ID",
      *     description="Récupère un abonné via son ID.",
@@ -116,7 +116,7 @@ class NewsletterController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/newsletters/slug/{slug}",
+     *     path="/api/v1/newsletters/slug/{slug}",
      *     tags={"Newsletters"},
      *     summary="Détails d'un abonné par Slug",
      *     description="Récupère un abonné via son slug. Cette route est recommandée pour les URL publiques (SEO friendly) et la sécurité, préférée à l'ID.",
@@ -144,7 +144,7 @@ class NewsletterController extends Controller
      */
     /**
      * @OA\Put(
-     *     path="/api/newsletters/{newsletter}",
+     *     path="/api/v1/newsletters/{newsletter}",
      *     tags={"Newsletters"},
      *     summary="Mettre à jour un abonné par ID",
      *     description="Met à jour l'email d'un abonné via son ID.",
@@ -169,7 +169,7 @@ class NewsletterController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/newsletters/slug/{slug}",
+     *     path="/api/v1/newsletters/slug/{slug}",
      *     tags={"Newsletters"},
      *     summary="Mettre à jour un abonné par Slug",
      *     description="Met à jour l'email d'un abonné via son slug.",
@@ -215,7 +215,7 @@ class NewsletterController extends Controller
      */
     /**
      * @OA\Delete(
-     *     path="/api/newsletters/{newsletter}",
+     *     path="/api/v1/newsletters/{newsletter}",
      *     tags={"Newsletters"},
      *     summary="Supprimer un abonné par ID",
      *     description="Supprime un abonné de la newsletter via son ID.",
@@ -234,7 +234,7 @@ class NewsletterController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/newsletters/slug/{slug}",
+     *     path="/api/v1/newsletters/slug/{slug}",
      *     tags={"Newsletters"},
      *     summary="Supprimer un abonné par Slug",
      *     description="Supprime un abonné de la newsletter via son slug.",
