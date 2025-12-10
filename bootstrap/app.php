@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
+            // API auth middleware (used by docs scan)
+            'auth.api' => \App\Http\Middleware\AuthApiMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
