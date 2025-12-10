@@ -1,21 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades.DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // Safety: drop with CASCADE to remove dependent views/objects left from previous deploys
         DB::statement('DROP TABLE IF EXISTS oauth_device_codes CASCADE');
 
-        Schema::create('oauth_device_codes', function (Blueprint $table) {
+        Schema::create('oauth_device_codes', function (Blueprint $table): void {
             $table->char('id', 80)->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->foreignUuid('client_id')->index();
@@ -28,19 +26,14 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('oauth_device_codes');
     }
 
-    /**
-     * Get the migration connection name.
-     */
     public function getConnection(): ?string
     {
         return $this->connection ?? config('passport.connection');
     }
 };
+
