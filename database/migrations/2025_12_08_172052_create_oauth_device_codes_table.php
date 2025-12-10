@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    public $withinTransaction = false;
+
     public function up(): void
     {
-        DB::statement('DROP TABLE IF EXISTS oauth_device_codes CASCADE');
+        Schema::dropIfExists('oauth_device_codes');
 
         Schema::create('oauth_device_codes', function (Blueprint $table): void {
             $table->char('id', 80)->primary();

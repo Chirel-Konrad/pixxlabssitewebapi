@@ -3,17 +3,21 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
+    /**
+     * Disable wrapping this migration in a single transaction (Postgres).
+     */
+    public $withinTransaction = false;
+
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // Safety: drop with CASCADE to remove dependent views/objects left from previous deploys
-        DB::statement('DROP TABLE IF EXISTS oauth_auth_codes CASCADE');
+        // Safety: drop table if it exists (outside of transaction)
+        Schema::dropIfExists('oauth_auth_codes');
 
         Schema::create('oauth_auth_codes', function (Blueprint $table) {
             $table->char('id', 80)->primary();
