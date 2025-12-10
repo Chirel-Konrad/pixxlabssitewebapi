@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades.DB;
 
 return new class extends Migration
 {
@@ -11,8 +12,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Safety: drop the table if it already exists to avoid aborted transactions on deploy
-        Schema::dropIfExists('oauth_clients');
+        // Safety: drop with CASCADE to remove dependent views/objects left from previous deploys
+        DB::statement('DROP TABLE IF EXISTS oauth_clients CASCADE');
 
         Schema::create('oauth_clients', function (Blueprint $table) {
             $table->uuid('id')->primary();
