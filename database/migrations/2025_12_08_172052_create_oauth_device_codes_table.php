@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Safety: drop the table if it already exists to avoid aborted transactions on deploy
+        Schema::dropIfExists('oauth_device_codes');
+
         Schema::create('oauth_device_codes', function (Blueprint $table) {
             $table->char('id', 80)->primary();
             $table->foreignId('user_id')->nullable()->index();

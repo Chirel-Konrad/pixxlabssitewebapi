@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Safety: drop the table if it already exists to avoid aborted transactions on deploy
+        Schema::dropIfExists('oauth_clients');
+
         Schema::create('oauth_clients', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->nullableMorphs('owner');
