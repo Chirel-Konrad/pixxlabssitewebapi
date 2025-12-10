@@ -96,16 +96,25 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        },
-                                        "token": {
-                                            "type": "string",
-                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
                                         },
                                         "message": {
                                             "type": "string",
                                             "example": "Inscription réussie. Un email de vérification a été envoyé."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -163,12 +172,21 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "Email vérifié avec succès. Statut activé."
                                         },
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -248,7 +266,7 @@
                                     "oneOf": [
                                         {
                                             "properties": {
-                                                "status": {
+                                                "success": {
                                                     "type": "boolean",
                                                     "example": true
                                                 },
@@ -256,29 +274,43 @@
                                                     "type": "string",
                                                     "example": "Connexion réussie"
                                                 },
-                                                "token": {
-                                                    "type": "string",
-                                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-                                                },
-                                                "session_id": {
-                                                    "type": "string",
-                                                    "example": "abc123xyz..."
-                                                },
-                                                "user": {
-                                                    "$ref": "#/components/schemas/User"
+                                                "data": {
+                                                    "properties": {
+                                                        "token": {
+                                                            "type": "string",
+                                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                                        },
+                                                        "session_id": {
+                                                            "type": "string",
+                                                            "example": "abc123xyz..."
+                                                        },
+                                                        "user": {
+                                                            "$ref": "#/components/schemas/User"
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 }
                                             },
                                             "type": "object"
                                         },
                                         {
                                             "properties": {
+                                                "success": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
                                                 "message": {
                                                     "type": "string",
                                                     "example": "Connexion réussie, mais vérification 2FA requise. Consultez votre email."
                                                 },
-                                                "two_factor_required": {
-                                                    "type": "boolean",
-                                                    "example": true
+                                                "data": {
+                                                    "properties": {
+                                                        "two_factor_required": {
+                                                            "type": "boolean",
+                                                            "example": true
+                                                        }
+                                                    },
+                                                    "type": "object"
                                                 }
                                             },
                                             "type": "object"
@@ -407,7 +439,7 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "status": {
+                                        "success": {
                                             "type": "boolean",
                                             "example": true
                                         },
@@ -415,16 +447,21 @@
                                             "type": "string",
                                             "example": "Connexion sociale réussie"
                                         },
-                                        "token": {
-                                            "type": "string",
-                                            "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-                                        },
-                                        "session_id": {
-                                            "type": "string",
-                                            "example": "abc123xyz..."
-                                        },
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+                                                },
+                                                "session_id": {
+                                                    "type": "string",
+                                                    "example": "abc123xyz..."
+                                                },
+                                                "user": {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -460,9 +497,17 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "2FA activée, un email de validation vous a été envoyé."
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -503,13 +548,17 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
-                                        "status": {
+                                        "success": {
                                             "type": "boolean",
                                             "example": true
                                         },
                                         "message": {
                                             "type": "string",
                                             "example": "Déconnecté avec succès. Session et token révoqués."
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -581,9 +630,17 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "Lien de réinitialisation envoyé par email"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"
@@ -670,9 +727,17 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "Mot de passe réinitialisé avec succès"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
                                         }
                                     },
                                     "type": "object"

@@ -45,9 +45,14 @@ class AuthController extends Controller
      *         response=201,
      *         description="Inscription réussie. Email de vérification envoyé.",
      *         @OA\JsonContent(
-     *             @OA\Property(property="user", ref="#/components/schemas/User"),
-     *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc..."),
-     *             @OA\Property(property="message", type="string", example="Inscription réussie. Un email de vérification a été envoyé.")
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Inscription réussie. Un email de vérification a été envoyé."),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="user", ref="#/components/schemas/User"),
+     *                 @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc...")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -57,29 +62,35 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function register(RegisterRequest $request)
+     public function register(Request $request)
     {
-        $validated = $request->validated();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'nullable|string|in:user,admin,superadmin',
+        ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'phone' => $validated['phone'] ?? null,
-            'slug' => Str::slug($validated['name']) . '-' . uniqid(),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'phone' => $request->phone,
+            'slug' => Str::slug($request->name) . '-' . uniqid(),
             'provider' => null,
             'provider_id' => null,
             'is_2fa_enable' => false,
             'email_verified_at' => null,
             'status' => 'inactive',
-            'role' => $validated['role'] ?? 'user',
+            'role' => $request->role ?? 'user',
         ]);
 
         $user->sendEmailVerificationNotification();
         $token = $user->createToken('PolariixToken')->accessToken;
 
         return $this->successResponse([
-            'user' => new UserResource($user),
+            'user' => $user->makeHidden(['password']),
             'token' => $token,
         ], 'Inscription réussie. Un email de vérification a été envoyé.', 201);
     }
@@ -108,8 +119,13 @@ class AuthController extends Controller
      *         response=200,
      *         description="Email vérifié avec succès",
      *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Email vérifié avec succès. Statut activé."),
-     *             @OA\Property(property="user", ref="#/components/schemas/User")
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="user", ref="#/components/schemas/User")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -143,9 +159,10 @@ class AuthController extends Controller
         $user->update(['status' => 'active']);
 
         return $this->successResponse([
-            'user' => new UserResource($user),
+            'user' => $user->makeHidden(['password']),
         ], 'Email vérifié avec succès. Statut activé.');
     }
+
 
     /**
      * @OA\Post(
@@ -167,15 +184,24 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             oneOf={
      *                 @OA\Schema(
-     *                     @OA\Property(property="status", type="boolean", example=true),
+     *                     @OA\Property(property="success", type="boolean", example=true),
      *                     @OA\Property(property="message", type="string", example="Connexion réussie"),
-     *                     @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc..."),
-     *                     @OA\Property(property="session_id", type="string", example="abc123xyz..."),
-     *                     @OA\Property(property="user", ref="#/components/schemas/User")
+     *                     @OA\Property(
+     *                         property="data",
+     *                         type="object",
+     *                         @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc..."),
+     *                         @OA\Property(property="session_id", type="string", example="abc123xyz..."),
+     *                         @OA\Property(property="user", ref="#/components/schemas/User")
+     *                     )
      *                 ),
      *                 @OA\Schema(
+     *                     @OA\Property(property="success", type="boolean", example=true),
      *                     @OA\Property(property="message", type="string", example="Connexion réussie, mais vérification 2FA requise. Consultez votre email."),
-     *                     @OA\Property(property="two_factor_required", type="boolean", example=true)
+     *                     @OA\Property(
+     *                         property="data",
+     *                         type="object",
+     *                         @OA\Property(property="two_factor_required", type="boolean", example=true)
+     *                     )
      *                 )
      *             }
      *         )
@@ -203,28 +229,23 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function login(LoginRequest $request)
+    public function login(Request $request)
     {
-        $validated = $request->validated();
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user) {
-            return $this->errorResponse('Utilisateur non trouvé', 404);
-        }
-
-        if ($user->status == 'banned') {
-            return $this->errorResponse('Compte banni', 403);
-        }
-
-        if (!Auth::attempt($validated)) {
+        $user = User::where('email', $request->email)->first();
+        if (!$user) return $this->errorResponse('Utilisateur non trouvé', 404);
+        if ($user->status == 'banned') return $this->errorResponse('Compte banni', 403);
+        if (!Auth::attempt($request->only('email', 'password'))) {
             return $this->errorResponse('Identifiants invalides', 401);
         }
 
         if ($user->is_2fa_enable && $user->status == 'inactive') {
             $user->sendEmailVerificationNotification();
             Auth::logout();
-
             return $this->successResponse([
                 'two_factor_required' => true
             ], 'Connexion réussie, mais vérification 2FA requise. Consultez votre email.');
@@ -238,10 +259,9 @@ class AuthController extends Controller
         ]);
 
         return $this->successResponse([
-            'status' => true,
             'token' => $token,
             'session_id' => session()->getId(),
-            'user' => new UserResource($user),
+            'user' => $user->makeHidden(['password']),
         ], 'Connexion réussie');
     }
 
@@ -267,11 +287,15 @@ class AuthController extends Controller
      *         response=201,
      *         description="Connexion sociale réussie",
      *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Connexion sociale réussie"),
-     *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc..."),
-     *             @OA\Property(property="session_id", type="string", example="abc123xyz..."),
-     *             @OA\Property(property="user", ref="#/components/schemas/User")
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGc..."),
+     *                 @OA\Property(property="session_id", type="string", example="abc123xyz..."),
+     *                 @OA\Property(property="user", ref="#/components/schemas/User")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -281,27 +305,34 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function socialLogin(SocialLoginRequest $request)
+    public function socialLogin(Request $request)
     {
-        $validated = $request->validated();
+        $request->validate([
+            'provider' => 'required|string',
+            'provider_id' => 'required|string',
+            'email' => 'required|email',
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'role' => 'nullable|string|in:user,admin,superadmin',
+        ]);
 
-        $user = User::where('provider', $validated['provider'])
-                    ->where('provider_id', $validated['provider_id'])
+        $user = User::where('provider', $request->provider)
+                    ->where('provider_id', $request->provider_id)
                     ->first();
 
         if (!$user) {
             $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => null,
-                'phone' => $validated['phone'] ?? null,
-                'provider' => $validated['provider'],
-                'provider_id' => $validated['provider_id'],
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make(Str::random(16)),
+                'phone' => $request->phone,
+                'provider' => $request->provider,
+                'provider_id' => $request->provider_id,
                 'is_2fa_enable' => false,
                 'email_verified_at' => Carbon::now(),
                 'status' => 'active',
-                'slug' => Str::slug($validated['name']) . '-' . uniqid(),
-                'role' => $validated['role'] ?? 'user',
+                'slug' => Str::slug($request->name) . '-' . uniqid(),
+                'role' => $request->role ?? 'user',
             ]);
         }
 
@@ -313,10 +344,9 @@ class AuthController extends Controller
         ]);
 
         return $this->successResponse([
-            'status' => true,
             'token' => $token,
             'session_id' => session()->getId(),
-            'user' => new UserResource($user),
+            'user' => $user->makeHidden(['password']),
         ], 'Connexion sociale réussie', 201);
     }
 
@@ -331,7 +361,9 @@ class AuthController extends Controller
      *         response=200,
      *         description="2FA activée avec succès",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="2FA activée, un email de validation vous a été envoyé.")
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="2FA activée, un email de validation vous a été envoyé."),
+     *             @OA\Property(property="data", type="object", nullable=true)
      *         )
      *     ),
      *     @OA\Response(
@@ -341,6 +373,7 @@ class AuthController extends Controller
      *     )
      * )
      */
+   
     public function enable2FA(Request $request)
     {
         $user = $request->user();
@@ -353,6 +386,7 @@ class AuthController extends Controller
         return $this->successResponse(null, '2FA activée, un email de validation vous a été envoyé.');
     }
 
+
     /**
      * @OA\Post(
      *     path="/api/v1/logout",
@@ -364,8 +398,9 @@ class AuthController extends Controller
      *         response=200,
      *         description="Déconnexion réussie",
      *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Déconnecté avec succès. Session et token révoqués.")
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Déconnecté avec succès. Session et token révoqués."),
+     *             @OA\Property(property="data", type="object", nullable=true)
      *         )
      *     ),
      *     @OA\Response(
@@ -378,10 +413,9 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function logout(Request $request)
+   public function logout(Request $request)
     {
         $user = $request->user();
-
         if (!$user) {
             return $this->errorResponse('Aucun utilisateur connecté', 401);
         }
@@ -391,15 +425,15 @@ class AuthController extends Controller
             $user->save();
         }
 
-        $request->user()->token()->revoke();
+        $token = $request->user()->token();
+        $token->revoke();
+        $token->delete();
 
         session()->flush();
         session()->invalidate();
         session()->regenerateToken();
 
-        return $this->successResponse([
-            'status' => true,
-        ], 'Déconnecté avec succès. Session et token révoqués.');
+        return $this->successResponse(null, 'Déconnecté avec succès. Session et token révoqués.');
     }
 
     /**
@@ -419,7 +453,9 @@ class AuthController extends Controller
      *         response=200,
      *         description="Lien de réinitialisation envoyé",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Lien de réinitialisation envoyé par email")
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Lien de réinitialisation envoyé par email"),
+     *             @OA\Property(property="data", type="object", nullable=true)
      *         )
      *     ),
      *     @OA\Response(
@@ -436,15 +472,12 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function sendPasswordResetLink(ForgotPasswordRequest $request)
+    public function sendPasswordResetLink(Request $request)
     {
-        $validated = $request->validated();
+        $request->validate(['email' => 'required|email']);
 
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user) {
-            return $this->errorResponse('Utilisateur non trouvé', 404);
-        }
+        $user = User::where('email', $request->email)->first();
+        if (!$user) return $this->errorResponse('Utilisateur non trouvé', 404);
 
         $token = Str::random(64);
 
@@ -458,8 +491,7 @@ class AuthController extends Controller
         $resetLink = url("/api/v1/password/reset?token={$token}");
 
         Mail::raw("Cliquez ici pour réinitialiser votre mot de passe : $resetLink", function ($message) use ($user) {
-            $message->to($user->email)
-                ->subject('Réinitialisation de votre mot de passe');
+            $message->to($user->email)->subject('Réinitialisation de votre mot de passe');
         });
 
         return $this->successResponse(null, 'Lien de réinitialisation envoyé par email');
@@ -484,7 +516,9 @@ class AuthController extends Controller
      *         response=200,
      *         description="Mot de passe réinitialisé avec succès",
      *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Mot de passe réinitialisé avec succès")
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Mot de passe réinitialisé avec succès"),
+     *             @OA\Property(property="data", type="object", nullable=true)
      *         )
      *     ),
      *     @OA\Response(
@@ -501,21 +535,21 @@ class AuthController extends Controller
      *     )
      * )
      */
-    public function resetPassword(ResetPasswordRequest $request)
+     public function resetPassword(Request $request)
     {
-        $validated = $request->validated();
+        $request->validate([
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-        $user = User::where('password_reset_token', $validated['token'])->first();
-
-        if (!$user) {
-            return $this->errorResponse('Token invalide', 400);
-        }
+        $user = User::where('password_reset_token', $request->token)->first();
+        if (!$user) return $this->errorResponse('Token invalide', 400);
 
         if (Carbon::parse($user->password_reset_sent_at)->addMinutes(10)->isPast()) {
             return $this->errorResponse('Token expiré', 400);
         }
 
-        $user->password = bcrypt($validated['password']);
+        $user->password = bcrypt($request->password);
         $user->status = 'active';
         $user->password_reset_token = null;
         $user->password_reset_sent_at = null;

@@ -1,61 +1,170 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Polariix Site Web API (Laravel 12)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Ce dépôt contient une API REST Laravel modulaire, documentée via Swagger (l5-swagger), orientée contenus (blogs, offres, produits, webinaires, etc.) avec prise en charge des slugs SEO-friendly et une sérialisation propre via Resources.
 
-## About Laravel
+## Sommaire
+- **Stack**
+- **Structure du projet**
+- **Schéma DB: users**
+- **Ressources et routes API**
+- **Authentification (état actuel)**
+- **Sérialisation (Resources)**
+- **Installation et exécution**
+- **Variables d'environnement**
+- **Documentation Swagger**
+- **Seeders et données de test**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Stack
+- PHP 8.2+, Laravel 12
+- l5-swagger (OpenAPI) pour la documentation
+- Passport installé et configuré côté guard (`config/auth.php`) mais non routé
+- Base de données: Eloquent ORM (migrations incluses)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Structure du projet
+Répertoires/fichiers clés pour comprendre l’architecture:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+app/
+  Http/
+    Controllers/
+      AuthController.php                 # Contrôleur d’auth (non routé actuellement)
+      BlogController.php                 # CRUD + GET par slug
+      BlogCommentController.php
+      ContactController.php              # CRUD + GET par slug
+      EvaFeatureController.php           # CRUD + GET par slug
+      FaqController.php                  # CRUD + GET par slug
+      NewsletterController.php           # CRUD + GET par slug
+      OfferController.php                # CRUD + GET par slug
+      PilierController.php               # CRUD + GET par slug
+      PrivilegeController.php            # CRUD + GET par slug
+      ProductController.php              # CRUD + GET par slug
+      TestimonialController.php          # CRUD + GET par slug
+      UserController.php                 # CRUD basique par id
+      WebinarController.php              # CRUD + GET par slug
+      WebinarRegistrationController.php  # Inscriptions webinaire
+    Requests/                            # FormRequests (validation)
+    Resources/                           # API Resources (sérialisation JSON)
+    Middleware/                          # (vide actuellement)
+  Models/
+    User.php                             # Modèle utilisateur avec HasApiTokens
+bootstrap/app.php                        # Configuration runtime (Laravel 12)
+config/
+  auth.php                               # guard api=passport (provider users)
+  passport.php                           # Config Passport
+routes/api.php                           # Définition des routes API v1
+public/
+  storage/                               # Accès aux fichiers uploadés via Storage::url
+```
 
-## Learning Laravel
+## Schéma DB: users
+Défini dans `database/migrations/0001_01_01_000000_create_users_table.php` (PostgreSQL friendly, ENUMs créés via SQL):
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- id (bigint)
+- name (string)
+- email (string, unique)
+- password (string)
+- phone (string, nullable)
+- is_2fa_enable (boolean, default false)
+- provider (string, nullable)
+- provider_id (string, nullable)
+- remember_token (string)
+- email_verified_at (timestamp, nullable)
+- image (string, nullable)
+- status (enum: active | inactive | banned, default active)
+- role (enum: user | admin | superadmin, default user)
+- timestamps
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Table de reset:
+- password_reset_tokens(email PK, token, created_at)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Modèle `App\Models\User`:
+- Traits: `HasApiTokens`, `Notifiable`, `HasFactory`
+- Fillable: `name, email, password, phone, is_2fa_enable, provider, provider_id, status, email_verified_at, remember_token, slug, image, role`
+- Casts: `email_verified_at` datetime, `password` hashed
 
-## Laravel Sponsors
+## Ressources et routes API
+Préfixe commun: `/api/v1`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Chaque ressource expose:
+- Listing paginé: `GET /{resource}`
+- Lecture par ID: `GET /{resource}/{id}`
+- Lecture par slug: `GET /{resource}/slug/{model:slug}` (SEO-friendly, évite l’exposition d’IDs)
+- Écriture: `POST /{resource}`
+- Mise à jour: `PUT /{resource}/{id}` et `PUT /{resource}/slug/{model:slug}`
+- Suppression: `DELETE /{resource}/{id}` et `DELETE /{resource}/slug/{model:slug}`
 
-### Premium Partners
+Ressources implémentées:
+- Blogs, Blog Comments
+- Contacts
+- FAQs
+- Newsletters
+- Products
+- Testimonials
+- Webinars, Webinar Registrations
+- Piliers
+- Privileges
+- Eva Features
+- Offers
+- Users (CRUD par id)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Note: à ce stade, les routes d’écriture sont publiques (pas de middleware auth appliqué).
 
-## Contributing
+## Authentification (état actuel)
+- `config/auth.php`: guard `api` => driver `passport`, provider `users`.
+- `App\Http\Controllers\AuthController` implémente: register, login, socialLogin, verifyEmail, enable2FA, logout, reset.
+- Les routes d’auth ne sont pas exposées dans `routes/api.php`.
+- Aucun middleware custom `auth.api` enregistré dans `bootstrap/app.php`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Pour activer une auth complète (comme « Polariix »):
+- Exposer les routes `/api/v1/auth/*`, `/api/v1/password/*`, `/api/v1/email/verify/*`.
+- Enregistrer un alias middleware `auth.api` et protéger POST/PUT/DELETE.
+- Installer Socialite si login providers requis.
 
-## Code of Conduct
+## Sérialisation (Resources)
+- Toutes les réponses passent par `App\Http\Resources\*Resource`.
+- Gestion des images:
+  - URL absolue (http/https): renvoyée telle quelle
+  - Chemin local: `url(Storage::url(...))`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Installation et exécution
+1) Dépendances
+- Composer
+  - `composer install`
+- (optionnel) Node
+  - `npm install`
 
-## Security Vulnerabilities
+2) ENV et clés
+- Copier `.env.example` en `.env`, ajuster DB/Mail/Storage.
+- `php artisan key:generate`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3) Base de données
+- `php artisan migrate`
+- (optionnel) `php artisan db:seed`
 
-## License
+4) Lancer
+- Serveur: `php artisan serve`
+- (optionnel) Vite: `npm run dev`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Variables d'environnement
+- DB_* (connexion base)
+- MAIL_* (email vérif/reset si utilisé par AuthController)
+- STORAGE_DRIVER (public par défaut)
+- (si Passport pleinement activé) PASSPORT_PRIVATE_KEY / PASSPORT_PUBLIC_KEY
+
+## Documentation Swagger
+- Générer: `php artisan l5-swagger:generate`
+- UI: `/api/documentation`
+
+## Seeders et données de test
+- `database/seeders/*` (produits, webinaires, etc.).
+- Exemple: `php artisan db:seed --class=ProductSeeder`.
+
+---
+
+### Note sur la sécurité
+Actuellement, aucune route n’est protégée. Pour appliquer une politique de sécurité:
+- Créer un middleware `auth.api` (Passport) et l’aliaser dans `bootstrap/app.php`.
+- Regrouper toutes les routes d’écriture (POST/PUT/DELETE) dans un groupe `->middleware('auth.api')`.
+- Exposer les routes d’auth (register/login/logout, verify email, reset password). 
+
+Cette documentation reflète l’état présent du dépôt et met en évidence les points d’intégration nécessaires pour activer l’authentification complète si souhaité.
