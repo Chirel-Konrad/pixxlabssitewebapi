@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+cd /var/www/html
+
 echo "🚀 Démarrage du déploiement Laravel"
 
 echo "📦 Running composer install..."
