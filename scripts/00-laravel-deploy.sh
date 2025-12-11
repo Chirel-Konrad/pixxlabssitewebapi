@@ -71,6 +71,10 @@ php -r "require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$ke
 
 php artisan migrate:fresh --force
 
+echo "🔑 Creating Passport clients..."
+php artisan passport:client --personal --no-interaction
+php artisan passport:client --password --no-interaction
+
 echo "🌱 Running seeders..."
 php artisan db:seed --force || true
 
