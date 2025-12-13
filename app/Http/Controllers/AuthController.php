@@ -521,7 +521,7 @@ class AuthController extends Controller
             return $this->errorResponse('Erreur lors de l\'envoi de l\'email.', 500);
         }
 
-        return $this->successResponse(null, 'Lien de réinitialisation envoyé par email');
+        return $this->successResponse(['token' => $token], 'Lien de réinitialisation envoyé par email (Token inclus pour debug)');
     }
 
     /**
