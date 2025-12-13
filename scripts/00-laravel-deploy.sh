@@ -71,6 +71,21 @@ php -r "require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$ke
 
 php artisan migrate:fresh --force
 
+echo "🔑 Fixing Passport Keys permissions..."
+if [ -f "/etc/secrets/oauth-private.key" ]; then
+    echo "Found private key in secrets, copying to storage..."
+    cp /etc/secrets/oauth-private.key /var/www/html/storage/oauth-private.key
+    # Assurer que le serveur web (nginx) peut lire le fichier
+    chmod 600 /var/www/html/storage/oauth-private.key
+    chown nginx:nginx /var/www/html/storage/oauth-private.key
+fi
+if [ -f "/etc/secrets/oauth-public.key" ]; then
+    echo "Found public key in secrets, copying to storage..."
+    cp /etc/secrets/oauth-public.key /var/www/html/storage/oauth-public.key
+    chmod 644 /var/www/html/storage/oauth-public.key
+    chown nginx:nginx /var/www/html/storage/oauth-public.key
+fi
+
 echo "🔑 Creating Passport clients..."
 php artisan passport:client --personal --no-interaction
 php artisan passport:client --password --no-interaction
