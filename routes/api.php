@@ -45,7 +45,7 @@ Route::prefix('v1')->group(function () {
         ->middleware('signed')
         ->name('verification.verify');
 
-    Route::post('/enable-2fa', [AuthController::class, 'enable2FA'])->middleware('auth:api');
+    Route::post('/2fa/enable', [AuthController::class, 'enable2FA'])->middleware('auth:api');
 
     Route::get('auth/{provider}', [SocialAuthController::class, 'redirect']);
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback']);
