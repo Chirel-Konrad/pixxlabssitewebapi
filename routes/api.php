@@ -49,6 +49,34 @@ Route::prefix('v1')->group(function () {
 
     Route::get('auth/{provider}', [SocialAuthController::class, 'redirect']);
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback']);
+
+    // DEBUG ROUTE - TO BE REMOVED
+    Route::get('/debug-passport', function () {
+        $privateKeyPath = config('passport.private_key');
+        $publicKeyPath = config('passport.public_key');
+
+        return response()->json([
+            'passport_config' => [
+                'private_key' => [
+                    'path' => $privateKeyPath,
+                    'exists' => file_exists($privateKeyPath),
+                    'readable' => is_readable($privateKeyPath),
+                    'permissions' => file_exists($privateKeyPath) ? substr(sprintf('%o', fileperms($privateKeyPath)), -4) : null,
+                ],
+                'public_key' => [
+                    'path' => $publicKeyPath,
+                    'exists' => file_exists($publicKeyPath),
+                    'readable' => is_readable($publicKeyPath),
+                    'permissions' => file_exists($publicKeyPath) ? substr(sprintf('%o', fileperms($publicKeyPath)), -4) : null,
+                ],
+            ],
+            'env_vars' => [
+                'PASSPORT_PRIVATE_KEY_PATH' => env('PASSPORT_PRIVATE_KEY_PATH'),
+                'PASSPORT_PUBLIC_KEY_PATH' => env('PASSPORT_PUBLIC_KEY_PATH'),
+            ],
+            'storage_path' => storage_path(),
+        ]);
+    });
 });
 
 
