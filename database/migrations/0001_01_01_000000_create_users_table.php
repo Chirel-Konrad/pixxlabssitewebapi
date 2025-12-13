@@ -27,7 +27,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('phone')->nullable();
-            $table->boolean('is_2fa_enable')->default(false);
+            $table->smallInteger('is_2fa_enable')->default(0);
             $table->string('provider')->nullable();
             $table->rememberToken();
             $table->string('provider_id')->nullable();
