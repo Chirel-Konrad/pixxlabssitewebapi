@@ -82,7 +82,7 @@ fi
 if [ -f "/etc/secrets/oauth-public.key" ]; then
     echo "Found public key in secrets, copying to storage..."
     cp /etc/secrets/oauth-public.key /var/www/html/storage/oauth-public.key
-    chmod 644 /var/www/html/storage/oauth-public.key
+    chmod 600 /var/www/html/storage/oauth-public.key
     chown nginx:nginx /var/www/html/storage/oauth-public.key
 fi
 
