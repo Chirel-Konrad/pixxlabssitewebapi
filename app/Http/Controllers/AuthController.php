@@ -413,7 +413,7 @@ class AuthController extends Controller
      *     )
      * )
      */
-   public function logout(Request $request)
+    public function logout(Request $request)
     {
         $user = $request->user();
         if (!$user) {
@@ -425,15 +425,25 @@ class AuthController extends Controller
             $user->save();
         }
 
-        $token = $request->user()->token();
-        $token->revoke();
-        $token->delete();
+        // Revoke Access Token safely
+        $token = $user->token();
+        if ($token) {
+            $token->revoke();
+            // $token->delete(); // Avoid hard delete to keep history if needed, or wrap in try/catch if strictly required
+        }
 
-        session()->flush();
-        session()->invalidate();
-        session()->regenerateToken();
+        // Handle Session safely (API requests might not have session)
+        try {
+            if ($request->hasSession()) {
+                $request->session()->flush();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+        } catch (\Exception $e) {
+            // Ignore session errors for API clients
+        }
 
-        return $this->successResponse(null, 'Déconnecté avec succès. Session et token révoqués.');
+        return $this->successResponse(null, 'Déconnecté avec succès.');
     }
 
     /**
