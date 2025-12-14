@@ -81,4 +81,25 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Webinar::class, 'webinar_registrations');
     }
+
+    /**
+     * Send the email verification notification.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \App\Notifications\QueuedVerifyEmail);
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\QueuedResetPassword($token));
+    }
 }
