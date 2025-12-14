@@ -19,13 +19,54 @@ use App\Http\Controllers\EvaFeatureController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Models\User;
 
 Route::get('/test', function () {
     return response()->json(['message' => 'API works!']);
 });
 
+/**
+ * @OA\Get(
+ *     path="/api/v1/test/stats",
+ *     tags={"Testing"},
+ *     summary="Statistiques de test pour le développement",
+ *     description="Retourne des statistiques sur les utilisateurs pour faciliter les tests du front-end.",
+ *     @OA\Response(
+ *         response=200,
+ *         description="Statistiques récupérées avec succès",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="total_users", type="integer", example=15),
+ *             @OA\Property(property="active_users", type="integer", example=12),
+ *             @OA\Property(property="inactive_users", type="integer", example=3),
+ *             @OA\Property(
+ *                 property="last_registrations",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     @OA\Property(property="id", type="integer"),
+ *                     @OA\Property(property="name", type="string"),
+ *                     @OA\Property(property="email", type="string"),
+ *                     @OA\Property(property="status", type="string"),
+ *                     @OA\Property(property="created_at", type="string")
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ */
 
 Route::prefix('v1')->group(function () {
+    // Route de test pour le front-end
+    Route::get('/test/stats', function () {
+        return response()->json([
+            'total_users' => User::count(),
+            'active_users' => User::where('status', 'active')->count(),
+            'inactive_users' => User::where('status', 'inactive')->count(),
+            'last_registrations' => User::latest()
+                ->take(5)
+                ->get(['id', 'name', 'email', 'status', 'email_verified_at', 'created_at'])
+        ]);
+    });
+
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/social-login', [AuthController::class, 'socialLogin']);
