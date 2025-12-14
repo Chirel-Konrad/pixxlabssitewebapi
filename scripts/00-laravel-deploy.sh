@@ -109,4 +109,12 @@ echo "📋 Configuration des logs Laravel..."
 rm -f /var/www/html/storage/logs/laravel.log
 ln -sf /dev/stderr /var/www/html/storage/logs/laravel.log
 
+echo "🚀 Lancement du Queue Worker en arrière-plan..."
+# Tuer les anciens workers s'ils existent
+pkill -f "artisan queue:work" || true
+
+# Lancer le nouveau worker en arrière-plan
+nohup php /var/www/html/artisan queue:work --tries=3 --timeout=60 > /var/www/html/storage/logs/queue-worker.log 2>&1 &
+
 echo "✅ Déploiement terminé avec succès!"
+echo "📧 Queue Worker actif - Les emails seront envoyés en arrière-plan"
