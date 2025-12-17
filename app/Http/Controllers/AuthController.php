@@ -147,20 +147,19 @@ class AuthController extends Controller
         $user = User::findOrFail($id);
 
         if (!hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
-            return $this->errorResponse('Lien de vérification invalide.', 400);
+            // Pour l'UX, on peut aussi retourner une vue d'erreur, mais pour l'instant une erreur JSON est acceptable si le lien est invalide
+             return $this->errorResponse('Lien de vérification invalide.', 400); 
         }
 
         if ($user->hasVerifiedEmail() && !$user->is_2fa_enable) {
-            return $this->successResponse(null, 'Email déjà vérifié.');
+            return view('auth.verify-email-success');
         }
 
         $user->markEmailAsVerified();
         event(new Verified($user));
         $user->update(['status' => 'active']);
 
-        return $this->successResponse([
-            'user' => $user->makeHidden(['password']),
-        ], 'Email vérifié avec succès. Statut activé.');
+        return view('auth.verify-email-success');
     }
 
 
