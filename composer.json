@@ -16,7 +16,8 @@
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.23",
         "laravel/tinker": "^2.10.1",
-        "phpdocumentor/type-resolver": "^1.10"
+        "phpdocumentor/type-resolver": "^1.10",
+        "symfony/brevo-mailer": "^7.2"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
