@@ -30,5 +30,15 @@ class AppServiceProvider extends ServiceProvider
         if (!file_exists(storage_path('oauth-public.key')) && env('PASSPORT_PUBLIC_KEY')) {
             file_put_contents(storage_path('oauth-public.key'), str_replace('\n', "\n", env('PASSPORT_PUBLIC_KEY')));
         }
+
+        \Illuminate\Support\Facades\Mail::extend('brevo', function (array $config = []) {
+            return (new \Symfony\Component\Mailer\Bridge\Brevo\Transport\BrevoTransportFactory)->create(
+                new \Symfony\Component\Mailer\Transport\Dsn(
+                    'brevo+api',
+                    'default',
+                    config('services.brevo.key')
+                )
+            );
+        });
     }
 }
