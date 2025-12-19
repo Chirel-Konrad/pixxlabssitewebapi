@@ -152,14 +152,14 @@ class AuthController extends Controller
         }
 
         if ($user->hasVerifiedEmail() && !$user->is_2fa_enable) {
-            return view('auth.verify-email-success');
+            return redirect('https://piixlabs-v2.vercel.app/verify-email?verified=1');
         }
 
         $user->markEmailAsVerified();
         event(new Verified($user));
         $user->update(['status' => 'active']);
 
-        return view('auth.verify-email-success');
+        return redirect('https://piixlabs-v2.vercel.app/verify-email?verified=1');
     }
 
 
