@@ -18,7 +18,7 @@
         "laravel/tinker": "^2.10.1",
         "phpdocumentor/type-resolver": "^1.10",
         "symfony/brevo-mailer": "^7.2",
-        "symfony/http-client": "*"
+        "symfony/http-client": "^7.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

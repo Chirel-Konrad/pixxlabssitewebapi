@@ -275,7 +275,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Users
-    Route::prefix('users')->group(function () {
+    Route::prefix('users')->middleware(['auth:api', 'admin'])->group(function () {
         Route::get('{id}', [UserController::class, 'show']);
         Route::post('/', [UserController::class, 'store']);
         Route::put('{id}', [UserController::class, 'update']);
