@@ -219,4 +219,73 @@ class UserController extends Controller
             return $this->errorResponse('Erreur lors de la suppression de l\'utilisateur', 500, $e->getMessage());
         }
     }
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/users/{user}/ban",
+     *     tags={"Users"},
+     *     summary="Bannir un utilisateur",
+     *     description="Change le statut de l'utilisateur à 'banned'. L'utilisateur ne pourra plus se connecter.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="user",
+     *         in="path",
+     *         description="ID de l'utilisateur",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Utilisateur banni avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Utilisateur banni avec succès")
+     *         )
+     *     )
+     * )
+     */
+    public function ban(User $user)
+    {
+        try {
+            $user->update(['status' => 'banned']);
+            return $this->successResponse(null, 'Utilisateur banni avec succès');
+        } catch (\Exception $e) {
+            Log::error("UserController@ban: " . $e->getMessage());
+            return $this->errorResponse('Erreur lors du bannissement de l\'utilisateur', 500, $e->getMessage());
+        }
+    }
+
+    /**
+     * @OA\Patch(
+     *     path="/api/v1/users/{user}/unban",
+     *     tags={"Users"},
+     *     summary="Débannir un utilisateur",
+     *     description="Change le statut de l'utilisateur à 'active'. L'utilisateur pourra de nouveau se connecter.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="user",
+     *         in="path",
+     *         description="ID de l'utilisateur",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Utilisateur débanni avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Utilisateur débanni avec succès")
+     *         )
+     *     )
+     * )
+     */
+    public function unban(User $user)
+    {
+        try {
+            $user->update(['status' => 'active']);
+            return $this->successResponse(null, 'Utilisateur débanni avec succès');
+        } catch (\Exception $e) {
+            Log::error("UserController@unban: " . $e->getMessage());
+            return $this->errorResponse('Erreur lors du débannissement de l\'utilisateur', 500, $e->getMessage());
+        }
+    }
 }
