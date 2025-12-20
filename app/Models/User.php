@@ -37,6 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'slug',
         'image',
         'role',
+        'terms_accepted_at',
     ];
 
     /**
@@ -89,7 +90,17 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new \App\Notifications\QueuedVerifyEmail);
+        // Génération de l'URL signée avec une validité de 10 minutes
+        $url = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+            'verification.verify',
+            \Carbon\Carbon::now()->addMinutes(10),
+            [
+                'id' => $this->getKey(),
+                'hash' => sha1($this->getEmailForVerification()),
+            ]
+        );
+
+        $this->notify(new \App\Notifications\QueuedVerifyEmail($url)); // On passe l'URL au constructeur
     }
 
     /**

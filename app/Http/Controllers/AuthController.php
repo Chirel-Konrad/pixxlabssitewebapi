@@ -36,7 +36,9 @@ class AuthController extends Controller
      *             @OA\Property(property="name", type="string", maxLength=255, example="John Doe", description="Nom complet de l'utilisateur"),
      *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com", description="Adresse email unique"),
      *             @OA\Property(property="password", type="string", format="password", minLength=8, example="Password123!", description="Mot de passe (minimum 8 caractères)"),
+     *             @OA\Property(property="password", type="string", format="password", minLength=8, example="Password123!", description="Mot de passe (minimum 8 caractères)"),
      *             @OA\Property(property="password_confirmation", type="string", format="password", example="Password123!", description="Confirmation du mot de passe"),
+     *             @OA\Property(property="terms", type="boolean", example=true, description="Accepter les termes et conditions (obligatoire)"),
      *             @OA\Property(property="phone", type="string", maxLength=20, nullable=true, example="+229 97 00 00 00", description="Numéro de téléphone (optionnel)"),
      *             @OA\Property(property="role", type="string", enum={"user", "admin", "superadmin"}, example="user", description="Rôle de l'utilisateur (par défaut: user)")
      *         )
@@ -68,6 +70,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+            'terms' => 'required|accepted',
             'phone' => 'nullable|string|max:20',
             'role' => 'nullable|string|in:user,admin,superadmin',
         ]);
@@ -84,6 +87,7 @@ class AuthController extends Controller
             'email_verified_at' => null,
             'status' => 'inactive',
             'role' => $request->role ?? 'user',
+            'terms_accepted_at' => \Carbon\Carbon::now(),
         ]);
 
         $user->sendEmailVerificationNotification();
@@ -152,14 +156,14 @@ class AuthController extends Controller
         }
 
         if ($user->hasVerifiedEmail() && !$user->is_2fa_enable) {
-            return redirect('https://piixlabs-v2.vercel.app/verify-email?verified=1');
+             return redirect("https://piixlabs-v2.vercel.app/auth/verify-email/{$id}/{$hash}");
         }
 
         $user->markEmailAsVerified();
         event(new Verified($user));
         $user->update(['status' => 'active']);
 
-        return redirect('https://piixlabs-v2.vercel.app/verify-email?verified=1');
+        return redirect("https://piixlabs-v2.vercel.app/auth/verify-email/{$id}/{$hash}");
     }
 
 
@@ -174,7 +178,8 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             required={"email", "password"},
      *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
-     *             @OA\Property(property="password", type="string", format="password", example="Password123!")
+     *             @OA\Property(property="password", type="string", format="password", example="Password123!"),
+     *             @OA\Property(property="remember_me", type="boolean", example=true, description="Se souvenir de moi")
      *         )
      *     ),
      *     @OA\Response(
@@ -233,6 +238,7 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
+            'remember_me' => 'boolean'
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -250,7 +256,14 @@ class AuthController extends Controller
             ], 'Connexion réussie, mais vérification 2FA requise. Consultez votre email.');
         }
 
-        $token = $user->createToken('PolariixToken')->accessToken;
+        $tokenResult = $user->createToken('PolariixToken');
+        $token = $tokenResult->token;
+        if ($request->remember_me) {
+            $token->expires_at = \Carbon\Carbon::now()->addWeeks(4);
+        }
+        $token->save();
+        
+        $accessToken = $tokenResult->accessToken;
 
         session([
             'user_id' => $user->id,

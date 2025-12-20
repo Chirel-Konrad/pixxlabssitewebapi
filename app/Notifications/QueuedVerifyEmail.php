@@ -11,16 +11,24 @@ class QueuedVerifyEmail extends VerifyEmail implements ShouldQueue
 {
     use Queueable;
     
+    public $url;
+
+    public function __construct($url)
+    {
+        $this->url = $url;
+    }
+
     /**
      * Get the mail representation of the notification.
      */
-    protected function buildMailMessage($url)
+    protected function buildMailMessage($notifiable)
     {
         return (new MailMessage)
             ->subject('Vérification de votre adresse email - Polariix')
             ->greeting('Bonjour !')
             ->line('Veuillez cliquer sur le bouton ci-dessous pour vérifier votre adresse email.')
-            ->action('Vérifier mon email', $url)
+            ->line('Ce lien est valide pendant 10 minutes.')
+            ->action('Vérifier mon email', $this->url)
             ->line('Si vous n\'avez pas créé de compte, aucune action n\'est requise.')
             ->salutation('Cordialement, L\'équipe Polariix');
     }
