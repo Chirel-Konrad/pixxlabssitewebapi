@@ -247,6 +247,10 @@ class AuthController extends Controller
             return $this->errorResponse('Identifiants invalides', 401);
         }
 
+        if (!$user->hasVerifiedEmail()) {
+            return $this->errorResponse('Veuillez vérifier votre adresse email avant de vous connecter.', 403);
+        }
+
         if ($user->is_2fa_enable && $user->status == 'inactive') {
             $user->sendEmailVerificationNotification();
             Auth::logout();
