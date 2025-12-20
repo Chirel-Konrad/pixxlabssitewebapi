@@ -36,7 +36,6 @@ class AuthController extends Controller
      *             @OA\Property(property="name", type="string", maxLength=255, example="John Doe", description="Nom complet de l'utilisateur"),
      *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com", description="Adresse email unique"),
      *             @OA\Property(property="password", type="string", format="password", minLength=8, example="Password123!", description="Mot de passe (minimum 8 caractères)"),
-     *             @OA\Property(property="password", type="string", format="password", minLength=8, example="Password123!", description="Mot de passe (minimum 8 caractères)"),
      *             @OA\Property(property="password_confirmation", type="string", format="password", example="Password123!", description="Confirmation du mot de passe"),
      *             @OA\Property(property="terms", type="boolean", example=true, description="Accepter les termes et conditions (obligatoire)"),
      *             @OA\Property(property="phone", type="string", maxLength=20, nullable=true, example="+229 97 00 00 00", description="Numéro de téléphone (optionnel)"),
