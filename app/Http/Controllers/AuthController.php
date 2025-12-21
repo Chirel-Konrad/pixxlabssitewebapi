@@ -154,15 +154,19 @@ class AuthController extends Controller
              return $this->errorResponse('Lien de vérification invalide.', 400); 
         }
 
+        $expires = $request->query('expires');
+        $signature = $request->query('signature');
+        $queryParams = "?expires={$expires}&signature={$signature}";
+
         if ($user->hasVerifiedEmail() && !$user->is_2fa_enable) {
-             return redirect("https://piixlabs-v2.vercel.app/auth/verify-email/{$id}/{$hash}");
+             return redirect("https://piixlabs-v2.vercel.app/auth/verify-email/{$id}/{$hash}{$queryParams}");
         }
 
         $user->markEmailAsVerified();
         event(new Verified($user));
         $user->update(['status' => 'active']);
 
-        return redirect("https://piixlabs-v2.vercel.app/auth/verify-email/{$id}/{$hash}");
+        return redirect("https://piixlabs-v2.vercel.app/auth/verify-email/{$id}/{$hash}{$queryParams}");
     }
 
 
