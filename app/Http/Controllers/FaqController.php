@@ -54,7 +54,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/faqs",
+     *     path="/api/v1/admin/faqs",
      *     tags={"FAQs"},
      *     summary="Créer une FAQ",
      *     description="Crée une nouvelle question fréquente avec ses réponses",
@@ -103,7 +103,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/faqs/{faq}",
+     *     path="/api/v1/admin/faqs/{faq}",
      *     tags={"FAQs"},
      *     summary="Mettre à jour une FAQ par ID",
      *     description="Met à jour une question fréquente via son ID.",
@@ -131,7 +131,7 @@ class FaqController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/faqs/slug/{slug}",
+     *     path="/api/v1/admin/faqs/slug/{slug}",
      *     tags={"FAQs"},
      *     summary="Mettre à jour une FAQ par Slug",
      *     description="Met à jour une question fréquente via son slug.",
@@ -230,7 +230,7 @@ class FaqController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/faqs/{faq}",
+     *     path="/api/v1/admin/faqs/{faq}",
      *     tags={"FAQs"},
      *     summary="Supprimer une FAQ par ID",
      *     description="Supprime une FAQ via son ID.",
@@ -249,7 +249,7 @@ class FaqController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/v1/faqs/slug/{slug}",
+     *     path="/api/v1/admin/faqs/slug/{slug}",
      *     tags={"FAQs"},
      *     summary="Supprimer une FAQ par Slug",
      *     description="Supprime une FAQ via son slug.",

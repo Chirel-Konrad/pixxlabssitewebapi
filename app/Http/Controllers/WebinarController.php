@@ -51,7 +51,7 @@ class WebinarController extends Controller
 
    /**
      * @OA\Post(
-     *     path="/api/v1/webinars",
+     *     path="/api/v1/admin/webinars",
      *     tags={"Webinars"},
      *     summary="Créer un webinaire",
      *     description="Crée un nouveau webinaire",
@@ -153,7 +153,7 @@ class WebinarController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/webinars/{webinar}",
+     *     path="/api/v1/admin/webinars/{webinar}",
      *     tags={"Webinars"},
      *     summary="Mettre à jour un webinaire par ID",
      *     description="Met à jour un webinaire existant via son ID.",
@@ -186,7 +186,7 @@ class WebinarController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/webinars/slug/{slug}",
+     *     path="/api/v1/admin/webinars/slug/{slug}",
      *     tags={"Webinars"},
      *     summary="Mettre à jour un webinaire via son slug (référence URL‑friendly)",
      *     description="Met à jour un webinaire en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
@@ -255,7 +255,7 @@ class WebinarController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/webinars/{webinar}",
+     *     path="/api/v1/admin/webinars/{webinar}",
      *     tags={"Webinars"},
      *     summary="Supprimer un webinaire par ID",
      *     description="Supprime un webinaire via son ID.",
@@ -274,7 +274,7 @@ class WebinarController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/v1/webinars/slug/{slug}",
+     *     path="/api/v1/admin/webinars/slug/{slug}",
      *     tags={"Webinars"},
      *     summary="Supprimer un webinaire via son slug (URL publique)",
      *     description="Supprime un webinaire en le ciblant via son slug public, sans exposer l'ID interne.",

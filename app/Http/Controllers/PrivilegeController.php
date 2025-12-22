@@ -52,7 +52,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/privileges",
+     *     path="/api/v1/admin/privileges",
      *     tags={"Privileges"},
      *     summary="Créer un privilège",
      *     description="Crée un nouveau privilège",
@@ -142,7 +142,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/privileges/{privilege}",
+     *     path="/api/v1/admin/privileges/{privilege}",
      *     tags={"Privileges"},
      *     summary="Mettre à jour un privilège par ID",
      *     description="Met à jour un privilège existant via son ID.",
@@ -173,7 +173,7 @@ class PrivilegeController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/privileges/slug/{slug}",
+     *     path="/api/v1/admin/privileges/slug/{slug}",
      *     tags={"Privileges"},
      *     summary="Mettre à jour un privilège via son slug (référence URL‑friendly)",
      *     description="Met à jour un privilège en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
@@ -230,7 +230,7 @@ class PrivilegeController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/privileges/{privilege}",
+     *     path="/api/v1/admin/privileges/{privilege}",
      *     tags={"Privileges"},
      *     summary="Supprimer un privilège par ID",
      *     description="Supprime un privilège via son ID.",
@@ -249,7 +249,7 @@ class PrivilegeController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/v1/privileges/slug/{slug}",
+     *     path="/api/v1/admin/privileges/slug/{slug}",
      *     tags={"Privileges"},
      *     summary="Supprimer un privilège via son slug (URL publique)",
      *     description="Supprime un privilège en le ciblant via son slug public, sans exposer l'ID interne.",

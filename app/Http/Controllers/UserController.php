@@ -16,7 +16,7 @@ class UserController extends Controller
     use ApiResponse;
     /**
      * @OA\Get(
-     *     path="/api/v1/users",
+     *     path="/api/v1/admin/users",
      *     tags={"Users"},
      *     summary="Liste des utilisateurs",
      *     description="Récupère la liste paginée des utilisateurs",
@@ -58,7 +58,7 @@ class UserController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/users",
+     *     path="/api/v1/admin/users",
      *     tags={"Users"},
      *     summary="Créer un utilisateur",
      *     description="Crée un nouvel utilisateur (Admin seulement)",
@@ -104,7 +104,7 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/v1/users/{user}",
+     *     path="/api/v1/admin/users/{user}",
      *     tags={"Users"},
      *     summary="Détails d'un utilisateur",
      *     description="Récupère les détails d'un utilisateur spécifique",
@@ -134,7 +134,7 @@ class UserController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/users/{user}",
+     *     path="/api/v1/admin/users/{user}",
      *     tags={"Users"},
      *     summary="Mettre à jour un utilisateur",
      *     description="Met à jour les informations d'un utilisateur",
@@ -187,7 +187,7 @@ class UserController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/users/{user}",
+     *     path="/api/v1/admin/users/{user}",
      *     tags={"Users"},
      *     summary="Supprimer un utilisateur",
      *     description="Supprime un utilisateur définitivement",
@@ -221,7 +221,7 @@ class UserController extends Controller
     }
     /**
      * @OA\Patch(
-     *     path="/api/v1/users/{user}/ban",
+     *     path="/api/v1/admin/users/{user}/ban",
      *     tags={"Users"},
      *     summary="Bannir un utilisateur",
      *     description="Change le statut de l'utilisateur à 'banned'. L'utilisateur ne pourra plus se connecter.",
@@ -256,7 +256,7 @@ class UserController extends Controller
 
     /**
      * @OA\Patch(
-     *     path="/api/v1/users/{user}/unban",
+     *     path="/api/v1/admin/users/{user}/unban",
      *     tags={"Users"},
      *     summary="Débannir un utilisateur",
      *     description="Change le statut de l'utilisateur à 'active'. L'utilisateur pourra de nouveau se connecter.",

@@ -508,39 +508,28 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         if (!$user) return $this->errorResponse('Utilisateur non trouvé', 404);
 
-        $token = Str::random(64);
+        // Generate 6-digit OTP
+        $otp = (string) random_int(100000, 999999);
 
-        // Store token in password_reset_tokens table
+        // Store hashed OTP in password_reset_tokens table
         \Illuminate\Support\Facades\DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
             [
-                'token' => $token, // Ideally hashed: Hash::make($token) but simple token for now as per existing logic style
+                'token' => Hash::make($otp),
                 'created_at' => now(),
+                'attempts' => 0,
+                'verified_at' => null,
             ]
         );
 
-        // Update user status if needed (legacy logic preserved)
-        // $user->update(['status' => 'inactive']); // Optional: Keep or remove based on strict reqs. Keeping to match previous logic intent but usually reset doesn't deactivate.
-        // Let's keep it minimally invasive. The previous code did deactivate.
-
-        $resetLink = url("http://localhost:3000/reset-password?token={$token}&email={$request->email}"); // Assuming frontend URL or API? Previous was API URL.
-        // Previous: $resetLink = url("/api/v1/password/reset?token={$token}");
-        // Correct approach for API is usually sending a link to the FRONTEND form.
-        // But let's stick to the previous URL pattern if that's what they expect, or better yet, just the token.
-        // "Cliquez ici : $resetLink"
-
-        $resetLink = url("/api/v1/password/reset?token={$token}&email={$request->email}");
-
+        // Send OTP via email
         try {
-             Mail::raw("Cliquez ici pour réinitialiser votre mot de passe : $resetLink", function ($message) use ($user) {
-                $message->to($user->email)->subject('Réinitialisation de votre mot de passe');
-            });
+            Mail::to($user->email)->send(new \App\Mail\PasswordResetOTP($otp, $user->name));
         } catch (\Exception $e) {
-            // Log error but don't crash?
             return $this->errorResponse('Erreur lors de l\'envoi de l\'email.', 500);
         }
 
-        return $this->successResponse(['token' => $token], 'Lien de réinitialisation envoyé par email (Token inclus pour debug)');
+        return $this->successResponse(null, 'Un code de vérification a été envoyé à votre adresse email.');
     }
 
     /**
@@ -570,26 +559,136 @@ class AuthController extends Controller
      *     @OA\Response(response=400, description="Token invalide ou expiré")
      * )
      */
+    /**
+     * @OA\Post(
+     *     path="/api/v1/password/verify-code",
+     *     tags={"Authentication"},
+     *     summary="Vérifier le code OTP",
+     *     description="Vérifie le code OTP reçu par email avant la réinitialisation du mot de passe.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "code"},
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="code", type="string", example="123456", description="Code OTP à 6 chiffres")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Code vérifié avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Code vérifié avec succès")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Code invalide ou expiré"),
+     *     @OA\Response(response=429, description="Trop de tentatives")
+     * )
+     */
+    public function verifyResetCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6',
+        ]);
+
+        $record = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+                    ->where('email', $request->email)
+                    ->first();
+
+        if (!$record) {
+            return $this->errorResponse('Aucune demande de réinitialisation trouvée pour cet email', 404);
+        }
+
+        // Check expiration (10 minutes)
+        if (Carbon::parse($record->created_at)->addMinutes(10)->isPast()) {
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return $this->errorResponse('Code expiré. Veuillez demander un nouveau code.', 400);
+        }
+
+        // Check attempts (max 3)
+        if ($record->attempts >= 3) {
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return $this->errorResponse('Trop de tentatives. Veuillez demander un nouveau code.', 429);
+        }
+
+        // Verify OTP
+        if (!Hash::check($request->code, $record->token)) {
+            // Increment attempts
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+                ->where('email', $request->email)
+                ->increment('attempts');
+            
+            $remainingAttempts = 3 - ($record->attempts + 1);
+            return $this->errorResponse("Code incorrect. Il vous reste {$remainingAttempts} tentative(s).", 400);
+        }
+
+        // Mark as verified
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->update(['verified_at' => now()]);
+
+        return $this->successResponse(null, 'Code vérifié avec succès. Vous pouvez maintenant réinitialiser votre mot de passe.');
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/v1/password/reset",
+     *     tags={"Authentication"},
+     *     summary="Réinitialiser le mot de passe",
+     *     description="Réinitialise le mot de passe de l\'utilisateur avec le code OTP vérifié.",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "code", "password", "password_confirmation"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="code", type="string", example="123456"),
+     *             @OA\Property(property="password", type="string", format="password", minLength=8),
+     *             @OA\Property(property="password_confirmation", type="string", format="password")
+         *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Mot de passe réinitialisé avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Mot de passe réinitialisé avec succès")
+     *         )
+     *     ),
+     *     @OA\Response(response=400, description="Code invalide ou non vérifié")
+     * )
+     */
      public function resetPassword(Request $request)
     {
         $request->validate([
-            'token' => 'required|string',
+            'code' => 'required|string|size:6',
             'email' => 'required|email',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Check token validity from password_reset_tokens table
+        // Check code validity and verification status
         $record = \Illuminate\Support\Facades\DB::table('password_reset_tokens')
                     ->where('email', $request->email)
-                    ->where('token', $request->token)
                     ->first();
 
         if (!$record) {
-            return $this->errorResponse('Token ou email invalide', 400);
+            return $this->errorResponse('Aucune demande de réinitialisation trouvée', 404);
         }
 
+        // Check if code was verified
+        if (!$record->verified_at) {
+            return $this->errorResponse('Code non vérifié. Veuillez d\'abord vérifier le code.', 400);
+        }
+
+        // Check expiration
         if (Carbon::parse($record->created_at)->addMinutes(10)->isPast()) {
-            return $this->errorResponse('Token expiré', 400);
+            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+            return $this->errorResponse('Code expiré', 400);
+        }
+
+        // Verify code one last time
+        if (!Hash::check($request->code, $record->token)) {
+            return $this->errorResponse('Code invalide', 400);
         }
 
         $user = User::where('email', $request->email)->first();
@@ -599,9 +698,9 @@ class AuthController extends Controller
         $user->status = 'active';
         $user->save();
 
-        // Delete the token
+        // Delete the code
         \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
-        return $this->successResponse(null, 'Mot de passe réinitialisé avec succès');
+        return $this->successResponse(null, 'Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.');
     }
 }

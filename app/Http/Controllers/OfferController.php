@@ -50,7 +50,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/offers",
+     *     path="/api/v1/admin/offers",
      *     tags={"Offers"},
      *     summary="Créer une offre",
      *     description="Crée une nouvelle offre",
@@ -131,7 +131,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/offers/{offer}",
+     *     path="/api/v1/admin/offers/{offer}",
      *     tags={"Offers"},
      *     summary="Mettre à jour une offre par ID",
      *     description="Met à jour une offre existante via son ID.",
@@ -163,7 +163,7 @@ class OfferController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/offers/slug/{slug}",
+     *     path="/api/v1/admin/offers/slug/{slug}",
      *     tags={"Offers"},
      *     summary="Mettre à jour une offre via son slug (référence URL‑friendly)",
      *     description="Met à jour une offre en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
@@ -212,7 +212,7 @@ class OfferController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/offers/{offer}",
+     *     path="/api/v1/admin/offers/{offer}",
      *     tags={"Offers"},
      *     summary="Supprimer une offre par ID",
      *     description="Supprime une offre via son ID.",
@@ -231,7 +231,7 @@ class OfferController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/v1/offers/slug/{slug}",
+     *     path="/api/v1/admin/offers/slug/{slug}",
      *     tags={"Offers"},
      *     summary="Supprimer une offre via son slug (URL publique)",
      *     description="Supprime une offre en la ciblant via son slug public, sans exposer l'ID interne.",

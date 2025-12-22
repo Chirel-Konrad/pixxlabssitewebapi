@@ -51,7 +51,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/piliers",
+     *     path="/api/v1/admin/piliers",
      *     tags={"Piliers"},
      *     summary="Créer un pilier",
      *     description="Crée un nouveau pilier",
@@ -139,7 +139,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/piliers/{pilier}",
+     *     path="/api/v1/admin/piliers/{pilier}",
      *     tags={"Piliers"},
      *     summary="Mettre à jour un pilier par ID",
      *     description="Met à jour un pilier existant via son ID.",
@@ -170,7 +170,7 @@ class PilierController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/piliers/slug/{slug}",
+     *     path="/api/v1/admin/piliers/slug/{slug}",
      *     tags={"Piliers"},
      *     summary="Mettre à jour un pilier via son slug (référence URL‑friendly)",
      *     description="Met à jour un pilier en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
@@ -223,7 +223,7 @@ class PilierController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/piliers/{pilier}",
+     *     path="/api/v1/admin/piliers/{pilier}",
      *     tags={"Piliers"},
      *     summary="Supprimer un pilier par ID",
      *     description="Supprime un pilier via son ID.",
@@ -242,7 +242,7 @@ class PilierController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/v1/piliers/slug/{slug}",
+     *     path="/api/v1/admin/piliers/slug/{slug}",
      *     tags={"Piliers"},
      *     summary="Supprimer un pilier via son slug (URL publique)",
      *     description="Supprime un pilier en le ciblant via son slug public, sans exposer l'ID interne.",

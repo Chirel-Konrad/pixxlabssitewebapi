@@ -66,7 +66,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/v1/products",
+     *     path="/api/v1/admin/products",
      *     tags={"Products"},
      *     summary="Créer un produit",
      *     description="Crée un nouveau produit",
@@ -160,7 +160,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/v1/products/{product}",
+     *     path="/api/v1/admin/products/{product}",
      *     tags={"Products"},
      *     summary="Mettre à jour un produit par ID",
      *     description="Met à jour un produit existant via son ID. Permet de modifier les informations sans changer l'URL publique (slug).",
@@ -193,7 +193,7 @@ class ProductController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/products/slug/{slug}",
+     *     path="/api/v1/admin/products/slug/{slug}",
      *     tags={"Products"},
      *     summary="Mettre à jour un produit via son slug (référence URL‑friendly)",
      *     description="Met à jour un produit en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
@@ -252,7 +252,7 @@ class ProductController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/v1/products/{product}",
+     *     path="/api/v1/admin/products/{product}",
      *     tags={"Products"},
      *     summary="Supprimer un produit par ID",
      *     description="Supprime définitivement un produit via son ID.",
@@ -271,7 +271,7 @@ class ProductController extends Controller
      * )
      *
      * @OA\Delete(
-     *     path="/api/v1/products/slug/{slug}",
+     *     path="/api/v1/admin/products/slug/{slug}",
      *     tags={"Products"},
      *     summary="Supprimer un produit via son slug (URL publique)",
      *     description="Supprime un produit en le ciblant via son slug public, sans exposer l'ID interne.",

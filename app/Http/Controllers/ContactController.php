@@ -20,7 +20,7 @@ class ContactController extends Controller
      */
     /**
      * @OA\Get(
-     *     path="/api/v1/contacts",
+     *     path="/api/v1/admin/contacts",
      *     tags={"Contacts"},
      *     summary="Liste des contacts",
      *     description="Récupère tous les messages de contact",
@@ -88,7 +88,7 @@ class ContactController extends Controller
      */
     /**
      * @OA\Get(
-     *     path="/api/v1/contacts/{contact}",
+     *     path="/api/v1/admin/contacts/{contact}",
      *     tags={"Contacts"},
      *     summary="Détails d'un contact",
      *     description="Récupère un message de contact par ID",
@@ -107,7 +107,7 @@ class ContactController extends Controller
      * )
      *
      * @OA\Get(
-     *     path="/api/v1/contacts/slug/{slug}",
+     *     path="/api/v1/admin/contacts/slug/{slug}",
      *     tags={"Contacts"},
      *     summary="Consulter un contact via son slug (URL publique SEO‑friendly)",
      *     description="Récupère un contact par son slug URL‑friendly. À utiliser côté front pour des URLs lisibles et pour éviter d'exposer des IDs incrémentaux (anti‑énumération).",
@@ -140,7 +140,7 @@ class ContactController extends Controller
      */
     /**
      * @OA\Put(
-     *     path="/api/v1/contacts/{contact}",
+     *     path="/api/v1/admin/contacts/{contact}",
      *     tags={"Contacts"},
      *     summary="Mettre à jour un message par ID",
      *     description="Met à jour un message de contact existant via son ID.",
@@ -165,7 +165,7 @@ class ContactController extends Controller
      * )
      *
      * @OA\Put(
-     *     path="/api/v1/contacts/slug/{slug}",
+     *     path="/api/v1/admin/contacts/slug/{slug}",
      *     tags={"Contacts"},
      *     summary="Mettre à jour un contact via son slug (référence URL‑friendly)",
      *     description="Met à jour un message de contact en l'identifiant par son slug public, pratique quand seul l'URL publique est connue côté client.",
@@ -209,7 +209,7 @@ class ContactController extends Controller
      */
     /**
      * @OA\Delete(
-     *     path="/api/v1/contacts/{contact}",
+     *     path="/api/v1/admin/contacts/{contact}",
      *     tags={"Contacts"},
      *     summary="Supprimer un contact",
      *     description="Supprime un message de contact",
