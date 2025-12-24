@@ -278,7 +278,7 @@ class AuthController extends Controller
         ]);
 
         return $this->successResponse([
-            'token' => $token,
+            'token' => $accessToken,
             'session_id' => session()->getId(),
             'user' => $user->makeHidden(['password']),
         ], 'Connexion réussie');
