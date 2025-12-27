@@ -20,6 +20,20 @@ class DatabaseSeeder extends Seeder
             'status' => 'active', // ou 'inactive', 'banned' si tu veux varier
         ]);
 
+        // Création du compte Admin (Persistent)
+        User::firstOrCreate(
+            ['email' => 'admin@polariix.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => \Illuminate\Support\Facades\Hash::make('PolariixAdmin2025!'),
+                'role' => 'admin',
+                'status' => 'active',
+                'is_2fa_enable' => false,
+                'email_verified_at' => now(), // Vérifié automatiquement
+                'slug' => Str::slug('Super Admin') . '-' . uniqid(),
+            ]
+        );
+
 
 
         // Appelle les autres seeders

@@ -69,7 +69,7 @@ echo "🗄️  Running migrations..."
 echo "♻️  Dropping OAuth tables if they already exist..."
 php -r "require 'vendor/autoload.php'; \$app = require 'bootstrap/app.php'; \$kernel = \$app->make(Illuminate\\Contracts\\Console\\Kernel::class); \$kernel->bootstrap(); foreach (['oauth_refresh_tokens','oauth_access_tokens','oauth_auth_codes','oauth_device_codes','oauth_clients'] as \$t) { Illuminate\\Support\\Facades\\Schema::dropIfExists(\$t); }"
 
-php artisan migrate:fresh --force
+php artisan migrate --force
 
 echo "🔑 Fixing Passport Keys permissions..."
 if [ -f "/etc/secrets/oauth-private.key" ]; then
