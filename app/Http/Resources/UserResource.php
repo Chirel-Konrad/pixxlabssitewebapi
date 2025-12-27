@@ -26,7 +26,7 @@ class UserResource extends JsonResource
                     : url(Storage::url($this->image)))
                 : null,
             'role' => $this->role,
-            'created_at' => $this->created_at->toIso8601String(),
+            'created_at' => $this->created_at?->toIso8601String(),
         ];
     }
 }
