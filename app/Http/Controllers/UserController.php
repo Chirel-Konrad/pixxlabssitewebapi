@@ -49,7 +49,7 @@ class UserController extends Controller
             $perPage = $request->get('per_page', 20);
             $users = User::latest()->paginate($perPage);
 
-            return $this->paginatedResponse($users, UserResource::class, 'Utilisateurs récupérés avec succès');
+            return $this->paginatedResponse($users, 'Utilisateurs récupérés avec succès');
         } catch (\Exception $e) {
             Log::error("UserController@index: " . $e->getMessage());
             return $this->errorResponse('Erreur lors de la récupération des utilisateurs', 500, $e->getMessage());
