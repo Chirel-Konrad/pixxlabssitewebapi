@@ -703,4 +703,33 @@ class AuthController extends Controller
 
         return $this->successResponse(null, 'Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.');
     }
+    /**
+     * @OA\Get(
+     *     path="/api/v1/me",
+     *     tags={"Authentication"},
+     *     summary="Récupérer l'utilisateur connecté",
+     *     description="Retourne les informations du profil de l'utilisateur actuellement connecté.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Profil utilisateur récupéré avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Profil récupéré avec succès"),
+     *             @OA\Property(property="data", ref="#/components/schemas/User")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Non authentifié",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     )
+     * )
+     */
+    public function me(Request $request)
+    {
+        return $this->successResponse(new UserResource($request->user()), 'Profil récupéré avec succès');
+    }
 }

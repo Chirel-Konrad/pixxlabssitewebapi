@@ -821,6 +821,62 @@
                 }
             }
         },
+        "/api/v1/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Récupérer l'utilisateur connecté",
+                "description": "Retourne les informations du profil de l'utilisateur actuellement connecté.",
+                "operationId": "ae2f8c1ae1f9c5aee99c01f5d13da30b",
+                "responses": {
+                    "200": {
+                        "description": "Profil utilisateur récupéré avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profil récupéré avec succès"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non authentifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/blog-comments": {
             "get": {
                 "tags": [
