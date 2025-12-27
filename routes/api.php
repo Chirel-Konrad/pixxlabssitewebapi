@@ -240,10 +240,10 @@ Route::prefix('v1')->group(function () {
         // Users Management
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index']);
-            Route::get('{id}', [UserController::class, 'show']);
+            Route::get('{user}', [UserController::class, 'show']);
             Route::post('/', [UserController::class, 'store']);
-            Route::put('{id}', [UserController::class, 'update']);
-            Route::delete('{id}', [UserController::class, 'destroy']);
+            Route::put('{user}', [UserController::class, 'update']);
+            Route::delete('{user}', [UserController::class, 'destroy']);
             Route::patch('{user}/ban', [UserController::class, 'ban']);
             Route::patch('{user}/unban', [UserController::class, 'unban']);
         });
