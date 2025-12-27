@@ -5032,6 +5032,9 @@
                                             "type": "boolean",
                                             "example": true
                                         },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
                                         "message": {
                                             "type": "string",
                                             "example": "Utilisateur banni avec succès"
@@ -5079,6 +5082,9 @@
                                         "success": {
                                             "type": "boolean",
                                             "example": true
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
                                         },
                                         "message": {
                                             "type": "string",

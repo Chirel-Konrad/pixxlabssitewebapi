@@ -238,6 +238,7 @@ class UserController extends Controller
      *         description="Utilisateur banni avec succès",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/User"),
      *             @OA\Property(property="message", type="string", example="Utilisateur banni avec succès")
      *         )
      *     )
@@ -247,7 +248,7 @@ class UserController extends Controller
     {
         try {
             $user->update(['status' => 'banned']);
-            return $this->successResponse(null, 'Utilisateur banni avec succès');
+            return $this->successResponse(new UserResource($user), 'Utilisateur banni avec succès');
         } catch (\Exception $e) {
             Log::error("UserController@ban: " . $e->getMessage());
             return $this->errorResponse('Erreur lors du bannissement de l\'utilisateur', 500, $e->getMessage());
@@ -273,6 +274,7 @@ class UserController extends Controller
      *         description="Utilisateur débanni avec succès",
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="data", ref="#/components/schemas/User"),
      *             @OA\Property(property="message", type="string", example="Utilisateur débanni avec succès")
      *         )
      *     )
@@ -282,7 +284,7 @@ class UserController extends Controller
     {
         try {
             $user->update(['status' => 'active']);
-            return $this->successResponse(null, 'Utilisateur débanni avec succès');
+            return $this->successResponse(new UserResource($user), 'Utilisateur débanni avec succès');
         } catch (\Exception $e) {
             Log::error("UserController@unban: " . $e->getMessage());
             return $this->errorResponse('Erreur lors du débannissement de l\'utilisateur', 500, $e->getMessage());
